@@ -1,27 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""uasset_mutate.py —— cooked UE4.6 uasset 变长编辑器（OB-13 线工具）。
+"""uasset_mutate.py -- variable-length editor for cooked UE4.6 uassets.
 
-原理（本世代 413/UE4.6 布局，ue4prop.parse_summary 已验证）：
-  [summary（恰好止于 NameOffset）][name 表（FString 链，无 hash）][import 表 28B/条]
-  [export 表 68B/条][depends…][export 数据…]；HeadersSize = 首个 export SerialOffset。
-变长操作只在 name 表内增删字符串 ⇒ 其后所有区域整体平移，只需补丁：
-  summary 的 import/export/depends/sar/thumbnail 偏移与 HeadersSize、name_count，
-  以及每条 export 记录的 SerialOffset 字段。其余字节原样复制。
+Layout for this generation (413 / UE4.6, verified by ue4prop.parse_summary):
+  [summary (ends exactly at NameOffset)][name table (FString chain, no hash)]
+  [import table 28B each][export table 68B each][depends...][export data...];
+  HeadersSize = SerialOffset of the first export.
+Variable-length edits only add/remove strings inside the name table, so every
+region after it shifts as a whole. Only these need patching:
+  summary import/export/depends/sar/thumbnail offsets and HeadersSize,
+  name_count, and the SerialOffset field of each export record. All other
+  bytes are copied verbatim.
 
-支持操作：
+Supported operation:
   retarget-import <rel> <old_object_name> <new_base_name>
-    把 import 表里 object_name == old_object_name 的条目（及其 package 路径条目）
-    指向 new_base_name（自动派生 "<new>_C" 与 "/Game/<原目录>/<new>" 两个新 name 条目；
-    若 name 表已有同名条目则直接复用 ⇒ delta=0 纯重指向）。
-    字节码 EX_ObjectConst 按 import 索引引用，无需改动 ⇒ AddBuff/HasBuff 自动跟随。
+    Repoints the import entry whose object_name == old_object_name (and its
+    package path entry) to new_base_name (automatically derives the two new
+    name entries "<new>_C" and "/Game/<original_dir>/<new>"; if the name table
+    already has an entry with that name, it is reused => delta=0, a pure
+    retarget). Bytecode EX_ObjectConst refers to import entries by index, so
+    no change is needed => AddBuff/HasBuff follow automatically.
 
-验证（L0）：
-  ① 重建后用 ue4prop.tables_from_file 复析：name 数 +N、目标 import 条目已改、
-     其余 import 条目逐条相等；
-  ② 每条 export：SerialOffset_new = SerialOffset_old + delta、SerialSize 不变；
-  ③ export 数据逐字节不变（tail 复制 + 偏移断言）；
-  ④ decode_bp 在补丁文件上重解：函数清单与字节码长度不变。
+Verification (L0):
+  1. After rebuild, re-parse with ue4prop.tables_from_file: name count +N,
+     target import entry changed, all other import entries equal;
+  2. For each export: SerialOffset_new = SerialOffset_old + delta,
+     SerialSize unchanged;
+  3. export data byte-for-byte unchanged (tail copy + offset assertions);
+  4. decode_bp re-decodes the patched file: function list and bytecode
+     lengths unchanged.
 """
 import hashlib
 import json
@@ -39,7 +46,7 @@ GAME = STEAM_CONTENT
 
 
 def parse_summary_pos(d):
-    """同 ue4prop.parse_summary 的字段序，但记录每个可补丁字段的绝对偏移。"""
+    """Same field order as ue4prop.parse_summary, but records the absolute offset of each patchable field."""
     p = 0
     pos = {}
     def u32():
@@ -90,7 +97,7 @@ def parse_summary_pos(d):
     assert 413 >= 384
     p += 16                       # guid
     gc = i32()
-    p += gc * 8                   # generations: ExportCount+NameCount（无文件偏移）
+    p += gc * 8                   # generations: ExportCount+NameCount (no file offsets)
     p += 6                        # FEngineVersion major/minor/patch
     fstr()                        # branch
     p += 4                        # changelist
@@ -102,17 +109,20 @@ def parse_summary_pos(d):
     for _ in range(napc):
         fstr()
     u32()                         # num texture allocations
-    # 尾块（常见 20B）：[sar_offset 副本][文件长-4（trailer 偏移）][0][0][0]
-    # 变体（如 WT_T2_Poweraxe.uasset）：首字段不是 sar_offset，但第二字段仍是 len(d)-4。
-    # 真正需要随变长更新的是文件长字段（t1）；t0 只作诊断，不作硬断言，否则合法变体被拒。
-    # 写后仍由 asset_text_lexicon.verify 严格回读校验。
+    # Trailer block (commonly 20B): [sar_offset copy][file length - 4 (trailer offset)][0][0][0]
+    # Variants (e.g. WT_T2_Poweraxe.uasset): the first field is NOT sar_offset,
+    # but the second field is still len(d) - 4.
+    # The field that actually needs updating on a length change is the file-length
+    # field (t1); t0 is diagnostic only and is not hard-asserted, so valid
+    # variants are not rejected.
+    # After writing, strict read-back validation is still performed by asset_text_lexicon.verify.
     tail_start = p
     tail = d[p:no] if no > p else b""
     tail1_pos = None
     if len(tail) == 20:
         t0, t1 = struct.unpack_from("<i", tail, 0)[0], struct.unpack_from("<i", tail, 4)[0]
         assert t1 == len(d) - 4, \
-            "summary 尾块文件长字段不符（tail1=%s size=%d）" % (t1, len(d))
+            "summary trailer file-length field mismatch (tail1=%s size=%d)" % (t1, len(d))
         tail1_pos = tail_start + 4
     return dict(pos=pos, tail1_pos=tail1_pos, headers_size=hs, package_flags=pf, name_count=nc, name_offset=no,
                 export_count=ec, export_offset=eo, import_count=ic, import_offset=io,
@@ -142,7 +152,7 @@ def enc_name(s):
 
 
 def _shift_summary_tables(out, s, delta):
-    """name 表增删后，summary 里的表偏移/HeadersSize/尾块同步平移（retarget 共用）。"""
+    """After name-table insertions/removals, shift the summary table offsets/HeadersSize/trailer accordingly (shared by retarget)."""
     P = s["pos"]
     for k in ("import_offset", "export_offset", "depends_offset", "sar_offset"):
         if s[k] >= s["name_offset"]:
@@ -158,14 +168,16 @@ def _shift_summary_tables(out, s, delta):
 
 
 def insert_cdo_int_property(rel, prop_name, value):
-    """向 export `Default__<Base>_C` 的属性流末尾（None 终止符前）插入
-    `<prop_name> = <value> (IntProperty)`，并按需向 name 表追加 prop_name。
+    """Insert `<prop_name> = <value> (IntProperty)` at the end of the property
+    stream of export `Default__<Base>_C` (just before the None terminator),
+    appending prop_name to the name table if needed.
 
-    413-era cooked 布局（实测 BUFF_Plus2AP_1Turn 的 TurnsLeft tag）：
+    413-era cooked layout (measured from the TurnsLeft tag of BUFF_Plus2AP_1Turn):
       tag = name(idx,0) type(idx,0) size(int32=4) arrayidx(int32=0) value(int32) = 28B
-      CDO 数据 = [props...][None 终止符 8B]；None 终止符 = (names['None'], 0)。
-    平移规则：name 增长 ⇒ 其后全部表平移；CDO 数据内插入 ⇒ SerialOffset > 插入点的
-    export 各 +28，CDO 自身 SerialSize +28；尾块 trailer 偏移 +总增量。
+      CDO data = [props...][None terminator 8B]; None terminator = (names['None'], 0).
+    Shift rules: name growth => all following tables shift; insertion inside CDO
+    data => each export whose SerialOffset is past the insertion point +28, CDO's
+    own SerialSize +28; trailer offset += total delta.
     """
     src = GAME / (rel + ".uasset")
     d = src.read_bytes()
@@ -181,14 +193,14 @@ def insert_cdo_int_property(rel, prop_name, value):
         if w[4] == 0 and 0 <= w[3] < len(names) and names[w[3]] == cdo_name:
             cdo_idx, cdo_soff, cdo_ssize = i, w[7], w[6]
             break
-    assert cdo_idx is not None, "找不到 CDO export " + cdo_name
+    assert cdo_idx is not None, "CDO export not found: " + cdo_name
 
     none_idx = names.index("None")
     term_pos = cdo_soff + cdo_ssize - 8
     assert struct.unpack_from("<ii", d, term_pos) == (none_idx, 0), \
-        "CDO 数据尾 8B 不是 None 终止符（布局假设不成立）"
+        "CDO data does not end with the 8B None terminator (layout assumption failed)"
 
-    assert "IntProperty" in names, "IntProperty 不在 name 表"
+    assert "IntProperty" in names, "IntProperty not in name table"
     add = [prop_name] if prop_name not in names else []
     new_names = names + add
     idx_prop = new_names.index(prop_name)
@@ -202,23 +214,24 @@ def insert_cdo_int_property(rel, prop_name, value):
 
     out = bytearray(d[:s["name_offset"]] + new_nt + d[s["import_offset"]:])
 
-    # stage-1：name 增长平移
+    # stage-1: shift for name-table growth
     P = s["pos"]
     struct.pack_into("<i", out, P["name_count"], len(new_names))
     _shift_summary_tables(out, s, delta_nt)
 
-    # stage-2：CDO 数据内插入 tag
+    # stage-2: insert tag inside CDO data
     ins_abs = term_pos + delta_nt
-    assert struct.unpack_from("<ii", out, ins_abs) == (none_idx, 0), "stage-1 后插入点错位"
+    assert struct.unpack_from("<ii", out, ins_abs) == (none_idx, 0), "insertion point misaligned after stage-1"
     out = bytearray(bytes(out[:ins_abs]) + tag + bytes(out[ins_abs:]))
     total = delta_nt + len(tag)
 
-    # export 记录补丁：stage-1 name 增长平移所有 export 数据起点；
-    # stage-2 数据内插入再平移起点在插入点之后的 export，CDO 自身 SerialSize 增长
+    # export record patching: stage-1 name growth shifts all export data starts;
+    # stage-2 in-data insertion further shifts exports whose start follows the
+    # insertion point, and grows the CDO's own SerialSize.
     new_eo = s["export_offset"] + delta_nt
     for i in range(s["export_count"]):
         base = new_eo + i * 68
-        so = struct.unpack_from("<i", out, base + 28)[0]     # 仍为旧值
+        so = struct.unpack_from("<i", out, base + 28)[0]     # still the old value
         if i == cdo_idx:
             struct.pack_into("<i", out, base + 24, cdo_ssize + len(tag))
             struct.pack_into("<i", out, base + 28, so + delta_nt)
@@ -226,10 +239,10 @@ def insert_cdo_int_property(rel, prop_name, value):
             struct.pack_into("<i", out, base + 28, so + delta_nt + len(tag))
         else:
             struct.pack_into("<i", out, base + 28, so + delta_nt)
-    # HeadersSize = 首 export SerialOffset，按最终值重写
+    # HeadersSize = SerialOffset of the first export, rewritten with the final value
     first_so = struct.unpack_from("<i", out, new_eo + 28)[0]
     struct.pack_into("<i", out, P["headers_size"], first_so)
-    # 尾块 trailer 偏移 = 文件长 - 4（含 stage-2 增量）
+    # trailer offset = file length - 4 (including the stage-2 delta)
     if s.get("tail1_pos"):
         struct.pack_into("<i", out, s["tail1_pos"], len(d) - 4 + total)
 
@@ -242,7 +255,7 @@ def insert_cdo_int_property(rel, prop_name, value):
 
 
 def raw_cdo_tags(d, names, soff, ssize):
-    """裸字节走查 CDO 属性流（不依赖 walker），返回 [(name, type, size, tag_off, value)]。"""
+    """Walk the CDO property stream at the byte level (no walker dependency), returning [(name, type, size, tag_off, value)]."""
     pos, end = soff, soff + ssize - 8
     out = []
     while pos < end:
@@ -253,54 +266,54 @@ def raw_cdo_tags(d, names, soff, ssize):
             else d[pos + 24:pos + 24 + sz]
         out.append((nname, tname, sz, pos, val))
         pos += 24 + sz
-    assert pos == end, "属性流未恰好终止于 None 前（end 差 %d）" % (end - pos)
+    assert pos == end, "property stream did not end exactly before None (end diff %d)" % (end - pos)
     return out
 
 
 def verify_insert(rel, r):
-    """insert_cdo_int_property 的 L0 验证（裸字节走查，不依赖 walker）。"""
+    """L0 verification for insert_cdo_int_property (byte-level walk, no walker dependency)."""
     ue4prop.GAME = GAME
     d0, d1 = r["src"], r["dst"]
     s0 = parse_summary_pos(d0)
     n0, _ = read_names(d0, s0["name_offset"], s0["name_count"])
     s1 = parse_summary_pos(d1)
     n1, nend = read_names(d1, s1["name_offset"], s1["name_count"])
-    assert nend == s1["import_offset"], "补丁后 name 链未对齐 ImportOffset"
+    assert nend == s1["import_offset"], "name chain not aligned with ImportOffset after patching"
     if r["add_names"]:
-        assert n1[len(n0):] == r["add_names"], "追加 name 不在表尾"
+        assert n1[len(n0):] == r["add_names"], "appended names are not at the end of the table"
     for i in range(s0["import_count"]):
         a = d0[s0["import_offset"] + i * 28: s0["import_offset"] + (i + 1) * 28]
         b = d1[s1["import_offset"] + i * 28: s1["import_offset"] + (i + 1) * 28]
-        assert a == b, "import 条目 %d 被改动" % i
+        assert a == b, "import entry %d modified" % i
 
     def find_cdo(s, names, d):
         for i in range(s["export_count"]):
             w = struct.unpack_from("<17i", d, s["export_offset"] + i * 68)
             if w[4] == 0 and names[w[3]] == r["cdo_name"]:
                 return i, w[6], w[7]
-        raise RuntimeError("CDO 缺失")
+        raise RuntimeError("CDO missing")
 
     i0, sz0, off0 = find_cdo(s0, n0, d0)
     i1, sz1, off1 = find_cdo(s1, n1, d1)
-    assert i0 == i1 == r["cdo_idx"], "CDO export 序号变化"
-    assert sz1 == sz0 + r["tag_len"], "CDO SerialSize 未增长"
+    assert i0 == i1 == r["cdo_idx"], "CDO export index changed"
+    assert sz1 == sz0 + r["tag_len"], "CDO SerialSize did not grow"
     t0 = raw_cdo_tags(d0, n0, off0, sz0)
     t1 = raw_cdo_tags(d1, n1, off1, sz1)
     added = [t for t in t1 if t[0] == r["prop"]]
     assert len(added) == 1 and added[0][1] == "IntProperty" and added[0][4] == r["value"], \
-        "补丁后 CDO 未读出 %s=%s" % (r["prop"], r["value"])
+        "CDO did not read back %s=%s after patching" % (r["prop"], r["value"])
     keep1 = [x for x in t1 if x[0] != r["prop"]]
-    assert [x[:3] for x in t0] == [x[:3] for x in keep1], "既有属性清单变化"
+    assert [x[:3] for x in t0] == [x[:3] for x in keep1], "existing property list changed"
     for a, b in zip(t0, keep1):
-        assert d0[a[3]:a[3] + 24 + a[2]] == d1[b[3]:b[3] + 24 + b[2]], "既有属性字节被改动"
+        assert d0[a[3]:a[3] + 24 + a[2]] == d1[b[3]:b[3] + 24 + b[2]], "existing property bytes modified"
     for i in range(s0["export_count"]):
         if i == r["cdo_idx"]:
             continue
         w0 = struct.unpack_from("<17i", d0, s0["export_offset"] + i * 68)
         w1 = struct.unpack_from("<17i", d1, s1["export_offset"] + i * 68)
-        assert w0[6] == w1[6], "export %d SerialSize 变化" % i
-        assert d0[w0[7]:w0[7] + w0[6]] == d1[w1[7]:w1[7] + w1[6]], "export %d 数据被改动" % i
-    # decode_bp：函数清单不变
+        assert w0[6] == w1[6], "export %d SerialSize changed" % i
+        assert d0[w0[7]:w0[7] + w0[6]] == d1[w1[7]:w1[7] + w1[6]], "export %d data modified" % i
+    # decode_bp: function list unchanged
     import importlib.util, shutil, tempfile
     spec = importlib.util.spec_from_file_location("decode_bp", str(ROOT / "427/Tools/bp_decode/decode_bp.py"))
     m = importlib.util.module_from_spec(spec)
@@ -315,7 +328,7 @@ def verify_insert(rel, r):
             (tmp / tag_ / (rel + ".uasset")).write_bytes(blob)
             m.ue4prop.GAME = tmp / tag_
             fns[tag_] = [(f["name"], f.get("bytecode_len")) for f in m.decode_pkg(rel)["functions"]]
-        assert fns["old"] == fns["new"], "函数清单/字节码长度变化"
+        assert fns["old"] == fns["new"], "function list / bytecode length changed"
     finally:
         m.ue4prop.GAME = orig_game
         shutil.rmtree(tmp, ignore_errors=True)
@@ -335,7 +348,7 @@ def retarget_import(rel, old_obj, new_base):
     old_pkg = "/Game/" + rel.rsplit("/", 1)[0] + "/" + old_obj.replace("_C", "")
     new_pkg = "/Game/" + rel.rsplit("/", 1)[0] + "/" + new_base
 
-    # 定位要改的 import 条目
+    # locate the import entries to modify
     targets = []  # (record_index, field="obj_i", new_name)
     for i in range(s["import_count"]):
         base = s["import_offset"] + i * 28
@@ -346,9 +359,9 @@ def retarget_import(rel, old_obj, new_base):
         elif oname == old_pkg:
             targets.append((i, new_pkg))
     if not targets:
-        raise RuntimeError("import 表里找不到 %s / %s" % (old_cls, old_pkg))
+        raise RuntimeError("import entries for %s / %s not found" % (old_cls, old_pkg))
 
-    # 新 name 条目（已存在则复用 ⇒ delta 可能为 0）
+    # new name entries (reuse if already present => delta may be 0)
     add = []
     for nm in (new_cls, new_pkg):
         if nm not in names:
@@ -356,14 +369,14 @@ def retarget_import(rel, old_obj, new_base):
     new_names = names + add
     idx_of = {nm: new_names.index(nm) for nm in (new_cls, new_pkg)}
 
-    # 重建 name 表
+    # rebuild the name table
     old_nt = d[s["name_offset"]:s["import_offset"]]
     new_nt = b"".join(enc_name(x) for x in new_names)
     delta = len(new_nt) - len(old_nt)
 
     out = bytearray(d[:s["name_offset"]] + new_nt + d[s["import_offset"]:])
 
-    # summary 字段补丁
+    # patch summary fields
     P = s["pos"]
     struct.pack_into("<i", out, P["name_count"], len(new_names))
     for k in ("import_offset", "export_offset", "depends_offset", "sar_offset"):
@@ -374,20 +387,20 @@ def retarget_import(rel, old_obj, new_base):
         struct.pack_into("<i", out, P["thumbnail_offset"], s["thumbnail_offset"] + delta)
     struct.pack_into("<i", out, P["headers_size"], s["headers_size"] + delta)
     if r_tail1 := s.get("tail1_pos"):
-        struct.pack_into("<i", out, r_tail1, len(d) - 4 + delta)   # trailer 偏移平移
+        struct.pack_into("<i", out, r_tail1, len(d) - 4 + delta)   # shift trailer offset
     if len(d[s["name_offset"]:s["import_offset"]]) and s.get("tail1_pos"):
-        # 尾块首字 = sar_offset 副本，同样平移
+        # trailer first word = sar_offset copy, shift it as well
         t0p = s["name_offset"] - 20
         if struct.unpack_from("<i", out, t0p)[0] == s["sar_offset"]:
             struct.pack_into("<i", out, t0p, s["sar_offset"] + delta)
 
-    # import 条目重指向（注意 import_offset 已平移）
+    # retarget import entries (note: import_offset has already shifted)
     new_io = s["import_offset"] + delta
     for ri, newnm in targets:
         base = new_io + ri * 28
-        struct.pack_into("<i", out, base + 20, idx_of[newnm])   # obj_i @ 第 6 个 int32
+        struct.pack_into("<i", out, base + 20, idx_of[newnm])   # obj_i @ 6th int32
 
-    # export SerialOffset 平移
+    # shift export SerialOffsets
     new_eo = s["export_offset"] + delta
     esz = (s["depends_offset"] - s["export_offset"]) // s["export_count"] if s["export_count"] else 0
     for i in range(s["export_count"]):
@@ -411,7 +424,7 @@ def verify(rel, r):
     sn, names_n, imps_n, exps_n, _ = t_new
     assert len(names_n) == r["name_count_new"], "name count mismatch"
     assert len(imps_n) == len(imps_o), "import count mismatch"
-    # import 逐条对比：仅目标条目的 object_name 变化
+    # compare imports entry by entry: only the target entries' object_name may change
     changed = []
     tgt_recs = {ri for ri, _ in r["targets"]}
     for i, (a, b) in enumerate(zip(imps_o, imps_n)):
@@ -419,19 +432,19 @@ def verify(rel, r):
                 and a["package_index"] == b["package_index"] and a["object_name"] == b["object_name"])
         if not same:
             changed.append(i)
-    assert set(changed) == tgt_recs, "import 变化集 %s != 目标 %s" % (changed, sorted(tgt_recs))
+    assert set(changed) == tgt_recs, "changed import set %s != target %s" % (changed, sorted(tgt_recs))
     for i in tgt_recs:
-        assert imps_n[i]["object_name"] in (r["new_cls"], r["new_pkg"]), "目标 import 未改对"
-    # export 偏移/大小
+        assert imps_n[i]["object_name"] in (r["new_cls"], r["new_pkg"]), "target import not retargeted correctly"
+    # export offsets / sizes
     assert len(exps_n) == len(exps_o)
     for a, b in zip(exps_o, exps_n):
-        assert b["serial_offset"] == a["serial_offset"] + r["delta"], "SerialOffset 平移错误"
-        assert b["serial_size"] == a["serial_size"], "SerialSize 变化"
-    # export 数据逐字节不变
+        assert b["serial_offset"] == a["serial_offset"] + r["delta"], "SerialOffset shift incorrect"
+        assert b["serial_size"] == a["serial_size"], "SerialSize changed"
+    # export data byte-for-byte unchanged
     for a, b in zip(exps_o, exps_n):
         assert r["src"][a["serial_offset"]:a["serial_offset"] + a["serial_size"]] == \
-               r["dst"][b["serial_offset"]:b["serial_offset"] + b["serial_size"]], "export 数据被改动"
-    # decode 复解：函数清单不变（src/dst 各自放独立临时目录）
+               r["dst"][b["serial_offset"]:b["serial_offset"] + b["serial_size"]], "export data modified"
+    # re-decode: function list unchanged (src/dst placed in separate temp dirs)
     import importlib.util, shutil, tempfile
     spec = importlib.util.spec_from_file_location("decode_bp", str(ROOT / "427/Tools/bp_decode/decode_bp.py"))
     m = importlib.util.module_from_spec(spec)
@@ -447,7 +460,7 @@ def verify(rel, r):
             m.ue4prop.GAME = tmp / tag
             out = m.decode_pkg(rel)
             outs[tag] = [(f["name"], f.get("bytecode_len")) for f in out["functions"]]
-        assert outs["old"] == outs["new"], "函数清单/字节码长度变化"
+        assert outs["old"] == outs["new"], "function list / bytecode length changed"
     finally:
         m.ue4prop.GAME = orig_game
         shutil.rmtree(tmp, ignore_errors=True)
@@ -462,11 +475,11 @@ def main(argv):
     if cmd == "check":
         r = retarget_import(rel, old_obj, new_base)
         print("== %s" % rel)
-        print("   import 改动条目: %s" % r["targets"])
+        print("   modified import entries: %s" % r["targets"])
         print("   %s -> %s" % (r["old_cls"], r["new_cls"]))
         print("   %s -> %s" % (r["old_pkg"], r["new_pkg"]))
-        print("   新增 name 条目: %s" % r["add_names"])
-        print("   name 表增量 delta=%d B（正=变长插入）" % r["delta"])
+        print("   added name entries: %s" % r["add_names"])
+        print("   name table delta=%d B (positive = length-increasing insertion)" % r["delta"])
         print("   src %d B sha %s" % (len(r["src"]), r["src_sha"][:16]))
         print("\nCHECK PASS")
         return 0
@@ -480,21 +493,26 @@ def main(argv):
         dst_path.write_bytes(r["dst"])
         manifest = dict(
             name="bugfix_praetorian_mitigation",
-            description=("OB-13 语义修复（Praetorian 文实不符）：ABP_Praetorian 授予的 "
-                         "BUFF_Plus20DamageMitgation_NonStacking 内部把 "
-                         "BUFF_Plus20Damage_1Turn（+20% 伤害）当作效果载体，"
-                         "与描述「+20% Damage Mitigation」不符。变长改写 name 表"
-                         "（新增 2 条 name）并把两个 import 条目重指向 "
-                         "BUFF_20DamageMitigation_1Turn（PercentageMitigation=0.2、TurnsLeft=1，"
-                         "语义精确匹配）；AddBuff/HasBuff 的 EX_ObjectConst 按 import 索引引用，自动跟随。"),
-            source="Steam 干净基准 Build 1837603（就地改，不引用 refs/PC_EE 任何资产）",
-            grading=("L0：重建后复析（name 数/import 逐条/export SerialOffset+Size/数据逐字节/"
-                     "decode_bp 函数清单）全过。L2/L3 未验证。"),
-            install_note=("首次使用变长 uasset 编辑器出包；实机若加载 Fatal 需回滚并检查"
-                          "（BFL 变长 Fatal 先例在此不适用——本次不改字节码，只平移表）。"),
+            description=("Semantic fix (Praetorian asset/data mismatch): the "
+                         "BUFF_Plus20DamageMitgation_NonStacking granted by ABP_Praetorian "
+                         "internally uses BUFF_Plus20Damage_1Turn (+20% damage) as its "
+                         "effect carrier, which does not match the '+20% Damage Mitigation' "
+                         "description. Length-changing rewrite of the name table "
+                         "(2 new names) and retarget of two import entries to "
+                         "BUFF_20DamageMitigation_1Turn (PercentageMitigation=0.2, TurnsLeft=1, "
+                         "an exact semantic match); AddBuff/HasBuff EX_ObjectConst references "
+                         "import entries by index and follows automatically."),
+            source="Clean Steam baseline Build 1837603 (patched in place; no assets from refs/PC_EE are used)",
+            grading=("L0: post-rebuild re-parse (name count / imports entry by entry / "
+                     "export SerialOffset+Size / byte-for-byte data / decode_bp function "
+                     "list) all pass. L2/L3 not verified."),
+            install_note=("First package produced with the variable-length uasset editor; "
+                          "if a Fatal occurs on load in-game, roll back and investigate "
+                          "(the earlier BFL variable-length Fatal precedent does not apply "
+                          "here: bytecode is unchanged, only tables are shifted)."),
             entries=[dict(relative_path=rel_file, dst_sha256=r["dst_sha"],
                           src_sha256=r["src_sha"], size=len(r["dst"]), differs_from_steam=True)],
-            detail=[dict(asset=rel, what="import 重指向 + name 表 +2 条（变长）",
+            detail=[dict(asset=rel, what="import retarget + name table +2 entries (variable-length)",
                          delta_bytes=r["delta"])],
         )
         (pkg / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1) + "\n",
