@@ -25,6 +25,17 @@
 
 **Free, open source, and yours to inspect.** The installer only works on a legally owned local copy of the game. It does **not** distribute the game executable, `.uasset` / `.locres` files, audio, artwork, or full configuration files. Every change is recipe-based, calculated against your original files, and backed up before being written.
 
+<table align="center">
+  <tr>
+    <td align="center"><a href="docs/media/full/shot-01-combat-closeup.png"><img src="docs/media/shot-01-combat-closeup.jpg" width="280" alt="Chinese UI during combat"></a><br><sub>Combat UI</sub></td>
+    <td align="center"><a href="docs/media/full/shot-02-combat-fire.png"><img src="docs/media/shot-02-combat-fire.jpg" width="280" alt="Chinese UI with weapon effects"></a><br><sub>Combat effects</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="docs/media/full/shot-03-tactical-map.png"><img src="docs/media/shot-03-tactical-map.jpg" width="280" alt="Chinese UI in tactical view"></a><br><sub>Tactical view</sub></td>
+    <td align="center"><a href="docs/media/full/shot-04-character-sheet.png"><img src="docs/media/shot-04-character-sheet.jpg" width="280" alt="Chinese character sheet"></a><br><sub>Character sheet</sub></td>
+  </tr>
+</table>
+
 <a id="download"></a>
 
 ## Download

@@ -25,6 +25,17 @@
 
 **免费、开源，代码可自行审阅。** 安装器只作用于你本机已有的正版游戏，不分发游戏本体、`.uasset` / `.locres` 文件、音频、贴图或完整配置。所有改动都基于 recipe 在你的原始文件上计算，写入前逐文件备份。
 
+<table align="center">
+  <tr>
+    <td align="center"><a href="../media/full/shot-01-combat-closeup.png"><img src="../media/shot-01-combat-closeup.jpg" width="280" alt="战斗中的中文界面"></a><br><sub>战斗界面</sub></td>
+    <td align="center"><a href="../media/full/shot-02-combat-fire.png"><img src="../media/shot-02-combat-fire.jpg" width="280" alt="带武器特效的中文界面"></a><br><sub>战斗特效</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="../media/full/shot-03-tactical-map.png"><img src="../media/shot-03-tactical-map.jpg" width="280" alt="战术视图中的中文界面"></a><br><sub>战术视图</sub></td>
+    <td align="center"><a href="../media/full/shot-04-character-sheet.png"><img src="../media/shot-04-character-sheet.jpg" width="280" alt="中文角色面板"></a><br><sub>角色面板</sub></td>
+  </tr>
+</table>
+
 <a id="download"></a>
 
 ## 下载
