@@ -1,0 +1,198 @@
+{
+  "game_appid": 394450,
+  "game_buildid": 1837603,
+  "note": "特性注册表（数据驱动）。default_checked: true / false / \"zh_system\"（仅系统语言为中文时默认勾选，用户 2026-11-13 裁定）。分发裁定（用户 2026-11-13 / 11-14）：不包含中文配音（vo_zh 仅内部沙盒保留，不分发）；中文文本不直接分发 locres，改为运行时生成——构建期把唯一源 zh_lexicon.xlsx 导出为 app/zh_runtime.json，安装时四条链（locres / FlairName / asset_text / BFL）就地改写并逐文件备份。bonus_steam_ini 先不搞，不入注册表；CODEX / Steam 模拟器不随包。",
+  "features": [
+    {
+      "id": "zh_text",
+      "name": {
+        "zh": "中文文本",
+        "en": "Chinese Text"
+      },
+      "desc": {
+        "zh": "界面、称号、战团标签全中文；安装时就地生成。",
+        "en": "Full Chinese UI, flair & chapter names, generated in place."
+      },
+      "packages": [],
+      "locres_mode": "generate_at_install",
+      "runtime": "zh_text",
+      "default_checked": "zh_system",
+      "enabled": true,
+      "reversible": true
+    },
+    {
+      "id": "bugfix",
+      "name": {
+        "zh": "Bug 修正",
+        "en": "Bug Fixes"
+      },
+      "desc": {
+        "zh": "已确认并实机验证的修复；完整清单见「Bug 详情」。",
+        "en": "Confirmed and player-verified fixes. See \"Bug details\" for the list."
+      },
+      "packages": [
+        "bugfix_parry",
+        "bugfix_wargear_material",
+        "bugfix_chapter_icons",
+        "bugfix_alacrity_ap",
+        "bugfix_alacrity_maxap",
+        "bugfix_praetorian_mitigation",
+        "bugfix_crippling_shot_desc"
+      ],
+      "detail_doc": {
+        "zh": "bugfix_list_zh.md",
+        "en": "bugfix_list_en.md"
+      },
+      "default_checked": true,
+      "enabled": true,
+      "reversible": true
+    },
+    {
+      "id": "visual",
+      "name": {
+        "zh": "光影增强",
+        "en": "Visual Enhancement"
+      },
+      "desc": {
+        "zh": "配置级画质增强，按显卡选一档（核显 / 独显 / 最高）；原版请用「还原到原版」。点卡查看各档参数。",
+        "en": "Config-level visual boost. Pick a tier for your GPU (Integrated / Discrete / Max); use Restore for vanilla. Click the card for parameters."
+      },
+      "hide_desc": true,
+      "packages": [
+        "visual_enhance"
+      ],
+      "detail_doc": {
+        "zh": "visual_list_zh.md",
+        "en": "visual_list_en.md"
+      },
+      "detail_link_key": "visual_detail",
+      "detail_title_key": "visual_notice_title",
+      "default_checked": true,
+      "enabled": true,
+      "reversible": true,
+      "variants": [
+        {
+          "id": "tier_igpu",
+          "label": {
+            "zh": "核显 · 集成显卡 / 低功耗",
+            "en": "Integrated GPU · low power"
+          },
+          "short": {
+            "zh": "核显",
+            "en": "Integrated"
+          }
+        },
+        {
+          "id": "tier_dgpu",
+          "label": {
+            "zh": "独显 · 适合 1050Ti 级独立显卡",
+            "en": "Discrete GPU · GTX 1050 Ti-class"
+          },
+          "short": {
+            "zh": "独显",
+            "en": "Discrete"
+          }
+        },
+        {
+          "id": "tier_max",
+          "label": {
+            "zh": "最高 · 适合 4060 级主流显卡",
+            "en": "Max · RTX 4060-class mainstream GPUs"
+          },
+          "short": {
+            "zh": "最高",
+            "en": "Max"
+          }
+        }
+      ],
+      "default_variant": "tier_dgpu"
+    },
+    {
+      "id": "camera",
+      "name": {
+        "zh": "镜头限制解除",
+        "en": "Camera Unlock"
+      },
+      "desc": {
+        "zh": "解除镜头高度 / 俯仰限制；勾选时会先给出使用提醒。",
+        "en": "Unlock camera height / pitch limits. A usage warning appears when selected."
+      },
+      "packages": [],
+      "default_checked": false,
+      "enabled": true,
+      "reversible": true,
+      "warning_modal": true,
+      "detail_link_key": "camera_caution",
+      "detail_kind": "caution",
+      "warning": {
+        "zh": "【谨慎】摄像机可能撞墙。当你找不到人物时：按住R（3 秒钟），然后再按 Tab 就能恢复。",
+        "en": "[Caution] The camera may clip into walls. If you can't find your marines: hold R for 3 seconds, then press Tab to recover."
+      }
+    },
+    {
+      "id": "balance",
+      "name": {
+        "zh": "武器平衡性补丁",
+        "en": "Weapon Balance Patch"
+      },
+      "desc": {
+        "zh": "爱好者武器平衡调整（仅武器，不改战士/技能；默认不勾选，点卡查看说明）。",
+        "en": "Fan-made weapon balance tweaks (weapons only, no marine/skill changes; unchecked by default, click for details)."
+      },
+      "packages": ["balance_user_r14"],
+      "detail_doc": {
+        "zh": "balance_list_zh.md",
+        "en": "balance_list_en.md"
+      },
+      "detail_link_key": "balance_detail",
+      "detail_title_key": "balance_dialog_title",
+      "default_checked": false,
+      "enabled": true,
+      "reversible": true,
+      "warning_modal": true,
+      "warning": {
+        "zh": "注意：这是爱好者基于对游戏机制理解做的武器平衡调整，非官方改动。\n具体调整方向见下方数值说明。仅等字节改数值、逐文件备份可回滚；不改动 exe 与启动校验组件。",
+        "en": "Note: fan-made weapon balance tweaks based on a hobbyist understanding of the mechanics, not an official change.\nSee the numerical details below. Equal-byte numeric edits only, per-file backup and rollback; no exe or boot/DRM component is touched."
+      }
+    },
+    {
+      "id": "vo_zh",
+      "name": {
+        "zh": "中文语音",
+        "en": "Chinese Voice"
+      },
+      "desc": {
+        "zh": "不随包分发、不下载；点击查看本地 DIY 提示词。",
+        "en": "Not shipped or downloaded. Click for a local DIY prompt."
+      },
+      "packages": [],
+      "default_checked": false,
+      "enabled": false,
+      "diy_prompt": true,
+      "detail_kind": "diy",
+      "detail_link_key": "vo_diy_link",
+      "reversible": true
+    },
+    {
+      "id": "bonus_blackshield",
+      "bonus": true,
+      "name": {
+        "zh": "插入一名黑盾",
+        "en": "Add a Black Shield"
+      },
+      "desc": {
+        "zh": "接收一名黑盾（可能是堕天使）加入你的守望要塞。",
+        "en": "A Black Shield (possibly a Fallen Angel) joins your fortress."
+      },
+      "packages": [],
+      "default_checked": false,
+      "enabled": true,
+      "reversible": true,
+      "save_check": "dw_metagame.save",
+      "warning": {
+        "zh": "注意：作用于你的存档。注入前会自动备份；但还原存档会丢失注入之后的游玩进度。",
+        "en": "Note: modifies your save. A backup is made first; restoring the save loses any progress made after injection."
+      }
+    }
+  ]
+}

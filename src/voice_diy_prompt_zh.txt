@@ -1,0 +1,88 @@
+任务：把我本机 Steam 正版《Warhammer 40,000: Deathwatch - Enhanced Edition》
+（appid 394450，必须 Build 1837603，松散 UFS 无 pak 容器）的 303 条英文战斗语音
+逐条替换为中文配音。全程在我本机生成、只改我本机游戏目录，不下载任何现成语音包，
+不向他人分发产物。预计耗时约 30 分钟（NVIDIA GPU，fp16 推理）。
+
+【硬规则】
+- 动手前完全退出游戏与 Steam 客户端；任何写入前先完整备份。
+- 只允许改动 <游戏根>\deathwatchgame\Content\Audio\VO\ 子树内的文件。
+- TTS 模型不做翻译、不做 ASR：中文台词必须先转写英文、翻译、由**我本人过目确认**
+  成稿后，才把定稿文本喂给 TTS。任何一条未经我确认不得合成。
+- 结构纪律：.uasset 内只允许做**等长字节替换**（不改任何长度头/名称表/导入导出表）；
+  塞不进预算的条目一律标 OUT-OF-BUDGET 跳过并汇总告诉我，禁止改结构"凑长度"。
+
+【第 1 步 · 环境与素材】
+- 前提：Windows + NVIDIA 显卡（建议 ≥8 GB 显存，6 GB 可慢跑）+ Python 3.10~3.12
+  + git/git-lfs + ffmpeg（均可自动检测，缺失先装）。显存或磁盘不足 →停下来问我。
+- 定位游戏根：Steam 默认库在 …\Steam\steamapps\common\Warhammer 40,000 Deathwatch
+  - Tyranid Invasion\（目录名就是 Tyranid Invasion，不是商店显示名）；不在默认库时
+  用 Steam→库→右键游戏→属性→本地文件→浏览 查到路径。
+- 校验：根下 deathwatchgame\Content\Audio\VO\ 应有 12 个子目录、约 303 个
+  语音 .uasset（另有对应 *_Cue.uasset，不计入替换对象）。不符 → 停下向我报告。
+- 备份：把整个 VO/ 目录复制为 __vo_backup_<UTC时间戳>/（与游戏根并列），
+  生成逐文件 sha256 清单存进备份目录。
+- 为本次工作在游戏根外建一个独立工作目录（如 <用户目录>\dw_vo_zh_work\），
+  下设 orig/（提取的原声 ogg）、zh_script/（经我确认的中文稿）、gen/（合成 wav）、
+  logs/，全程不把这些产物写回游戏目录。
+
+【第 2 步 · 提取原声】
+- 逐个打开 VO/<子目录>/<stem>.uasset（非 *_Cue）： cooked USoundWave 的 OGG 音频体内嵌
+  文件尾——从首个 "OggS" 魔术字节起、至 文件长度-4 字节止（尾部 4 字节是 UObject 终止标记）。
+- 写 Python 脚本把该字节段原样切出为 orig/<stem>.ogg（48 kHz 单声道，vorbis），
+  同时记录每条 ogg 的字节数 = 替换预算 byte budget。
+
+【第 3 步 · 中文台词成稿（必须经我确认）】
+- 用本地 ASR（如 faster-whisper）转写每条 orig/<stem>.ogg 得英文台词；
+- 把英文台词翻成中文：星际战士语调、军事简练、同一角色前后称谓一致；
+- 汇总成分批清单（如每 30 条一批）交我逐条确认/修改；我回复确认前不得进入第 5 步。
+- 定稿存 zh_script/<stem>.txt（一条一文件，纯文本、UTF-8）。
+
+【第 4 步 · 安装 IndexTTS 2.0（开源）】
+  git lfs install
+  git clone https://github.com/index-tts/index-tts.git && cd index-tts
+  git lfs pull
+  pip install -U uv
+  uv sync --all-extras
+  hf download IndexTeam/IndexTTS-2 --local-dir=checkpoints
+- 国内网络 hf 下载慢时改用：
+  modelscope download --model IndexTeam/IndexTTS-2 --local_dir checkpoints
+- 类名/参数以仓库 README 现行说明为准（公开版为 infer_v2 API；我此前听说有人用
+  IndexTTS-2.5，那是另一版本，公开仓库请以 README 为准，不要臆造 API）。
+- 许可：生成物受 bilibili Model Use License 约束，只作本机等私人非商业使用，
+  不得打包分发上传。
+
+【第 5 步 · 逐条生成中文配音（断点续跑）】
+- 每条独立推理一次：音色与情绪**都取该条自己的原声**（零样本克隆，无需训练）：
+
+    from indextts.infer_v2 import IndexTTS2   # 以仓库 README 为准
+    tts = IndexTTS2(cfg_path="checkpoints/config.yaml", model_dir="checkpoints",
+                    use_fp16=True)
+    tts.infer(spk_audio_prompt=f"orig/{stem}.ogg",
+              text=<zh_script/stem.txt 内容>,
+              output_path=f"gen/{stem}_zh.wav",
+              emo_audio_prompt=f"orig/{stem}.ogg", emo_alpha=1.0)
+
+- 固定 seed（如 20261113+序号）便于复算；已生成且 sha 一致的 wav 跳过（断点续跑）；
+- 引擎输出采样率随模型文档（约 22050 Hz），本方案不强制重采样。
+- 完成后把 gen 里每条时长列给我，供抽查。
+
+【第 6 步 · 等长替换写回（"怎么替换"的核心，逐条可回滚）】
+对每条 stem：
+1) 把 gen/<stem>_zh.wav 编码成 OGG（vorbis），目标 = **不大于**该条 byte budget：
+   从高到低试码率梯度（建议 q≈6→4→2→0 逐档，再不行降固定码率），取首个放得进的档；
+   小于预算的差额用合法的 OGG EOS 填充页补齐到**恰好等长**（解码器遇 EOS 即停，
+   多余页不影响播放）。全程放不下 → 记 OUT-OF-BUDGET，跳过，汇总给我。
+2) 就地替换：在对应 .uasset 中定位该 ogg 字节段（同第 2 步规则），整体用等长新 OGG
+   覆盖；其余字节一个都不动。写回前该文件已有第 1 步备份，写坏可单条还原。
+3) 时长字段：同目录/子目录的 <stem>_Cue.uasset 内含 Duration 单精度浮点=原音频秒数；
+   按旧值字节 little-endian float 全局搜索，命中唯一 → 等长改写为新时长；
+   命中 0 或多条不确定 → 保留原值不动并在报告标 CUE-DURATION-UNRESOLVED（不影响
+   音频本体，游戏内实际以解码停点为准）。
+4) 复核：替换后重抽该 .uasset 的 ogg 段并用解码器验证可完整解码、时长≈新 wav。
+
+【第 7 步 · 收尾与回滚】
+- 汇总报告：成功清单 / OUT-OF-BUDGET 清单 / CUE-DURATION-UNRESOLVED 清单 /
+  逐条 原→新 sha256，存 logs/final_report.md。
+- 启动游戏试听几个场景；任何不对 → 用 __vo_backup_<UTC>/ 整目录或单文件还原。
+- 诚实边界（须原样写进报告）：中文时长可与英文不同；旁白说话人归属不保证；
+  22050→48k 未重采样可能影响音色细节；克隆真人声音的产物不得对外分发。

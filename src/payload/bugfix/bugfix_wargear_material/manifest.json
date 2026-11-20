@@ -1,0 +1,108 @@
+{
+ "name": "bugfix_wargear_material",
+ "description": "c) 逻辑 BUG 修复包 · OB-06 武器材质槽错配：重力枪 / 火焰枪 / 手持火焰枪 的 StaticMesh Materials 数组里指向 WorldGridMaterial（引擎灰格兜底材质） 的槽位重指向该武器自己的 MI_*_Lo。等长就地改字节，文件大小不变、资产内部偏移零改动。",
+ "source": "Steam 干净基准 Build 1837603（就地改，不引用 refs/PC_EE 任何资产）",
+ "grading": "L0 构成：等长 + 只改目标槽位 + ue4prop 回读槽位正确；L1：资产可被同一解析器完整重读；L2/L3 实机未验证（不得写「已修复」）。分级：【已确认 字节级差异/根因可解释】+【较高可信度推断 灰格=WorldGridMaterial 兜底】",
+ "install_note": "按 relative_path 覆盖到游戏同名路径（先自行备份原文件）。回滚：用 manifest 的 src_sha256 校验原文件并还原。",
+ "entries": [
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/GravGuns/GravGuns_T4/STM_T4_GravGun.uasset",
+   "dst_sha256": "2d9a8d14d804ba102cf31b4ab2ee2ae52eb426fa0b31bded7f3ef1cb24c9d59a",
+   "src_sha256": "3b18afcb812735929050d44453428b51b0a599dbb55f7362d903790f320f42a9",
+   "size": 394339,
+   "differs_from_steam": true
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/Flamers/Flamers_T4/STM_T4_SW_Flamer.uasset",
+   "dst_sha256": "2f4a9f5f1e60265af2a366e00cabbaebb34fa84d613b6b70b6731e8b57308ded",
+   "src_sha256": "0c9662e7de83a93d8722b2e21024d7af62926fef396411fbeafd48e109ac04e8",
+   "size": 315621,
+   "differs_from_steam": true
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/HandFlamers/HandFlamer_T4/STM_T4_SW_Hand_Flamer.uasset",
+   "dst_sha256": "6382aaae08efdf8c96876a98c4936fc2ad6c72f24bd558bc24d194713e02f90a",
+   "src_sha256": "904ae6e8dffe56a704496ae1570dadc738ec9f5e1cafc7230e46ab43741c6233",
+   "size": 165172,
+   "differs_from_steam": true
+  }
+ ],
+ "detail": [
+  {
+   "asset": "Wargear/GravGuns/GravGuns_T4/STM_T4_GravGun",
+   "slots": [
+    2,
+    3
+   ],
+   "values_before": [
+    -6,
+    -7,
+    -5,
+    -5
+   ],
+   "values_after": [
+    -6,
+    -7,
+    -7,
+    -7
+   ],
+   "byte_offsets": [
+    2542,
+    2546
+   ]
+  },
+  {
+   "asset": "Wargear/Flamers/Flamers_T4/STM_T4_SW_Flamer",
+   "slots": [
+    3
+   ],
+   "values_before": [
+    -6,
+    -7,
+    -7,
+    -5,
+    -7,
+    -7
+   ],
+   "values_after": [
+    -6,
+    -7,
+    -7,
+    -7,
+    -7,
+    -7
+   ],
+   "byte_offsets": [
+    2552
+   ]
+  },
+  {
+   "asset": "Wargear/HandFlamers/HandFlamer_T4/STM_T4_SW_Hand_Flamer",
+   "slots": [
+    2,
+    3,
+    4
+   ],
+   "values_before": [
+    -6,
+    -7,
+    -5,
+    -5,
+    -5
+   ],
+   "values_after": [
+    -6,
+    -7,
+    -7,
+    -7,
+    -7
+   ],
+   "byte_offsets": [
+    2607,
+    2611,
+    2615
+   ]
+  }
+ ],
+ "recipe": "wargear_materials"
+}

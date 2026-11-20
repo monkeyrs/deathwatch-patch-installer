@@ -1,0 +1,33 @@
+Task: Replace the 303 English battle voice lines of my locally installed Steam copy of
+Warhammer 40,000: Deathwatch - Enhanced Edition (appid 394450, Build 1837603, loose UFS,
+no pak) with Chinese dubbing generated entirely on my machine. No pre-made audio packs
+are downloaded; nothing leaves my PC. Expected runtime ~30 minutes on an NVIDIA GPU (fp16).
+
+Rules: quit game/Steam first; full backup before any write; only touch
+<gameRoot>\deathwatchgame\Content\Audio\VO\; the TTS never translates or does ASR —
+transcribe the English, translate, and get MY approval on every line before synthesis;
+inside .uasset files only equal-length byte replacement is allowed — lines that cannot
+fit the byte budget are marked OUT-OF-BUDGET and skipped, never restructure the file.
+
+Steps: (1) locate game (Steam default dir is named "...Tyranid Invasion"), validate the
+VO tree (12 subdirs, ~303 voice .uassets), back it up with a sha256 manifest, and create
+a work dir (orig/ zh_script/ gen/ logs/) OUTSIDE the game tree. (2) extract each embedded
+OGG (from first "OggS" magic to filesize-4) as orig/<stem>.ogg, recording byte budget.
+(3) ASR each ogg (e.g. faster-whisper), translate to Chinese in the Space Marine register,
+present batches for my confirmation, save approved text to zh_script/<stem>.txt.
+(4) install open-source IndexTTS 2.0: git lfs install; git clone
+https://github.com/index-tts/index-tts.git; git lfs pull; pip install -U uv;
+uv sync --all-extras; hf download IndexTeam/IndexTTS-2 --local-dir=checkpoints
+(use ModelScope mirror if HF is slow). Follow the repo README for the current infer_v2
+API; outputs are derivative works under the bilibili Model Use License — personal,
+non-commercial use only, never redistributed. (5) synthesize each line independently with
+spk_audio_prompt AND emo_audio_prompt both set to that line's own original ogg
+(zero-shot cloning, fixed seed for reproducibility, resume-capable). (6) encode each wav
+to OGG fitting the exact byte budget (descending quality ladder, pad with legal EOS
+pages to equal length), replace the byte range in the .uasset in place, optionally rewrite
+the matching float Duration in <stem>_Cue.uasset via unique byte-search (otherwise mark
+CUE-DURATION-UNRESOLVED), then re-extract and decode-verify each patched file.
+(7) write logs/final_report.md (success / OUT-OF-BUDGET / unresolved-cue lists, per-file
+hashes), test in game, restore any file from the backup on demand, and state the honest
+limits: durations may differ from English, narrator identity is not guaranteed, engine
+sample rate (~22 kHz) is not resampled, and cloned-voice outputs must not be distributed.

@@ -1,0 +1,24 @@
+{
+ "name": "bugfix_praetorian_mitigation",
+ "description": "OB-13 语义修复（Praetorian 文实不符）：ABP_Praetorian 授予的 BUFF_Plus20DamageMitgation_NonStacking 内部把 BUFF_Plus20Damage_1Turn（+20% 伤害）当作效果载体，与描述「+20% Damage Mitigation」不符。变长改写 name 表（新增 2 条 name）并把两个 import 条目重指向 BUFF_20DamageMitigation_1Turn（PercentageMitigation=0.2、TurnsLeft=1，语义精确匹配）；AddBuff/HasBuff 的 EX_ObjectConst 按 import 索引引用，自动跟随。",
+ "source": "Steam 干净基准 Build 1837603（就地改，不引用 refs/PC_EE 任何资产）",
+ "grading": "L0：重建后复析（name 数/import 逐条/export SerialOffset+Size/数据逐字节/decode_bp 函数清单）全过。L2/L3 未验证。",
+ "install_note": "首次使用变长 uasset 编辑器出包；实机若加载 Fatal 需回滚并检查（BFL 变长 Fatal 先例在此不适用——本次不改字节码，只平移表）。",
+ "entries": [
+  {
+   "relative_path": "deathwatchgame/Content/Characters/Buffs/BUFF_Plus20DamageMitgation_NonStacking.uasset",
+   "dst_sha256": "413282249325b812579623c769ba5fd4796398224d263f5d22ce2606733db275",
+   "src_sha256": "aa6c0c37514ffe2127b5734de2b2524e8254beaf9faa7d0aa3e7baeb4f496d5e",
+   "size": 5611,
+   "differs_from_steam": true
+  }
+ ],
+ "detail": [
+  {
+   "asset": "Characters/Buffs/BUFF_Plus20DamageMitgation_NonStacking",
+   "what": "import 重指向 + name 表 +2 条（变长）",
+   "delta_bytes": 93
+  }
+ ],
+ "recipe": "praetorian"
+}

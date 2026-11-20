@@ -1,0 +1,43 @@
+{
+ "package": "bugfix_crippling_shot_desc",
+ "title": "致残射击描述 1%→2%（OB-16，英文层）",
+ "layer": "en",
+ "evidence": [
+  "Steam 原版 locres 条目 5AC6786D 的值 = '1% …'，SourceStringHash=0xB3B03502",
+  "BUFF_2PercentChanceReduceAPBy1PerShot.ChanceToAddBuff=0.02（实现 2%）",
+  "WDI_CripplingShot FText source 同为 1%，是 locres 的 CRC 锚点，保持不动"
+ ],
+ "entries": [
+  {
+   "relative_path": "deathwatchgame/Content/Localization/Game/en/Game.locres",
+   "src_sha256": "7988ed97ceb0085c8f7b3da923f13dedb975ae45a20752f596a84717c206c095",
+   "dst_sha256": "dd6d025d1fb59439931bdf45c9341c16adc12aa1c5d0aea4cfa6f963d38f8f49",
+   "already_fixed_sha256": [
+    "ea7d2ec8a149e9eff9001d23706689d4e7204a157c11628d29a5e546cebc4a40",
+    "1b2f78d9a49bedf2d849a37438084d3b8dfc013196132895f91b1605f9295812",
+    "d83b857d943316788f52bde4d6f3eef36abd27162ce66eb340c185dc3036ba9c",
+    "8fb235c053f9db171012b484ada411870cf1213caf794ec8f240960d13c64cc0",
+    "7d3d0026bfa037154ba2b84984e2be304e52f115d3a2db77d07b9427bc537def",
+    "b9a8b094ff599b50d99d30df42a29481e2fc3eab56e7e2ce12ed25841f60424d",
+    "53364762a0c06c3d67450e506b0c13f99637983a6f7842178f1b2363719eea9c",
+    "302f59478914082553463fbd07aea0964da707c81e35e59a8cf5bc5e83f2eeda",
+    "eb6c3cc3e42bd9d98db07bb0727e2f6b7adf83eb892f19a19a4b398f9040fd01",
+    "11e93e53a61d135aa4bc99761baaed443fb775dcff925dc1230fbe2db46fb680"
+   ],
+   "size": 320064,
+   "differs_from_steam": true,
+   "transform": {
+    "kind": "equal_length_bytes",
+    "operations": [
+     {
+      "label": "crippling_shown_1_to_2",
+      "offset": "0x7018",
+      "before_hex": "31",
+      "after_hex": "32"
+     }
+    ]
+   }
+  }
+ ],
+ "install_note": "安装器 payload 不含完整 locres：构建时 prepare_payload 按 transform 只保留 1 字节等长规则（0x7018: 1→2），运行时在用户本机 Game.locres 上校验 src_sha256 后就地改写并复核 dst_sha256；必须在 zh_cn 之前投放（英文层修复）；zh_cn 随后把同一条覆盖为中文 2%，哈希锚点不变。源包 assets/ 中的完整 locres 仅保留给内部 patch_sandbox / bugfix_all 链路，不进入安装器分发。already_fixed_sha256 = 已汉化终态，重跑视为已修。"
+}

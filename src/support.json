@@ -1,0 +1,16 @@
+{
+  "note": "作者链接配置：Bonus 页附 GitHub / Ko-fi；不展示现实身份线索。把二维码图片放到 app/support_qr.png 可额外显示；links 每项 {label, label_en, url}。",
+  "qr_image": "support_qr.png",
+  "links": [
+    {
+      "label": "GitHub：monkeyrs",
+      "label_en": "GitHub: monkeyrs",
+      "url": "https://github.com/monkeyrs"
+    },
+    {
+      "label": "Buy me a Ko-fi",
+      "label_en": "Buy me a Ko-fi",
+      "url": "https://ko-fi.com/monkeyrs"
+    }
+  ]
+}

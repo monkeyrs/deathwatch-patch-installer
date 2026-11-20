@@ -1,0 +1,73 @@
+{
+ "patch_name": "camera_unlock",
+ "description": "F2 相机限制解除：俯仰上界 89.0°（能水平看，不翻过水平） + 相机距离/高度下界 MinTilesVisible 1.5（原 3.0） / 上界 20.0（原 20.0）。exe 改 native .text 的 MaxPitch 立即数并同步重算 PE CheckSum；蓝图 CDO 改两个 float。全部等长、零布局改动、逐字节可回滚。只分发本清单 + patcher，不含任何原版二进制。",
+ "game_appid": 394450,
+ "game_buildid": 1837603,
+ "transform_kind": "equal_length_multi_target",
+ "rollback": "exe_patcher.py restore（各目标同目录 .bak-<UTC> 原样还原）",
+ "params": {
+  "max_pitch_deg": 89.0,
+  "min_tiles_visible": 1.5,
+  "max_tiles_visible": 20.0,
+  "_说明": {
+   "max_pitch_deg": "俯仰上界（度）。原版 30；89 ≈ 接近水平看；<= 90 保证不会从下往上看。想更保守可试 60/75。",
+   "min_tiles_visible": "相机距离/高度下界（蓝图 CDO）。原版 3.0；数值越小相机越近/越低。想更低试 1.0 或 0.5。",
+   "max_tiles_visible": "相机距离/高度上界。原版 20.0；想拉更远可加大。",
+   "怎么测": "改完本文件后跑 python \"steam patching/tools/camera_unlock.py\" tune --max-pitch 89 --min-tiles 1.5（或直接改 JSON 再 build），然后 python \"steam patching/tools/patch_sandbox.py\" apply camera_unlock，最后启动沙盒 exe 进任务实测。回退：patch_sandbox.py restore <UTC> 或 exe_patcher.py restore。"
+  }
+ },
+ "evidence": [
+  "Ghidra FUN_00556a30 / FUN_004b3640 / FUN_004d4440 / FUN_004c36c0（俯仰链）",
+  "Ghidra FUN_004ba710 用 DeathwatchPlayerMovement 的 +0xe0/+0xe4 作相机距离 clamp",
+  "ue4prop 解析 BP_DropgamePlayerPawn 的 DeathwatchPlayerMovement CDO：MinTilesVisible=3.0 / MaxTilesVisible=20.0，覆盖 native 构造函数的 200/1000",
+  "BP 的 DeathwatchCameraComponent CDO 未覆盖 MaxPitch/Pitch；Config 无同名键",
+  "427/probes/camera_*_probe.py（只读复算脚本）"
+ ],
+ "grading": [
+  "【已确认·字节级+反编译】俯仰载体与 [0, MaxPitch] 钳制",
+  "【较高可信度推断】Min/MaxTilesVisible 是相机距离/高度 clamp 上下界（依据 FUN_004ba710 的读写与 CDO 覆盖；字段语义未做运行时取证）",
+  "【用户实机验收通过·11-13】默认档 max_pitch_deg=89 / min_tiles_visible=1.5 进任务实测裁定「测了，可以。完工」⇒ 效果 L2/L3 通过、参数定稿；自动截图判读作废、不作证据"
+ ],
+ "targets": [
+  {
+   "relative_path": "deathwatchgame/Binaries/Win32/DeathwatchGame-Win32-Shipping.exe",
+   "src_sha256": "3a22be74065ae638d1479cad5ef6a42ac0162c9b7b780b4075d0ff9b4eda9937",
+   "dst_sha256": "3baba2e33f82209d6d8886b222cc3118b77a88b66209a4460bebd49b1379dc2f",
+   "size": 27866112,
+   "rules": [
+    {
+     "label": "maxpitch_cdo_imm32",
+     "offset": "0xb2a6b",
+     "before_hex": "0000f041",
+     "after_hex": "0000b242"
+    },
+    {
+     "label": "pe_checksum",
+     "offset": "0x1b8",
+     "before_hex": "b772a901",
+     "after_hex": "b834a901"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/BP_DropgamePlayerPawn.uasset",
+   "src_sha256": "f49df87a4801368a55fa7660abd2d47beeff98765dcc9d19b2b35411eb81e199",
+   "dst_sha256": "5df373202e70321feb69b77b15075d19be35e3a21197dc8ea8ee7aabf031fddc",
+   "size": 5532,
+   "rules": [
+    {
+     "label": "min_tiles_visible",
+     "offset": "0x130c",
+     "before_hex": "00004040",
+     "after_hex": "0000c03f"
+    },
+    {
+     "label": "max_tiles_visible",
+     "offset": "0x1328",
+     "before_hex": "0000a041",
+     "after_hex": "0000a041"
+    }
+   ]
+  }
+ ]
+}

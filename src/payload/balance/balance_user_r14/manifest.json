@@ -1,0 +1,918 @@
+{
+ "package": "balance_user_r14",
+ "generated": "2026-11-18",
+ "scope": "仅武器：用户裁定 OK 子集（38 槽，终值±5%容差，最大偏差 0.00%）+ 导弹溅射倍率 0.35→0.99 + 致残射击概率 2%→8%；冲突 0 槽未纳入；战士/技能不改",
+ "entries": [
+  {
+   "relative_path": "deathwatchgame/Content/Characters/Actions/PayloadActions/XP_AoECombat.uasset",
+   "src_sha256": "67129d5070543e64d539aa333eb1a5679cb9991559b83064272c3b938345ac9b",
+   "dst_sha256": "f327a66d63f20c14e1920d08c841da5bc3825ef4b28d6b5255e7220915a82252",
+   "edits": [
+    {
+     "slot": "float",
+     "old": 0.35,
+     "new": 0.99,
+     "off": 7721,
+     "kind": "bytecode"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Characters/Buffs/BUFF_2PercentChanceReduceAPBy1PerShot.uasset",
+   "src_sha256": "0073beb5a7af7fd3012f8e24df07753209fd43081a3d8803c5e840cf904fb10c",
+   "dst_sha256": "feed43ddec783ff313bebd809aed110d41c899f7a4d688ca4fc59eca49315da0",
+   "edits": [
+    {
+     "slot": "float",
+     "old": 0.02,
+     "new": 0.08,
+     "off": 1851,
+     "kind": "bytecode"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_GravGunBase.uasset",
+   "src_sha256": "1fee6cfc00c6ff2c2efde990178cbc760ba94e5c2218c68c39ed13bf145fbd5b",
+   "dst_sha256": "12e4f40a3316cbf8446753021122b220011083bd26aefaddd9742242e461ce8e",
+   "edits": [
+    {
+     "slot": 8,
+     "old": 7,
+     "new": 9,
+     "off": 718,
+     "kind": "base"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_GravGunStep.uasset",
+   "src_sha256": "4e97707b4948c01fcc95e7899189e87520b90374590ac0ea35ce515603afc89c",
+   "dst_sha256": "2adfb08e7acd412eb7b5196c10ce46c5260ae4ba40d329301681bc411204225d",
+   "edits": [
+    {
+     "slot": 4,
+     "old": 10,
+     "new": 2,
+     "off": 634,
+     "kind": "step"
+    },
+    {
+     "slot": 6,
+     "old": 50,
+     "new": 100,
+     "off": 690,
+     "kind": "step"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_HeavyBolterBase.uasset",
+   "src_sha256": "729fa06cdfc51d662d629c31a065d827cfbb3e61ae8e89229f2fbc9bed2ee40d",
+   "dst_sha256": "808b1873ed4ee3e5717a4b78bb0180a24e254bf35d057a99f65c32931b9f3800",
+   "edits": [
+    {
+     "slot": 5,
+     "old": 10,
+     "new": 20,
+     "off": 670,
+     "kind": "base"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_HeavyBolterStep.uasset",
+   "src_sha256": "7219455b8571e3cfde1fb64476eed5761e4878f88d2598aaae20bee61238f953",
+   "dst_sha256": "d853f6cce45ec93c6f1793494e3f5760cb2ec571108ffc9c7fa30005ae727e1c",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": 1,
+     "off": 614,
+     "kind": "step"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_InfernusPistolBase.uasset",
+   "src_sha256": "b2ed406dc5a9bf4cafc035f9b690426a02489dd200231c91a1c96111830e5381",
+   "dst_sha256": "95e080b8c92e9003c0145987c9d650932243b7cf961e2bb52f5b4a2027704873",
+   "edits": [
+    {
+     "slot": 7,
+     "old": 35,
+     "new": 40,
+     "off": 704,
+     "kind": "base"
+    },
+    {
+     "slot": 4,
+     "old": 65,
+     "new": 75,
+     "off": 648,
+     "kind": "base"
+    },
+    {
+     "slot": 5,
+     "old": 5,
+     "new": 35,
+     "off": 676,
+     "kind": "base"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_InfernusPistolStep.uasset",
+   "src_sha256": "cecb9510abd67d2001e99ee235c9d5e180f2a49b5b3b5e3d87cfe70a666609e2",
+   "dst_sha256": "2821f71a5af3ab2589c2a8c328023a2996705bdfa9e5f51fe0af762c8dc68776",
+   "edits": [
+    {
+     "slot": 4,
+     "old": 10,
+     "new": 5,
+     "off": 648,
+     "kind": "step"
+    },
+    {
+     "slot": 6,
+     "old": 50,
+     "new": 100,
+     "off": 704,
+     "kind": "step"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_LascannonBase.uasset",
+   "src_sha256": "dcffc78bc7dc985f5470568c2f3fa51646119207f50e9d8fabc8d530ba958f81",
+   "dst_sha256": "8a14467c7c9981948f42f0d1998bde1aa71a26994eb930064bcaf900302863ee",
+   "edits": [
+    {
+     "slot": 4,
+     "old": 70,
+     "new": 90,
+     "off": 638,
+     "kind": "base"
+    },
+    {
+     "slot": 5,
+     "old": 25,
+     "new": 5,
+     "off": 666,
+     "kind": "base"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_LascannonStep.uasset",
+   "src_sha256": "10824ecf4a12f43c82e45367050d5f852a41104d79d234521bdcf290cb45c8f5",
+   "dst_sha256": "b976503efe1708d2a1bfef95ba0d87e0d045b8581c4945aa63625fc4ff98bf71",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": 1,
+     "off": 610,
+     "kind": "step"
+    },
+    {
+     "slot": 4,
+     "old": 10,
+     "new": 2,
+     "off": 638,
+     "kind": "step"
+    },
+    {
+     "slot": 5,
+     "old": 5,
+     "new": 1,
+     "off": 666,
+     "kind": "step"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_MeltaBase.uasset",
+   "src_sha256": "70074d6c59668656f4e97a0f2b5cdb8474edf5455c35ed924468d24c02d0c0a4",
+   "dst_sha256": "388e7bc2efd941855b0edd967b4158380f86655e1d193ba78cc36cae9329f953",
+   "edits": [
+    {
+     "slot": 7,
+     "old": 50,
+     "new": 60,
+     "off": 686,
+     "kind": "base"
+    },
+    {
+     "slot": 4,
+     "old": 70,
+     "new": 80,
+     "off": 630,
+     "kind": "base"
+    },
+    {
+     "slot": 5,
+     "old": 5,
+     "new": 35,
+     "off": 658,
+     "kind": "base"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_MeltaStep.uasset",
+   "src_sha256": "02d6cf08c4136a985de833c794a17f236f4e75d346ad3de442c881d11fdbcb58",
+   "dst_sha256": "aa83da2bcad13ec05982d989591927aa229331e265dc10185efe33448d751507",
+   "edits": [
+    {
+     "slot": 7,
+     "old": 13,
+     "new": 11,
+     "off": 714,
+     "kind": "step"
+    },
+    {
+     "slot": 4,
+     "old": 10,
+     "new": 5,
+     "off": 630,
+     "kind": "step"
+    },
+    {
+     "slot": 6,
+     "old": 50,
+     "new": 100,
+     "off": 686,
+     "kind": "step"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_MissileLauncherBase.uasset",
+   "src_sha256": "eba4ce32a8502860da614662b2354efd64ec15cc3fe9f3dffe0aba9f5ecee372",
+   "dst_sha256": "462a627686af036ee42e7ff863883e927253bc77942be4f32005c29ab98973ae",
+   "edits": [
+    {
+     "slot": 7,
+     "old": 90,
+     "new": 100,
+     "off": 706,
+     "kind": "base"
+    },
+    {
+     "slot": 5,
+     "old": 5,
+     "new": 35,
+     "off": 678,
+     "kind": "base"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_MissileLauncherStep.uasset",
+   "src_sha256": "238e3dcc570cf1078b8134ec4f417386d4db165433b3ea5b8d28bca79f554773",
+   "dst_sha256": "a3c586a06d7b6aed62d9ef66ebcfaedce67b3b79ae0095d878e3bc179325779c",
+   "edits": [
+    {
+     "slot": 5,
+     "old": 5,
+     "new": 1,
+     "off": 678,
+     "kind": "step"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_MultiMeltaBase.uasset",
+   "src_sha256": "7331928a5f379708a26a7e32dc6b30c7145b2d1e02db7c0de51eebdfa0a58de5",
+   "dst_sha256": "711299a97b060678061fcf865c692ce948b6808c964f094b3be3341441e79d7a",
+   "edits": [
+    {
+     "slot": 7,
+     "old": 110,
+     "new": 130,
+     "off": 696,
+     "kind": "base"
+    },
+    {
+     "slot": 4,
+     "old": 68,
+     "new": 78,
+     "off": 640,
+     "kind": "base"
+    },
+    {
+     "slot": 5,
+     "old": 5,
+     "new": 35,
+     "off": 668,
+     "kind": "base"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_MultiMeltaStep.uasset",
+   "src_sha256": "a1fae3b56b72aeb212997dc3870aa18bc4e1892498b851a458a5e3f527fe1a50",
+   "dst_sha256": "b4deb38213fefb7afd8f6e4c6adc17d081b169e9e547520a686e0356fb847d46",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": 1,
+     "off": 612,
+     "kind": "step"
+    },
+    {
+     "slot": 4,
+     "old": 10,
+     "new": 5,
+     "off": 640,
+     "kind": "step"
+    },
+    {
+     "slot": 6,
+     "old": 50,
+     "new": 100,
+     "off": 696,
+     "kind": "step"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_NarthesiumBase.uasset",
+   "src_sha256": "830b164f1e9385cedf551ecbd38d0015c378232b5be0fb28a26e0b1e47d46710",
+   "dst_sha256": "54a204220983ab6dba491bd1ce2a904ae618589328a82149670008c12f1ba665",
+   "edits": [
+    {
+     "slot": 4,
+     "old": 70,
+     "new": 100,
+     "off": 640,
+     "kind": "base"
+    },
+    {
+     "slot": 5,
+     "old": 20,
+     "new": 40,
+     "off": 668,
+     "kind": "base"
+    },
+    {
+     "slot": 6,
+     "old": 200,
+     "new": 300,
+     "off": 696,
+     "kind": "base"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_NarthesiumStep.uasset",
+   "src_sha256": "3b9145d6b2e4bc4d7edf5587601ef8a729e5eae42a080a1431424046ec42707b",
+   "dst_sha256": "1fce96459bcd5927e9be47f85231fde04d265433adc67f2631a9a9f743ee3584",
+   "edits": [
+    {
+     "slot": 4,
+     "old": 10,
+     "new": 1,
+     "off": 640,
+     "kind": "step"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_PlasmaCannonBase.uasset",
+   "src_sha256": "306392657c4e83f7bdd6f5312a7ca1e0b0530dd2317c32f6c2aed22afa81a2ac",
+   "dst_sha256": "124778f7ac6ac7d75680abf454f4c6ebf3cfc61de13012ad1b47dd83b2e64310",
+   "edits": [
+    {
+     "slot": 5,
+     "old": 5,
+     "new": 15,
+     "off": 672,
+     "kind": "base"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_PlasmaCannonStep.uasset",
+   "src_sha256": "40f4418b174b8e2346093bce04d81aad4f982b8bdc079599e197f4b99bba7a54",
+   "dst_sha256": "b2420545294264345c0fa246b3685ef3307fe4f4de949d4ba41d86a33a92ee07",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": 1,
+     "off": 616,
+     "kind": "step"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_PowerswordBase.uasset",
+   "src_sha256": "a8b5b027f7586b2fa79e198e34db82d864c736c58c819ff9c362f7e81658dc8d",
+   "dst_sha256": "85e6b0ddeb3fa4350521be4954b6cf7de55bbab7bdb5702a64d3eb11facd0127",
+   "edits": [
+    {
+     "slot": 7,
+     "old": 89,
+     "new": 64,
+     "off": 724,
+     "kind": "base"
+    },
+    {
+     "slot": 4,
+     "old": 70,
+     "new": 90,
+     "off": 640,
+     "kind": "base"
+    },
+    {
+     "slot": 5,
+     "old": 10,
+     "new": 1,
+     "off": 668,
+     "kind": "base"
+    },
+    {
+     "slot": 6,
+     "old": 200,
+     "new": 400,
+     "off": 696,
+     "kind": "base"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_PowerswordStep.uasset",
+   "src_sha256": "170d7cbec5707aba8bb9dad34f25aea8197963ed01f929cf01d1a669f8e9dd71",
+   "dst_sha256": "e84ae1ee5c6dfcf74e93d14e2a2509442d9283c0ab3f1d125d9b50119647ed91",
+   "edits": [
+    {
+     "slot": 4,
+     "old": 10,
+     "new": 5,
+     "off": 640,
+     "kind": "step"
+    },
+    {
+     "slot": 5,
+     "old": 5,
+     "new": 1,
+     "off": 668,
+     "kind": "step"
+    },
+    {
+     "slot": 6,
+     "old": 50,
+     "new": 100,
+     "off": 696,
+     "kind": "step"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/GravGuns/WST_T2_GravGun.uasset",
+   "src_sha256": "98ee97f3f595ced03d44a8d30d4a93e618c6393b17a402c5246b39630c1fd799",
+   "dst_sha256": "9e39ef9d5d6a9ed6b34fb953ec872fc80e81f59214ed000f401268a14d5f01e0",
+   "edits": [
+    {
+     "slot": 6,
+     "old": 1,
+     "new": 4,
+     "off": 687,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/GravGuns/WST_T3_GravGun.uasset",
+   "src_sha256": "3cc43ab015a7264e547b385c9f1a58f3c313947595837a83f4e224f2a0361502",
+   "dst_sha256": "05bea994ebd58b8fbdc74233717cc4d351f2f7d3a7050b73b84b7fc71d29e4db",
+   "edits": [
+    {
+     "slot": 6,
+     "old": 0,
+     "new": 4,
+     "off": 687,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/GravGuns/WST_T4_GravGun.uasset",
+   "src_sha256": "aad20cc0fd55328925b43c7d78f43b736e53a25e655a13ac48a6d85e5755cdd9",
+   "dst_sha256": "b87d9637d598f73611183857dc040a7f1b2194b716b5d479de7631435a260069",
+   "edits": [
+    {
+     "slot": 6,
+     "old": 1,
+     "new": 4,
+     "off": 687,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WST_T2_HeavyBolter.uasset",
+   "src_sha256": "2aae8d3eae8953b2d8f52a69aaa1d1d5e9bb02ed4824ca43e03e7f8c96eac94a",
+   "dst_sha256": "38e8e796e212be76457baa11a012c815251a707981f86f409370e93662506fcc",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": -1,
+     "off": 615,
+     "kind": "delta"
+    },
+    {
+     "slot": 7,
+     "old": 1,
+     "new": -4,
+     "off": 727,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WST_T2_IF_HeavyBolter.uasset",
+   "src_sha256": "732b2f9edb816ab62a69d8c7fbba4fc571b61d00ae48b33a11e184b2d3ba7b28",
+   "dst_sha256": "fb28cbe5937a031b364f5082bcd7a57a76d7750c6a43e7f2544e2c9e2a1889b9",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": 1,
+     "off": 621,
+     "kind": "delta"
+    },
+    {
+     "slot": 5,
+     "old": 1,
+     "new": -1,
+     "off": 677,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WST_T3_BA_HeavyBolter.uasset",
+   "src_sha256": "91334822598ad319299b41cc3e11e5eadc259bcddacacdc9b97e7fba43ae5584",
+   "dst_sha256": "8323824d5582e5854a99642d23e3c80324588385bd0607ee84e708de741e6fe3",
+   "edits": [
+    {
+     "slot": 5,
+     "old": 1,
+     "new": -1,
+     "off": 677,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WST_T3_SW_HeavyBolter.uasset",
+   "src_sha256": "3bcc76e86efc86c68986f66a9082012e29b73bd9a8e17cb767de9364ebb8a633",
+   "dst_sha256": "60e75bf642f7fb49358b633be807e34973ef9bd4602495677a602c1585f925b1",
+   "edits": [
+    {
+     "slot": 5,
+     "old": 0,
+     "new": -2,
+     "off": 677,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WST_T3_UL_HeavyBolter.uasset",
+   "src_sha256": "bc213f6d7abdf38a302bb62d62ac4ca2526f02e9b7bdfc3b691ffd97b0cfe3ef",
+   "dst_sha256": "5ea678694d8dc6b6d8a2a7133180d4bdd3c8ee24b1567c8c59ec777a75d62639",
+   "edits": [
+    {
+     "slot": 5,
+     "old": 0,
+     "new": -2,
+     "off": 677,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WST_T4_HeavyBolter.uasset",
+   "src_sha256": "fcdfcb9dbdb5c72ce2859f308f8a4a9d80310a4aee8c47ca824704829df5942d",
+   "dst_sha256": "77a00a962d2871532792abb9a0e232677eab30d2213723fc71553d23eea520e1",
+   "edits": [
+    {
+     "slot": 5,
+     "old": 1,
+     "new": -1,
+     "off": 671,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/InfernusPistols/WST_T4_BA_InfernusPistol.uasset",
+   "src_sha256": "6698841d7d7186a3d149d115f045a34ac63c213e36a0c4e7d9f9e5a2f18e5c37",
+   "dst_sha256": "2bcd9701f54ad72f92aea8960fed673459504e81812b6d11454935f34f895921",
+   "edits": [
+    {
+     "slot": 7,
+     "old": 4,
+     "new": 5,
+     "off": 742,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Lascannons/WST_T2_Lascannon.uasset",
+   "src_sha256": "642f017ca5e05214a8105e8b9511b4078f72f219554cf0517d039964abdab5ea",
+   "dst_sha256": "6580962e1bfd53fef71c7d5f8b4c118e21dad6f30e3a8f47d54745fc28e3da43",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": -2,
+     "off": 609,
+     "kind": "delta"
+    },
+    {
+     "slot": 7,
+     "old": 1,
+     "new": -6,
+     "off": 721,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Lascannons/WST_T3_Lascannon.uasset",
+   "src_sha256": "b0c3c8ce649f3f6695c474a01a8f0465c7d6454cdc78178c7ce94011985cae09",
+   "dst_sha256": "27c65fb0cebdf329f16552a5d148012bcf42246fa8c2307d37ff797a858f2efe",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": -1,
+     "off": 609,
+     "kind": "delta"
+    },
+    {
+     "slot": 7,
+     "old": 3,
+     "new": -3,
+     "off": 721,
+     "kind": "delta"
+    },
+    {
+     "slot": 8,
+     "old": -2,
+     "new": -1,
+     "off": 749,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MeltaGuns/WST_T2_MeltaGun.uasset",
+   "src_sha256": "7c39ff93bd37808606eeb7e7b40cdbb037c69777d31139d6a5177e262a9f2614",
+   "dst_sha256": "dffb323b088420d5601cfb23ea010d059d41f7d03969450932062235ec0264ac",
+   "edits": [
+    {
+     "slot": 6,
+     "old": 1,
+     "new": 2,
+     "off": 690,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MeltaGuns/WST_T3_MeltaGun.uasset",
+   "src_sha256": "b3766e1f28becadb910b5bd0b275191cfa3c07fdf5ea51c92e53f5f468f94248",
+   "dst_sha256": "9234b8fe2d50475379f801803a88840fc0dfe8a2725d9aa2321302cbbaac909f",
+   "edits": [
+    {
+     "slot": 6,
+     "old": 0,
+     "new": 2,
+     "off": 690,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MeltaGuns/WST_T4_MeltaGun.uasset",
+   "src_sha256": "cf5dfc85e673f210482acfd123fc47d6573c2deaddde37e01c761123173127fa",
+   "dst_sha256": "d9df74b2163c4862e5d2a8a8f052a57034d21b00106642758a2c0b3e2e5f82cf",
+   "edits": [
+    {
+     "slot": 6,
+     "old": 0,
+     "new": 2,
+     "off": 690,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MissileLaunchers/WST_T2_MissileLauncher.uasset",
+   "src_sha256": "fc25a0f8b4fb4243d3dc5ba9b63ca4328b7367d6d239680bbbc87d1a519b6d0e",
+   "dst_sha256": "70c22ebde3255b95f48f72ba8d1f71cbb1d59aa4c5a724ff5b2baebab3f85f79",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": -2,
+     "off": 627,
+     "kind": "delta"
+    },
+    {
+     "slot": 7,
+     "old": 1,
+     "new": -4,
+     "off": 739,
+     "kind": "delta"
+    },
+    {
+     "slot": 5,
+     "old": 1,
+     "new": 5,
+     "off": 683,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MissileLaunchers/WST_T3_MissileLauncher.uasset",
+   "src_sha256": "1342955eccc53dfad768bdafa0705236e5a050f3837a575e988b4eaff31ad26c",
+   "dst_sha256": "592c9665a5a6ebee55ed4408c6c2d97c0dcb0492b9ae300af8008309db64475c",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": -1,
+     "off": 627,
+     "kind": "delta"
+    },
+    {
+     "slot": 7,
+     "old": 3,
+     "new": -1,
+     "off": 739,
+     "kind": "delta"
+    },
+    {
+     "slot": 5,
+     "old": 1,
+     "new": 10,
+     "off": 683,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MissileLaunchers/WST_T4_MissileLauncher.uasset",
+   "src_sha256": "f68596b2e2633a4d5692636c6677349cc17267745f5a0120c5115b7128903589",
+   "dst_sha256": "566f4a95301c76792e6d362f47b4b2b336fddf61a811c86ccdb58ed2dba96aa0",
+   "edits": [
+    {
+     "slot": 5,
+     "old": 2,
+     "new": 20,
+     "off": 683,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MultiMeltas/WST_T2_MultaMelta.uasset",
+   "src_sha256": "4efe634d8914e623d218ce9b4b000b69fcb469faa0e50fde9d56d0797b428822",
+   "dst_sha256": "cf20a8bf7046899b864ecfc353468b16beb9e1e477a41f9cf54ff719ff4c1abf",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": -1,
+     "off": 612,
+     "kind": "delta"
+    },
+    {
+     "slot": 7,
+     "old": 1,
+     "new": -5,
+     "off": 724,
+     "kind": "delta"
+    },
+    {
+     "slot": 6,
+     "old": 1,
+     "new": 2,
+     "off": 696,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MultiMeltas/WST_T3_MultaMelta.uasset",
+   "src_sha256": "b8b586daedd59befe14ab30f26895ad50e5521503cb82573248d421b9d725381",
+   "dst_sha256": "3b7fec1fe78077613d78d075781faef921e7dd5af67246098ef4e1c8b24f151c",
+   "edits": [
+    {
+     "slot": 6,
+     "old": 0,
+     "new": 2,
+     "off": 696,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MultiMeltas/WST_T4_BA_MultaMelta.uasset",
+   "src_sha256": "131fa6a607dc436a17011f36e08a6232c493514f68ec34b554dd7a54056e63ff",
+   "dst_sha256": "cec39d7b3c5ad473c6c9fa9e2956dc263ffe6d9fb073bed64807042ef7f2ae79",
+   "edits": [
+    {
+     "slot": 6,
+     "old": 1,
+     "new": 2,
+     "off": 702,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/PlasmaCannons/WST_T2_PlasmaCannon.uasset",
+   "src_sha256": "0d277bbcd04d438c187d7c11ddf8ba5007fbaca42dd80e6103b3bf3fc3045a00",
+   "dst_sha256": "40cc31d93c5892bca784d40179d4d099480e91831786ed87e4f90fac685c3ce4",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": -1,
+     "off": 618,
+     "kind": "delta"
+    },
+    {
+     "slot": 7,
+     "old": 1,
+     "new": -3,
+     "off": 730,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/PlasmaCannons/WST_T3_PlasmaCannon.uasset",
+   "src_sha256": "651180d06d9bc65dfd45400f4cccec4509f64c69cd58c023e4ec42410d429ba7",
+   "dst_sha256": "ff04bf9fbbfdd658b79b1edb0d0ba3c6a50327cb1a2af48d370a6eb215a59ff6",
+   "edits": [
+    {
+     "slot": 3,
+     "old": 0,
+     "new": 1,
+     "off": 618,
+     "kind": "delta"
+    },
+    {
+     "slot": 7,
+     "old": 3,
+     "new": 6,
+     "off": 730,
+     "kind": "delta"
+    },
+    {
+     "slot": 5,
+     "old": 0,
+     "new": 2,
+     "off": 674,
+     "kind": "delta"
+    },
+    {
+     "slot": 8,
+     "old": -3,
+     "new": -2,
+     "off": 758,
+     "kind": "delta"
+    }
+   ]
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/PlasmaCannons/WST_T4_UL_PlasmaCannon.uasset",
+   "src_sha256": "ee01f04daa7cca9ee0ffff5d27cb40faed7a625f756029ec23c04f886cb75c59",
+   "dst_sha256": "fafea18b8239b5d8357ae1383c3bb01c3661296c21d436a1870b0e8a4cde63d7",
+   "edits": [
+    {
+     "slot": 5,
+     "old": 1,
+     "new": -1,
+     "off": 680,
+     "kind": "delta"
+    }
+   ]
+  }
+ ],
+ "recipe": "asset_edits"
+}

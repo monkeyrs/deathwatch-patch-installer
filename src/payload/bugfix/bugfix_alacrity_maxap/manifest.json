@@ -1,0 +1,49 @@
+{
+ "name": "bugfix_alacrity_maxap",
+ "description": "OB-10 层二修复候选 C：STAT_Plus1AP 的 APPerTurn 分量 0→1（等长单 dword），使其与全库正常生效的双分量模式 STAT_Plus1APAnd1APPerTurn 语义一致，规避「回合开始纯 CurrentAP+1 被 MaxAP 钳制/刷新吃掉」。",
+ "source": "Steam 干净基准 Build 1837603（就地改，不引用 refs/PC_EE 任何资产）",
+ "grading": "L0：bug 签名 + index 序列对照 + 28B 元素块全文唯一 + 等长 + 变化字节越界 + 改后重 walk 回读 五断言全过。L2 冷启动 / L3 实机 未验证。",
+ "install_note": "已于 2026-11-13 19:4x 用户授权投放沙盒（备份 out/backups/20261113T120248Z），沙盒在位分量 (2,1)(3,1)、patch_sandbox verify=PASS。待用户实机：迅捷 +1AP 是否落地 + Rush（肾上腺素激涌）是否受同一根 STAT 变更影响。本包与 bugfix_alacrity_ap 层一正交，可独立回滚。",
+ "status": "applied_pending_user_test",
+ "entries": [
+  {
+   "relative_path": "deathwatchgame/Content/Characters/StatSheets/StatModifiers/STAT_Plus1AP.uasset",
+   "dst_sha256": "c4810e105b4ba0f0244ad222b4c37e7cc96a966e226a4164d6d2e6841706f404",
+   "src_sha256": "cec500db964d088e6f10af286332408bf35aa0b6645d087ff8dd6c0f9ec3928d",
+   "size": 1736,
+   "differs_from_steam": true
+  }
+ ],
+ "detail": [
+  {
+   "asset": "Characters/StatSheets/StatModifiers/STAT_Plus1AP",
+   "what": "index=2 (EStatSheet::APPerTurn) 分量 value 0→1",
+   "byte_offset": "0x54a",
+   "anchor_28B": "19000000000000001100000000000000040000000200000000000000",
+   "before": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 1,
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "13": 0
+   },
+   "after": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 1,
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "13": 0
+   },
+   "delta_bytes": 0
+  }
+ ],
+ "recipe": "maxap"
+}

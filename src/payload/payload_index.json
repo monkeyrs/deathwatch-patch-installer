@@ -1,0 +1,126 @@
+{
+ "built_utc": "2026-11-20T01:29:47Z",
+ "packages": [
+  {
+   "id": "bugfix_parry",
+   "kind": "bugfix",
+   "files": [
+    {
+     "rel": "manifest.json",
+     "sha256": "eda8596e620c38df36c31dad85f8400a89a7edeb8ef50a7e547a1e17fd919fab",
+     "size": 1646
+    }
+   ]
+  },
+  {
+   "id": "bugfix_wargear_material",
+   "kind": "bugfix",
+   "files": [
+    {
+     "rel": "manifest.json",
+     "sha256": "1d496729ec79c6e19e95c30496051431afeeeea60daf192241b8f3b229eec63d",
+     "size": 2939
+    }
+   ]
+  },
+  {
+   "id": "bugfix_chapter_icons",
+   "kind": "bugfix",
+   "files": [
+    {
+     "rel": "manifest.json",
+     "sha256": "87d844d862a5d9b33c9bca7ffc82866ee20b0670c21d3aed428cd225a2316dab",
+     "size": 1925
+    }
+   ]
+  },
+  {
+   "id": "bugfix_alacrity_ap",
+   "kind": "bugfix",
+   "files": [
+    {
+     "rel": "manifest.json",
+     "sha256": "f28ffbd5dc835085f194f88a5cfc7f3623a658a335ba3cff7224c88684fb742e",
+     "size": 2013
+    }
+   ]
+  },
+  {
+   "id": "bugfix_alacrity_maxap",
+   "kind": "bugfix",
+   "files": [
+    {
+     "rel": "manifest.json",
+     "sha256": "f65a39904e5f85405f7d0d671cb9eb2188650bd792d272a82520fd595e42233f",
+     "size": 1930
+    }
+   ]
+  },
+  {
+   "id": "bugfix_praetorian_mitigation",
+   "kind": "bugfix",
+   "files": [
+    {
+     "rel": "manifest.json",
+     "sha256": "c64293ba55b0ce9888335bd9c10b246b265a0f535287ae10485576d0bd139e93",
+     "size": 1572
+    }
+   ]
+  },
+  {
+   "id": "bugfix_crippling_shot_desc",
+   "kind": "bugfix",
+   "files": [
+    {
+     "rel": "manifest.json",
+     "sha256": "8fd138a9563c60b01205e368107f822b40c532571fdd6c21b03d3874aa45ae73",
+     "size": 2279
+    }
+   ]
+  },
+  {
+   "id": "tier_igpu",
+   "kind": "visual",
+   "files": [
+    {
+     "rel": "manifest.json",
+     "sha256": "dfe1345b0f99118f54b55be2cc6ad4fcf772145f38dd7f8de1f72afeaf1c49f5",
+     "size": 1587
+    }
+   ]
+  },
+  {
+   "id": "tier_dgpu",
+   "kind": "visual",
+   "files": [
+    {
+     "rel": "manifest.json",
+     "sha256": "2759f9f5911126a53336db55d49cf15d51e823cd76a118c007ce1f5a46db4181",
+     "size": 1615
+    }
+   ]
+  },
+  {
+   "id": "tier_max",
+   "kind": "visual",
+   "files": [
+    {
+     "rel": "manifest.json",
+     "sha256": "dc434d793f1bce5f45495c06e5349134b6b37746d65010d47976f25a111c6ae4",
+     "size": 1628
+    }
+   ]
+  },
+  {
+   "id": "balance_user_r14",
+   "kind": "balance",
+   "files": [
+    {
+     "rel": "manifest.json",
+     "sha256": "ef7a07b9cdc526c8f92015e8074c573423cf6acd50839e395672f8f6f6698269",
+     "size": 23518
+    }
+   ]
+  }
+ ]
+}

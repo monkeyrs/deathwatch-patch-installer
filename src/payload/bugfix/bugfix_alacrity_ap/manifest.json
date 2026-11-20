@@ -1,0 +1,40 @@
+{
+ "name": "bugfix_alacrity_ap",
+ "description": "OB-10 两层完整语义修复：层一=迅捷判定链 TurnNumber==0 守卫恒假（回合号从 1 起算），旁路为 AND1 输入重指向 CurrentPlayer 守卫；层二=BUFF_Plus1AP_1Turn 缺省 TurnsLeft 疑秒加秒删（OnBuffAdded 加、OnBuffRemoved 反扣 ⇒ AP 不涨），变长插入 TurnsLeft=1 与同族一致。",
+ "source": "Steam 干净基准 Build 1837603（就地改，不引用 refs/PC_EE 任何资产）",
+ "grading": "L0：层一等长单字节+双断言+diff 校验；层二 name/import/既有属性/其余 export 数据逐字节断言 + decode_bp 函数清单不变（uasset_mutate.verify_insert 全过）。L2 冷启动 / L3 实机未验证。",
+ "install_note": "首个变长+等长混合包。实机若加载 Fatal：整体 restore 即可（基准备份在沙盒）.",
+ "entries": [
+  {
+   "relative_path": "deathwatchgame/Content/Characters/Buffs/BUFF_25PercentGain1APOnBeginTurn.uasset",
+   "dst_sha256": "2d5454ef955ad31e5dd0a752a8a248fd5f7c0c1c2588ab74621bc27de7468e75",
+   "src_sha256": "563ac11611fe2124b59139cc997f30bb306844a5cda8fbc8768c90520c0a2499",
+   "size": 5937,
+   "differs_from_steam": true
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Characters/Buffs/BUFF_Plus1AP_1Turn.uasset",
+   "dst_sha256": "96430445e56f609a9ae0dd1442a4e9f2922fbbb896a52ce267059876214dbcf5",
+   "src_sha256": "e4a24c684bcc38d5f857c460e11ab45f6833b58ef7a617897b84f4b2282b4563",
+   "size": 3199,
+   "differs_from_steam": true
+  }
+ ],
+ "detail": [
+  {
+   "asset": "Characters/Buffs/BUFF_25PercentGain1APOnBeginTurn",
+   "what": "AND1 第一输入 prop5→3（旁路 TurnNumber 守卫，保留 0.25）",
+   "byte_offset": "0x1452",
+   "anchor": "1ce9ffffff01050000000103000000"
+  },
+  {
+   "asset": "Characters/Buffs/BUFF_Plus1AP_1Turn",
+   "what": "CDO 插入 TurnsLeft=1（IntProperty，变长 +42B）",
+   "delta_bytes": 42,
+   "add_names": [
+    "TurnsLeft"
+   ]
+  }
+ ],
+ "recipe": "alacrity_ap"
+}

@@ -1,0 +1,30 @@
+{
+ "name": "bugfix_parry",
+ "description": "c) 逻辑 BUG 修复包 · OB-01 招架数值与文案不一致（用户裁定数值向）：BUFF_Parry 的 DamageReduction 0.8 -> 0.2，使实际吸收 80%/承受 20%，与既有描述「absorbing 80% of the damage」一致。单字节等长就地改，文件大小不变、资产内部偏移零改动。",
+ "source": "Steam 干净基准 Build 1837603（就地改，不引用 refs/PC_EE 任何资产）",
+ "grading": "L0 构成：等长 + 只改 1 字节 + 唯一性断言（全资产 0.8f 只 1 处）+ 回读 0.2f；L1：属性表可被同一解析器重读；L2/L3 实机未验证（不得写「已修复」）。分级：【已确认 字节级定位】+【玩法变更：用户 2026-11-12 明确裁定数值向】",
+ "install_note": "按 relative_path 覆盖到游戏同名路径（先自行备份原文件）。回滚：用 manifest 的 src_sha256 校验原文件并还原。",
+ "entries": [
+  {
+   "relative_path": "deathwatchgame/Content/Characters/Buffs/BUFF_Parry.uasset",
+   "dst_sha256": "e9de8482475e2c72736c4c4dcd57bbe2b72a6cbbcaafcea92f0cfa3d824221c5",
+   "src_sha256": "05ee099b7a06e3b3e03303035091d91e2842bd122dca7bfbafaed00064f2daea",
+   "size": 7085,
+   "differs_from_steam": true
+  }
+ ],
+ "detail": [
+  {
+   "asset": "Characters/Buffs/BUFF_Parry",
+   "property": "DamageReduction",
+   "float_offset": "0x1a19",
+   "byte_offset": "0x1a1c",
+   "bytes_before": "cdcc4c3f",
+   "bytes_after": "cdcc4c3e",
+   "value_before": 0.800000011920929,
+   "value_after": 0.20000000298023224,
+   "desc_string": "absorbing 80% of the damage"
+  }
+ ],
+ "recipe": "parry"
+}

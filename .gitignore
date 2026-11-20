@@ -1,0 +1,26 @@
+# Python / venv
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+*.egg
+
+# PyInstaller / build artifacts
+build/
+dist/
+*.spec.bak
+*.manifest
+*.pkg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Archive dir —— 调试截图 / 迁移提示词等历史产物，不上主分支
+archive/

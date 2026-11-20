@@ -1,0 +1,7 @@
+- Each stat final = **base (family baseline) + step (per-tier increment) × delta (this weapon's tier offset)**.
+- Every heavy weapon gains a usable **1AP variant**.
+- Lascannon accuracy raised.
+- Missile launcher crit and splash raised (backend multiplier 0.35 -> 0.99; display text 35% -> 99%, applied after the Chinese pack; re-running only the Chinese pack will overwrite it back to 35%).
+- Melta family close-range burst strengthened (crit + accuracy).
+- Grav-gun / power sword / narthesium: lower damage, higher accuracy and crit damage.
+- Crippling Shot chance 2% -> 8% (the Bugfix card corrects the 1% description to 2%; this patch raises the actual trigger chance from 2% to 8%, with the display text changed to 8% at equal length).

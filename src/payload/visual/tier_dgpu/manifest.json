@@ -1,0 +1,38 @@
+{
+ "schema_version": 1,
+ "kind": "visual_enhance_tier",
+ "tier_id": "tier_dgpu",
+ "parent": "visual_enhance",
+ "game_appid": 394450,
+ "game_buildid": 1837603,
+ "entries": [
+  {
+   "id": "tier_dgpu",
+   "entry_class": "ini",
+   "layer": "config_ini_default_layer",
+   "relative_path": "deathwatchgame/Config/DefaultEngine.ini",
+   "src_sha256": "5124ad5a4bc79d5513f376b9a69029611b1716fa022e3b3257bebd8c3183ef95",
+   "dst_sha256": "a1e656daff8e0cdcdfe2cced98e99778a67f5c0cf44dd6572234bfa1ca4b595e",
+   "size": 148358,
+   "hypothesis": "= 用户实机验收的 g13 + 半透明光照体积 128（sandbox 2026-11-18 试玩中），默认档；4060 级主流独显。MSAA 保持原版 4（用户确认「AO 维持现状」后不再动 AA 链）。",
+   "recalc": "python \"steam patching/patches/visual_enhance/build_tiers.py\" --check",
+   "acceptable_src_sha256": [
+    "09aa96b5b2919703643c100d2bb9a115d77f2a288ced2d5a74729966256963e9",
+    "3e3de38e3f4be58944d200d7e9e2b931782340900c6b67f34c25508845735808",
+    "42cefb01241a9775ae7a8ae2de8c6f58b2d8e35b6419218bd8cd94b52a2ef221",
+    "5124ad5a4bc79d5513f376b9a69029611b1716fa022e3b3257bebd8c3183ef95",
+    "5b20379028f09cf7d650a199d1fe2902d4e8df727d1f75b57da59508e39111e5",
+    "a1e656daff8e0cdcdfe2cced98e99778a67f5c0cf44dd6572234bfa1ca4b595e",
+    "e47428691890fa37dad37745e836f857ee8a4d7b8e7559b44f88a78744c4bab9",
+    "f1e6ff5f39a2b6f18de2a462bce3cccd288988eb18cd1604c4aefdf3c7dc1a2c"
+   ]
+  }
+ ],
+ "mutually_exclusive_with": [
+  "tier_original",
+  "tier_igpu",
+  "tier_max"
+ ],
+ "recipe": "visual_ini",
+ "tier": "tier_dgpu"
+}
