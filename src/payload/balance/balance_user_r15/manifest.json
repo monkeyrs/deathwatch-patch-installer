@@ -1,7 +1,7 @@
 {
- "package": "balance_user_r14",
+ "package": "balance_user_r15",
  "generated": "2026-11-18",
- "scope": "仅武器：用户裁定 OK 子集（38 槽，终值±5%容差，最大偏差 0.00%）+ 导弹溅射倍率 0.35→0.99 + 致残射击概率 2%→8%；冲突 0 槽未纳入；战士/技能不改",
+ "scope": "仅武器：用户裁定 OK 子集（37 槽，终值±5%容差，最大偏差 0.00%）+ 导弹溅射倍率 0.35→0.99 + 致残射击概率 2%→8%；冲突 0 槽未纳入；战士/技能不改",
  "entries": [
   {
    "relative_path": "deathwatchgame/Content/Characters/Actions/PayloadActions/XP_AoECombat.uasset",
@@ -97,7 +97,7 @@
   {
    "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_InfernusPistolBase.uasset",
    "src_sha256": "b2ed406dc5a9bf4cafc035f9b690426a02489dd200231c91a1c96111830e5381",
-   "dst_sha256": "95e080b8c92e9003c0145987c9d650932243b7cf961e2bb52f5b4a2027704873",
+   "dst_sha256": "f1b1df50ac1f63b40dabb803b979b8f8dfb299e0dffdd954e65626313aeaa4fc",
    "edits": [
     {
      "slot": 7,
@@ -116,7 +116,7 @@
     {
      "slot": 5,
      "old": 5,
-     "new": 35,
+     "new": 25,
      "off": 676,
      "kind": "base"
     }
@@ -125,20 +125,13 @@
   {
    "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_InfernusPistolStep.uasset",
    "src_sha256": "cecb9510abd67d2001e99ee235c9d5e180f2a49b5b3b5e3d87cfe70a666609e2",
-   "dst_sha256": "2821f71a5af3ab2589c2a8c328023a2996705bdfa9e5f51fe0af762c8dc68776",
+   "dst_sha256": "509b1b442c2122bd713f5d67965473c1257e0d966b4f59f1f306534649391627",
    "edits": [
     {
      "slot": 4,
      "old": 10,
      "new": 5,
      "off": 648,
-     "kind": "step"
-    },
-    {
-     "slot": 6,
-     "old": 50,
-     "new": 100,
-     "off": 704,
      "kind": "step"
     }
    ]
@@ -195,7 +188,7 @@
   {
    "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_MeltaBase.uasset",
    "src_sha256": "70074d6c59668656f4e97a0f2b5cdb8474edf5455c35ed924468d24c02d0c0a4",
-   "dst_sha256": "388e7bc2efd941855b0edd967b4158380f86655e1d193ba78cc36cae9329f953",
+   "dst_sha256": "88f5fdadd1d323375a5049142361f03b5658630803170a7742ac67e4b273508b",
    "edits": [
     {
      "slot": 7,
@@ -214,7 +207,7 @@
     {
      "slot": 5,
      "old": 5,
-     "new": 35,
+     "new": 25,
      "off": 658,
      "kind": "base"
     }
@@ -223,7 +216,7 @@
   {
    "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_MeltaStep.uasset",
    "src_sha256": "02d6cf08c4136a985de833c794a17f236f4e75d346ad3de442c881d11fdbcb58",
-   "dst_sha256": "aa83da2bcad13ec05982d989591927aa229331e265dc10185efe33448d751507",
+   "dst_sha256": "27450879bb2a4e2a0e8d02a7cdbd272d66b235d10851f51a8ea4d281ab7a44f0",
    "edits": [
     {
      "slot": 7,
@@ -237,13 +230,6 @@
      "old": 10,
      "new": 5,
      "off": 630,
-     "kind": "step"
-    },
-    {
-     "slot": 6,
-     "old": 50,
-     "new": 100,
-     "off": 686,
      "kind": "step"
     }
    ]
@@ -286,7 +272,7 @@
   {
    "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_MultiMeltaBase.uasset",
    "src_sha256": "7331928a5f379708a26a7e32dc6b30c7145b2d1e02db7c0de51eebdfa0a58de5",
-   "dst_sha256": "711299a97b060678061fcf865c692ce948b6808c964f094b3be3341441e79d7a",
+   "dst_sha256": "89e5a6496797392ced185f4861f1b2b721fdd56ae8cee00b770dda7b3d159e2d",
    "edits": [
     {
      "slot": 7,
@@ -305,7 +291,7 @@
     {
      "slot": 5,
      "old": 5,
-     "new": 35,
+     "new": 25,
      "off": 668,
      "kind": "base"
     }
@@ -314,7 +300,7 @@
   {
    "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Balancing/WST_MultiMeltaStep.uasset",
    "src_sha256": "a1fae3b56b72aeb212997dc3870aa18bc4e1892498b851a458a5e3f527fe1a50",
-   "dst_sha256": "b4deb38213fefb7afd8f6e4c6adc17d081b169e9e547520a686e0356fb847d46",
+   "dst_sha256": "b85c54448ee83bc99adacce0d287d310f0c3eb354a68ddff3d77f59be19c8fa9",
    "edits": [
     {
      "slot": 3,
@@ -328,13 +314,6 @@
      "old": 10,
      "new": 5,
      "off": 640,
-     "kind": "step"
-    },
-    {
-     "slot": 6,
-     "old": 50,
-     "new": 100,
-     "off": 696,
      "kind": "step"
     }
    ]
@@ -692,12 +671,12 @@
   {
    "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MeltaGuns/WST_T3_MeltaGun.uasset",
    "src_sha256": "b3766e1f28becadb910b5bd0b275191cfa3c07fdf5ea51c92e53f5f468f94248",
-   "dst_sha256": "9234b8fe2d50475379f801803a88840fc0dfe8a2725d9aa2321302cbbaac909f",
+   "dst_sha256": "9e1affd06e01690f18e199e7b81ece4b828f541807c1cfc67b8709a386aa7452",
    "edits": [
     {
      "slot": 6,
      "old": 0,
-     "new": 2,
+     "new": 1,
      "off": 690,
      "kind": "delta"
     }
@@ -706,12 +685,12 @@
   {
    "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MeltaGuns/WST_T4_MeltaGun.uasset",
    "src_sha256": "cf5dfc85e673f210482acfd123fc47d6573c2deaddde37e01c761123173127fa",
-   "dst_sha256": "d9df74b2163c4862e5d2a8a8f052a57034d21b00106642758a2c0b3e2e5f82cf",
+   "dst_sha256": "6511338947eaef397ea4c25ca381f9a15165b3a452fa0495c922e09384f3ce68",
    "edits": [
     {
      "slot": 6,
      "old": 0,
-     "new": 2,
+     "new": 1,
      "off": 690,
      "kind": "delta"
     }
@@ -818,12 +797,12 @@
   {
    "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MultiMeltas/WST_T3_MultaMelta.uasset",
    "src_sha256": "b8b586daedd59befe14ab30f26895ad50e5521503cb82573248d421b9d725381",
-   "dst_sha256": "3b7fec1fe78077613d78d075781faef921e7dd5af67246098ef4e1c8b24f151c",
+   "dst_sha256": "72d289fef54e42fa4ac0a6034b0cfee7970498f21c144e7c34b91d12881f4c3c",
    "edits": [
     {
      "slot": 6,
      "old": 0,
-     "new": 2,
+     "new": 1,
      "off": 696,
      "kind": "delta"
     }

@@ -669,8 +669,8 @@ check("balance 声明只留爱好者/非官方/回滚说明，不再重复六方
 _bal_list = (m.APP_DIR / "balance_list_zh.md").read_text(encoding="utf-8")
 check("balance 数值清单统一承载六方向",
       all(x in _bal_list for x in ("1AP", "激光炮", "导弹发射器", "热熔", "重力枪", "致残射击")))
-check("balance 包指向 r14（含致残射击 BUFF .edit）",
-      _bal_feat["packages"] == ["balance_user_r14"])
+check("balance 包指向 r15（含致残射击 BUFF .edit）",
+      _bal_feat["packages"] == ["balance_user_r15"])
 check("balance 默认不勾选且 enabled", _bal_feat["default_checked"] is False
       and _bal_feat["enabled"] is True)
 QTest.mouseClick(bal, Qt.MouseButton.LeftButton)

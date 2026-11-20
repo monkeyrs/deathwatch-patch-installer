@@ -1,5 +1,5 @@
 {
- "built_utc": "2026-11-20T01:29:47Z",
+ "built_utc": "2026-11-20T09:35:57Z",
  "packages": [
   {
    "id": "bugfix_parry",
@@ -73,8 +73,8 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "8fd138a9563c60b01205e368107f822b40c532571fdd6c21b03d3874aa45ae73",
-     "size": 2279
+     "sha256": "de950c58d332207ada9646507034cacc2bc125c2078bd47643521585174bfa55",
+     "size": 2352
     }
    ]
   },
@@ -112,13 +112,13 @@
    ]
   },
   {
-   "id": "balance_user_r14",
+   "id": "balance_user_r15",
    "kind": "balance",
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "ef7a07b9cdc526c8f92015e8074c573423cf6acd50839e395672f8f6f6698269",
-     "size": 23518
+     "sha256": "2950dc2f920a27bf9a5e36ba626c2a0b84129a842a70a2498734e488cc6e3b40",
+     "size": 23200
     }
    ]
   }

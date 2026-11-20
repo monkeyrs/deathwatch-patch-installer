@@ -1,14 +1,14 @@
 {
  "meta": {
   "source": "427/Tools/zh_lex/out/unified/zh_lexicon.xlsx",
-  "source_sha256": "af6511687002295c573c8a74cfde387be369d996670b66b8b98a54dbd58172e7",
+  "source_sha256": "d408e8a324feef2f866d6fed790d5435a7f2ab27e5e32ffc1efd256159ecae1c",
   "sheet": "keys",
-  "generated_utc": "2026-11-20T00:46:49Z",
+  "generated_utc": "2026-11-20T09:35:57Z",
   "python": "3.13",
   "counts": {
    "locres": 2162,
    "flairname": 16,
-   "asset_text": 15,
+   "asset_text": 17,
    "bfl": 59
   }
  },
@@ -5501,7 +5501,7 @@
    "ns": "",
    "key": "0EC3414B4E9D67B4D307D5B0035E9999",
    "hash": 2722433133,
-   "zh": "泰伦虫族在斯卡尔被歼灭。然而，其虫巢舰队如今正推进至环绕名为提灯星的星云团的最终防线。有目击报告称，一颗邻近行星「提灯之光」表面出现了一只虫巢暴君。失去如此强大的节点生物将使虫巢意志陷入混乱，为我方创造进攻良机！"
+   "zh": "泰伦虫族在斯卡尔被歼灭。然而，这只虫巢舰队此刻正朝着最终防线压来，位于提灯星云团外围。有目击报告称，邻近行星「提灯星」的地表出现了一只虫巢暴君。失去如此强大的节点生物将使虫巢意志陷入混乱，为我方创造进攻良机！"
   },
   {
    "ns": "",
@@ -13094,6 +13094,18 @@
    "key": "659B067F417742FAEE13509FF3DCB4D1",
    "zh": "点击你想瞄准的位置",
    "usage": "教程/瞄准提示"
+  },
+  {
+   "asset_file": "UI/StickerBook/Widgets/PCSpecialMarines/ContentWidget_EnhancedEdition_SilverSkulls.uasset",
+   "key": "E3B099E8411C049B0F0D968383E7977A",
+   "zh": "银色颅骨",
+   "usage": "战斗HUD 场景物名"
+  },
+  {
+   "asset_file": "Wargear/WargearTemplates/PowerAxes/WT_T2_Poweraxe.uasset",
+   "key": "1768FF2A4E728F32F15235A865C1D2CB",
+   "zh": "精工",
+   "usage": "武器描述"
   }
  ],
  "bfl": {
