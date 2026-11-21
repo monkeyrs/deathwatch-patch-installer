@@ -14,7 +14,7 @@
    "src_sha256": "5124ad5a4bc79d5513f376b9a69029611b1716fa022e3b3257bebd8c3183ef95",
    "dst_sha256": "3e3de38e3f4be58944d200d7e9e2b931782340900c6b67f34c25508845735808",
    "size": 148455,
-   "hypothesis": "80 级卡档：画质上限。200% 渲染率与 MSAA 8 已由用户 11-20 sandbox 实机验证可运行，因显卡压力较大弃为默认档；MSAA 枚举上限 8 见 ghidra_enums.json。压力大时换独显档即可。",
+   "hypothesis": "High-end tier (RTX 4080 class): maximum quality. 200% render scale and MSAA 8 were validated in the sandbox but are not the default due to GPU load. The MSAA enum cap of 8 is documented in ghidra_enums.json. Switch to the discrete tier if performance is poor.",
    "recalc": "python \"steam patching/patches/visual_enhance/build_tiers.py\" --check",
    "acceptable_src_sha256": [
     "09aa96b5b2919703643c100d2bb9a115d77f2a288ced2d5a74729966256963e9",

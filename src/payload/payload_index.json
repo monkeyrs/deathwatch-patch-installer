@@ -1,5 +1,5 @@
 {
- "built_utc": "2026-11-21T03:56:22Z",
+ "built_utc": "2026-11-21T07:52:29Z",
  "packages": [
   {
    "id": "bugfix_parry",
@@ -7,8 +7,8 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "eda8596e620c38df36c31dad85f8400a89a7edeb8ef50a7e547a1e17fd919fab",
-     "size": 1646
+     "sha256": "c0e65c5d5f0c8bdae73b2cff791c59d41186c03981dd127e99ef4da9cbb15d03",
+     "size": 1651
     }
    ]
   },
@@ -18,8 +18,8 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "1d496729ec79c6e19e95c30496051431afeeeea60daf192241b8f3b229eec63d",
-     "size": 2939
+     "sha256": "d547c2f5f0cc25d19f2598c211b72727267921c6fa39d72937cb809f920bb0a3",
+     "size": 3024
     }
    ]
   },
@@ -29,8 +29,8 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "87d844d862a5d9b33c9bca7ffc82866ee20b0670c21d3aed428cd225a2316dab",
-     "size": 1925
+     "sha256": "7c6233e675b0b1edc82306056fa27ebda1f66eaef30f1ced508feaec51cf684d",
+     "size": 1988
     }
    ]
   },
@@ -40,8 +40,8 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "f28ffbd5dc835085f194f88a5cfc7f3623a658a335ba3cff7224c88684fb742e",
-     "size": 2013
+     "sha256": "f6587672082946aa95da90ae001d6735e0c346bd36cbe44634e7e7f2114b6a20",
+     "size": 2226
     }
    ]
   },
@@ -51,8 +51,8 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "f65a39904e5f85405f7d0d671cb9eb2188650bd792d272a82520fd595e42233f",
-     "size": 1930
+     "sha256": "0996b0a533163b17bb74fb42ddd8d5c4c222cb58d8d3d4743fb849f6c6d1d639",
+     "size": 2092
     }
    ]
   },
@@ -62,8 +62,8 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "c64293ba55b0ce9888335bd9c10b246b265a0f535287ae10485576d0bd139e93",
-     "size": 1572
+     "sha256": "ebe536c6863907e22dccee92d1ed77ea3e96e9f216c18d43f01e36293418ddb1",
+     "size": 1785
     }
    ]
   },
@@ -73,8 +73,8 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "de950c58d332207ada9646507034cacc2bc125c2078bd47643521585174bfa55",
-     "size": 2352
+     "sha256": "3f15bfb33ef071651b764785cc5ac1a2765d1ee0778bb1c3de6237497c05a40a",
+     "size": 2563
     }
    ]
   },
@@ -84,8 +84,8 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "dfe1345b0f99118f54b55be2cc6ad4fcf772145f38dd7f8de1f72afeaf1c49f5",
-     "size": 1587
+     "sha256": "636f0d50519815b06f88297d9837c1d19e4942921d9888b2598328a05d3fb397",
+     "size": 1606
     }
    ]
   },
@@ -95,7 +95,7 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "2759f9f5911126a53336db55d49cf15d51e823cd76a118c007ce1f5a46db4181",
+     "sha256": "93eb242c61112036fa2306fe00c99003d41520b9ab157a8eb82539b8f345e7e8",
      "size": 1615
     }
    ]
@@ -106,8 +106,8 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "dc434d793f1bce5f45495c06e5349134b6b37746d65010d47976f25a111c6ae4",
-     "size": 1628
+     "sha256": "df48d3268e5103eca04c462d37fdc5193d7be0e1c7e0c1a18a4005a7056f4371",
+     "size": 1667
     }
    ]
   },
@@ -117,8 +117,8 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "58a9eda36d9277f2f407b59dec0f614530cf76d579a1d5e0b4d96f9b26e1ca50",
-     "size": 23287
+     "sha256": "a541b71d4892590fdd6ebce043b48cb5d8b75fc81dbece214ed1e3bef5ca0dfc",
+     "size": 23295
     }
    ]
   }
