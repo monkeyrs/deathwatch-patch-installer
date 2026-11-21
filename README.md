@@ -13,15 +13,10 @@
   <a href="https://github.com/monkeyrs/deathwatch-patch-installer/releases/latest"><img src="https://img.shields.io/badge/download-v1.0-0ab887" alt="Download v1.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/monkeyrs/deathwatch-patch-installer" alt="GPL-3.0 license"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.13-blue" alt="Python 3.13"></a>
-  <a href="https://www.qt.io/qt-for-python"><img src="https://img.shields.io/badge/UI-PySide6-41CD52" alt="PySide6"></a>
-  <a href="src/features.json"><img src="https://img.shields.io/badge/Steam_build-1837603-lightgrey" alt="Steam build 1837603"></a>
+  <a href="https://ko-fi.com/monkeyrs" rel="nofollow"><img src="https://img.shields.io/badge/Ko--fi-F16061?logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
 </p>
 
-<div align="center" dir="auto">
-<a href="https://ko-fi.com/monkeyrs" rel="nofollow"><img src="https://img.shields.io/badge/Support_me_on_Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi" style="max-width: 100%;"></a>
-</div>
-
-<p align="center"><sub><b>English</b> · <a href="docs/lang/README.zh-CN.md">简体中文</a></sub></p>
+<p align="center"><b>English</b> · <a href="docs/lang/README.zh-CN.md">简体中文</a></p>
 
 **Free, open source, and yours to inspect.** The installer only works on a legally owned local copy of the game. It does **not** distribute the game executable, `.uasset` / `.locres` files, audio, artwork, or full configuration files. Every change is recipe-based, calculated against your original files, and backed up before being written.
 
@@ -79,7 +74,8 @@ All logs and backups stay inside the game directory. The installer never reads a
 <summary><b>Set up the environment</b></summary>
 
 ```powershell
-cd INSTALLER
+git clone https://github.com/monkeyrs/deathwatch-patch-installer.git
+cd deathwatch-patch-installer
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 ```
@@ -134,6 +130,6 @@ The output is `dist\DeathwatchPatchInstaller.exe`. The spec prunes unused Qt mod
 
 If this installer saved you time, you can support development with a coffee.
 
-<a href="https://ko-fi.com/monkeyrs" rel="nofollow"><img src="https://img.shields.io/badge/Support_me_on_Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Support me on Ko-fi"></a>
+[Support me on Ko-fi](https://ko-fi.com/monkeyrs)
 
 [GPL-3.0 license](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md) · [Report an issue](https://github.com/monkeyrs/deathwatch-patch-installer/issues)

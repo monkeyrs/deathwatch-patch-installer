@@ -13,15 +13,10 @@
   <a href="https://github.com/monkeyrs/deathwatch-patch-installer/releases/latest"><img src="https://img.shields.io/badge/download-v1.0-0ab887" alt="Download v1.0"></a>
   <a href="../../LICENSE"><img src="https://img.shields.io/github/license/monkeyrs/deathwatch-patch-installer" alt="GPL-3.0 license"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.13-blue" alt="Python 3.13"></a>
-  <a href="https://www.qt.io/qt-for-python"><img src="https://img.shields.io/badge/UI-PySide6-41CD52" alt="PySide6"></a>
-  <a href="../../src/features.json"><img src="https://img.shields.io/badge/Steam_build-1837603-lightgrey" alt="Steam build 1837603"></a>
+  <a href="https://ko-fi.com/monkeyrs" rel="nofollow"><img src="https://img.shields.io/badge/Ko--fi-F16061?logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
 </p>
 
-<div align="center" dir="auto">
-<a href="https://ko-fi.com/monkeyrs" rel="nofollow"><img src="https://img.shields.io/badge/Support_me_on_Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Ko-fi" style="max-width: 100%;"></a>
-</div>
-
-<p align="center"><sub><a href="../../README.md">English</a> · <b>简体中文</b></sub></p>
+<p align="center"><a href="../../README.md">English</a> · <b>简体中文</b></p>
 
 **免费、开源，代码可自行审阅。** 安装器只作用于你本机已有的正版游戏，不分发游戏本体、`.uasset` / `.locres` 文件、音频、贴图或完整配置。所有改动都基于 recipe 在你的原始文件上计算，写入前逐文件备份。
 
@@ -50,7 +45,7 @@ Release 是单文件 Windows 程序，最终用户不需要 Python，也不需�
 
 | 功能 | 说明 |
 | --- | --- |
-| **中文文本** | 界面、称号、战团标签全中文；安装时就地生成。系统语言为中文时默认勾选。详见[中文文本清单](../../src/balance_list_zh.md)所在目录的说明。 |
+| **中文文本** | 界面、称号、战团标签全中文；安装时就地生成。系统语言为中文时默认勾选。 |
 | **Bug 修正** | 7 项已实机验证的修复，默认勾选。详见 [Bug 详情](../../src/bugfix_list_zh.md)。 |
 | **光影增强** | 三档配置级画质增强：核显 / 独显 / 最高。原版外观用「还原到原版」恢复。详见[光影详情](../../src/visual_list_zh.md)。 |
 | **镜头限制解除** | 解除镜头高度 / 俯仰限制；默认不勾选，勾选时会显示谨慎提醒。 |
@@ -79,7 +74,8 @@ Release 是单文件 Windows 程序，最终用户不需要 Python，也不需�
 <summary><b>配置环境</b></summary>
 
 ```powershell
-cd INSTALLER
+git clone https://github.com/monkeyrs/deathwatch-patch-installer.git
+cd deathwatch-patch-installer
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 ```
@@ -134,6 +130,6 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
 
 如果它帮你省了时间，可以用一杯咖啡支持开发。
 
-<a href="https://ko-fi.com/monkeyrs" rel="nofollow"><img src="https://img.shields.io/badge/Support_me_on_Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Support me on Ko-fi"></a>
+[Support me on Ko-fi](https://ko-fi.com/monkeyrs)
 
 [GPL-3.0 许可证](../../LICENSE) · [第三方声明](../../THIRD_PARTY_NOTICES.md) · [反馈问题](https://github.com/monkeyrs/deathwatch-patch-installer/issues)
