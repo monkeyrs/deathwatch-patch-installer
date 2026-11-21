@@ -1,7 +1,7 @@
 {
   "game_appid": 394450,
   "game_buildid": 1837603,
-  "note": "特性注册表（数据驱动）。default_checked: true / false / \"zh_system\"（仅系统语言为中文时默认勾选，用户 2026-11-13 裁定）。分发裁定（用户 2026-11-13 / 11-14）：不包含中文配音（vo_zh 仅内部沙盒保留，不分发）；中文文本不直接分发 locres，改为运行时生成——构建期把唯一源 zh_lexicon.xlsx 导出为 app/zh_runtime.json，安装时四条链（locres / FlairName / asset_text / BFL）就地改写并逐文件备份。bonus_steam_ini 先不搞，不入注册表；CODEX / Steam 模拟器不随包。",
+  "note": "Data-driven feature registry. default_checked accepts true, false, or \"zh_system\" (selected by default only when the system language is Chinese). Distribution policy: Chinese voice is not included (vo_zh is retained for internal use only); Chinese text is generated at install time rather than shipped as locres — the build exports the single source zh_lexicon.xlsx to app/zh_runtime.json, and installation rewrites four chains (locres / FlairName / asset_text / BFL) in place with a per-file backup. bonus_steam_ini is not implemented and not registered; CODEX and the Steam emulator are not bundled.",
   "features": [
     {
       "id": "zh_text",
@@ -139,7 +139,7 @@
         "zh": "爱好者武器平衡调整（仅武器，不改战士/技能；默认不勾选，点卡查看说明）。",
         "en": "Fan-made weapon balance tweaks (weapons only, no marine/skill changes; unchecked by default, click for details)."
       },
-      "packages": ["balance_user_r15"],
+      "packages": ["balance_user_r17"],
       "detail_doc": {
         "zh": "balance_list_zh.md",
         "en": "balance_list_en.md"

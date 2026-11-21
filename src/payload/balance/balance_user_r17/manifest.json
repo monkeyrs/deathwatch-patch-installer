@@ -1,7 +1,7 @@
 {
- "package": "balance_user_r15",
- "generated": "2026-11-18",
- "scope": "仅武器：用户裁定 OK 子集（37 槽，终值±5%容差，最大偏差 0.00%）+ 导弹溅射倍率 0.35→0.99 + 致残射击概率 2%→8%；冲突 0 槽未纳入；战士/技能不改",
+ "package": "balance_user_r17",
+ "generated": "2026-11-21",
+ "scope": "Weapons only: 37 slots within +/-5% final-value tolerance (max deviation 0.00%); missile splash multiplier 0.35->0.99; crippling shot chance 2%->8%; T2 missile launcher range key 13->8 / value 0->-3 (final 7); one conflicting slot omitted; marines and skills unchanged.",
  "entries": [
   {
    "relative_path": "deathwatchgame/Content/Characters/Actions/PayloadActions/XP_AoECombat.uasset",
@@ -699,7 +699,7 @@
   {
    "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MissileLaunchers/WST_T2_MissileLauncher.uasset",
    "src_sha256": "fc25a0f8b4fb4243d3dc5ba9b63ca4328b7367d6d239680bbbc87d1a519b6d0e",
-   "dst_sha256": "70c22ebde3255b95f48f72ba8d1f71cbb1d59aa4c5a724ff5b2baebab3f85f79",
+   "dst_sha256": "9b279226e83404a28bd6aae4f26fd08a1bbb48413c58a9b70ffda7de4e5d24dd",
    "edits": [
     {
      "slot": 3,
@@ -721,32 +721,32 @@
      "new": 5,
      "off": 683,
      "kind": "delta"
+    },
+    {
+     "slot": "range",
+     "old": 13,
+     "new": 8,
+     "off": 763,
+     "kind": "key_redirect"
+    },
+    {
+     "slot": "range",
+     "old": 0,
+     "new": -3,
+     "off": 767,
+     "kind": "delta"
     }
    ]
   },
   {
    "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/MissileLaunchers/WST_T3_MissileLauncher.uasset",
    "src_sha256": "1342955eccc53dfad768bdafa0705236e5a050f3837a575e988b4eaff31ad26c",
-   "dst_sha256": "592c9665a5a6ebee55ed4408c6c2d97c0dcb0492b9ae300af8008309db64475c",
+   "dst_sha256": "fbf1d10100dc027e4d8a290007a3de77ca863e834c723caa86425fad3a89d5ae",
    "edits": [
-    {
-     "slot": 3,
-     "old": 0,
-     "new": -1,
-     "off": 627,
-     "kind": "delta"
-    },
-    {
-     "slot": 7,
-     "old": 3,
-     "new": -1,
-     "off": 739,
-     "kind": "delta"
-    },
     {
      "slot": 5,
      "old": 1,
-     "new": 10,
+     "new": 15,
      "off": 683,
      "kind": "delta"
     }

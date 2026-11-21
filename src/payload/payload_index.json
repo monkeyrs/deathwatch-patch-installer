@@ -1,5 +1,5 @@
 {
- "built_utc": "2026-11-20T09:35:57Z",
+ "built_utc": "2026-11-21T03:56:22Z",
  "packages": [
   {
    "id": "bugfix_parry",
@@ -112,13 +112,13 @@
    ]
   },
   {
-   "id": "balance_user_r15",
+   "id": "balance_user_r17",
    "kind": "balance",
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "2950dc2f920a27bf9a5e36ba626c2a0b84129a842a70a2498734e488cc6e3b40",
-     "size": 23200
+     "sha256": "58a9eda36d9277f2f407b59dec0f614530cf76d579a1d5e0b4d96f9b26e1ca50",
+     "size": 23287
     }
    ]
   }

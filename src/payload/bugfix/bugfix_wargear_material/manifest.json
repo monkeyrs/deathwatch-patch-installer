@@ -1,9 +1,9 @@
 {
  "name": "bugfix_wargear_material",
- "description": "c) 逻辑 BUG 修复包 · OB-06 武器材质槽错配：重力枪 / 火焰枪 / 手持火焰枪 的 StaticMesh Materials 数组里指向 WorldGridMaterial（引擎灰格兜底材质） 的槽位重指向该武器自己的 MI_*_Lo。等长就地改字节，文件大小不变、资产内部偏移零改动。",
- "source": "Steam 干净基准 Build 1837603（就地改，不引用 refs/PC_EE 任何资产）",
- "grading": "L0 构成：等长 + 只改目标槽位 + ue4prop 回读槽位正确；L1：资产可被同一解析器完整重读；L2/L3 实机未验证（不得写「已修复」）。分级：【已确认 字节级差异/根因可解释】+【较高可信度推断 灰格=WorldGridMaterial 兜底】",
- "install_note": "按 relative_path 覆盖到游戏同名路径（先自行备份原文件）。回滚：用 manifest 的 src_sha256 校验原文件并还原。",
+ "description": "Logic bug fix: wargear material slots are misassigned. Redirects the StaticMesh Materials slots that point to WorldGridMaterial (the engine's gray-grid fallback material) to each weapon's own MI_*_Lo on the grav gun, flamer, and hand flamer. Equal-length in-place byte edit; file sizes and internal offsets are unchanged.",
+ "source": "Clean Steam baseline, Build 1837603 (edited in place; no assets from refs/PC_EE are referenced).",
+ "grading": "L0: equal length, only the target slots changed, and ue4prop readback of the slots correct; L1: assets fully re-readable by the same parser. L2/L3 in-game not verified. Confirmed byte-level differences with an explainable root cause; high-confidence inference that the gray-grid material is the WorldGridMaterial fallback.",
+ "install_note": "Overwrite the game file at the matching relative_path (back up the original first). To roll back, verify the original against the manifest's src_sha256 and restore it.",
  "entries": [
   {
    "relative_path": "deathwatchgame/Content/Wargear/GravGuns/GravGuns_T4/STM_T4_GravGun.uasset",

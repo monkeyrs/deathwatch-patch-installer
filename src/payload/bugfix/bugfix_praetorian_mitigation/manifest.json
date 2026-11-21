@@ -1,9 +1,9 @@
 {
  "name": "bugfix_praetorian_mitigation",
- "description": "OB-13 语义修复（Praetorian 文实不符）：ABP_Praetorian 授予的 BUFF_Plus20DamageMitgation_NonStacking 内部把 BUFF_Plus20Damage_1Turn（+20% 伤害）当作效果载体，与描述「+20% Damage Mitigation」不符。变长改写 name 表（新增 2 条 name）并把两个 import 条目重指向 BUFF_20DamageMitigation_1Turn（PercentageMitigation=0.2、TurnsLeft=1，语义精确匹配）；AddBuff/HasBuff 的 EX_ObjectConst 按 import 索引引用，自动跟随。",
- "source": "Steam 干净基准 Build 1837603（就地改，不引用 refs/PC_EE 任何资产）",
- "grading": "L0：重建后复析（name 数/import 逐条/export SerialOffset+Size/数据逐字节/decode_bp 函数清单）全过。L2/L3 未验证。",
- "install_note": "首次使用变长 uasset 编辑器出包；实机若加载 Fatal 需回滚并检查（BFL 变长 Fatal 先例在此不适用——本次不改字节码，只平移表）。",
+ "description": "Semantic fix: the Praetorian buff description does not match its effect. BUFF_Plus20DamageMitgation_NonStacking, granted by ABP_Praetorian, internally uses BUFF_Plus20Damage_1Turn (+20% damage) as its effect carrier, contradicting its \"+20% Damage Mitigation\" description. Rewrites the name table with a variable-length edit (2 new names) and redirects two import entries to BUFF_20DamageMitigation_1Turn (PercentageMitigation=0.2, TurnsLeft=1), which matches the intended semantics. AddBuff/HasBuff EX_ObjectConst references use the import index and follow automatically.",
+ "source": "Clean Steam baseline, Build 1837603 (edited in place; no assets from refs/PC_EE are referenced).",
+ "grading": "L0: post-rebuild re-analysis passed (name count, imports entry by entry, export SerialOffset+Size, byte-for-byte data, decode_bp function list). L2/L3 not verified.",
+ "install_note": "First package built with the variable-length uasset editor. If loading fails with a fatal error, roll back and inspect (the earlier BFL variable-length fatal issue does not apply here: this edit does not change bytecode, only shifts tables).",
  "entries": [
   {
    "relative_path": "deathwatchgame/Content/Characters/Buffs/BUFF_Plus20DamageMitgation_NonStacking.uasset",
@@ -16,7 +16,7 @@
  "detail": [
   {
    "asset": "Characters/Buffs/BUFF_Plus20DamageMitgation_NonStacking",
-   "what": "import 重指向 + name 表 +2 条（变长）",
+   "what": "Redirect imports and add 2 name-table entries (variable-length)",
    "delta_bytes": 93
   }
  ],

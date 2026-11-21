@@ -1,5 +1,5 @@
 {
-  "note": "作者链接配置：Bonus 页附 GitHub / Ko-fi；不展示现实身份线索。把二维码图片放到 app/support_qr.png 可额外显示；links 每项 {label, label_en, url}。",
+  "note": "Author link configuration: the Bonus page shows GitHub / Ko-fi links and reveals no real-world identity details. Place a QR image at app/support_qr.png to display it as well. Each links entry has {label, label_en, url}.",
   "qr_image": "support_qr.png",
   "links": [
     {

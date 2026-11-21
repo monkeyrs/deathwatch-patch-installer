@@ -1,9 +1,9 @@
 {
  "name": "bugfix_chapter_icons",
- "description": "c) 逻辑 BUG 修复包 · OB-07 战团图标互换：Ch-DarkA-128（实为黑圣堂马耳他十字） 与 Ch-blackTemp-128（实为暗黑天使双翼剑）互换 mip 载荷，使按文件名引用的两把选中框刷子各归其位。等长、零偏移，文件大小不变。",
- "source": "Steam 干净基准 Build 1837603（仅交换两份资产内部像素，不引入外部素材）",
- "grading": "L0 构成：等长 + 变化字节全部落在像素区间内 + 互换后回读等于对方像素；L1：ue4prop 表结构不变、umodel 可重新导出；L2/L3 实机未验证（不得写「已修复」）。分级：【已确认 用户视觉判定 + 引用关系复算】",
- "install_note": "按 relative_path 覆盖到游戏同名路径（先自行备份原文件）。回滚：用 manifest 的 src_sha256 校验原文件并还原。",
+ "description": "Logic bug fix: chapter icons are swapped. Exchanges the mip payloads of Ch-DarkA-128 (Black Templars Maltese cross) and Ch-blackTemp-128 (Dark Angels winged sword) so the two selection-box brushes referenced by filename show the correct icon. Equal-length, zero-offset edit; file sizes are unchanged.",
+ "source": "Clean Steam baseline, Build 1837603 (only swaps pixels inside the two assets; no external assets introduced).",
+ "grading": "L0: equal length, changed bytes fully within the pixel regions, and post-swap readback matching the other asset's pixels; L1: ue4prop table structure unchanged and umodel can re-export. L2/L3 in-game not verified. Confirmed via visual check and reference-graph recomputation.",
+ "install_note": "Overwrite the game file at the matching relative_path (back up the original first). To roll back, verify the original against the manifest's src_sha256 and restore it.",
  "entries": [
   {
    "relative_path": "deathwatchgame/Content/UI/Icons/Chapters/Ch-DarkA-128.uasset",

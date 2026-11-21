@@ -1,11 +1,11 @@
 {
  "package": "bugfix_crippling_shot_desc",
- "title": "致残射击描述 1%→2%（OB-16，英文层）",
+ "title": "Crippling Shot description 1% -> 2% (English layer)",
  "layer": "en",
  "evidence": [
-  "Steam 原版 locres 条目 5AC6786D 的值 = '1% …'，SourceStringHash=0xB3B03502",
-  "BUFF_2PercentChanceReduceAPBy1PerShot.ChanceToAddBuff=0.02（实现 2%）",
-  "WDI_CripplingShot FText source 同为 1%，是 locres 的 CRC 锚点，保持不动"
+  "Vanilla Steam locres entry 5AC6786D has value '1% ...', SourceStringHash=0xB3B03502",
+  "BUFF_2PercentChanceReduceAPBy1PerShot.ChanceToAddBuff=0.02 (effective 2%)",
+  "WDI_CripplingShot FText source is also 1%; it is the locres CRC anchor and remains unchanged"
  ],
  "entries": [
   {
@@ -40,5 +40,5 @@
    }
   }
  ],
- "install_note": "安装器 payload 不含完整 locres：构建时 prepare_payload 按 transform 只保留 1 字节等长规则（0x7018: 1→2），运行时在用户本机 Game.locres 上校验 src_sha256 后就地改写并复核 dst_sha256；必须在 zh_cn 之前投放（英文层修复）；zh_cn 随后把同一条覆盖为中文 2%，哈希锚点不变。源包 assets/ 中的完整 locres 仅保留给内部 patch_sandbox / bugfix_all 链路，不进入安装器分发。already_fixed_sha256 = 已汉化终态，重跑视为已修。"
+ "install_note": "The installer payload excludes the full locres file: at build time prepare_payload keeps only the single-byte equal-length rule defined by transform (0x7018: 1 -> 2). At install time it verifies src_sha256 on the local Game.locres, edits in place, then re-verifies dst_sha256. This must be applied before zh_cn (English layer); zh_cn then overwrites the same entry with the Chinese 2% text, leaving the hash anchor unchanged. The full locres in the source assets/ tree is used only by internal patch_sandbox / bugfix_all chains and is not distributed. already_fixed_sha256 marks the already-localized final state; a rerun is treated as already fixed."
 }

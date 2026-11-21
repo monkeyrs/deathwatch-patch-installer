@@ -1,9 +1,9 @@
 {
  "name": "bugfix_alacrity_ap",
- "description": "OB-10 两层完整语义修复：层一=迅捷判定链 TurnNumber==0 守卫恒假（回合号从 1 起算），旁路为 AND1 输入重指向 CurrentPlayer 守卫；层二=BUFF_Plus1AP_1Turn 缺省 TurnsLeft 疑秒加秒删（OnBuffAdded 加、OnBuffRemoved 反扣 ⇒ AP 不涨），变长插入 TurnsLeft=1 与同族一致。",
- "source": "Steam 干净基准 Build 1837603（就地改，不引用 refs/PC_EE 任何资产）",
- "grading": "L0：层一等长单字节+双断言+diff 校验；层二 name/import/既有属性/其余 export 数据逐字节断言 + decode_bp 函数清单不变（uasset_mutate.verify_insert 全过）。L2 冷启动 / L3 实机未验证。",
- "install_note": "首个变长+等长混合包。实机若加载 Fatal：整体 restore 即可（基准备份在沙盒）.",
+ "description": "Two-layer semantic fix for Alacrity. Layer 1: the TurnNumber==0 guard in the check chain is always false (turn numbering starts at 1); bypass it by redirecting the AND1 input to the CurrentPlayer guard. Layer 2: BUFF_Plus1AP_1Turn lacks TurnsLeft, so OnBuffAdded and OnBuffRemoved cancel out and AP never increases; insert TurnsLeft=1 with a variable-length edit to match related buffs.",
+ "source": "Clean Steam baseline, Build 1837603 (edited in place; no assets from refs/PC_EE are referenced).",
+ "grading": "L0: Layer 1 equal-length single-byte edit with dual assertions and diff verification; Layer 2 byte-for-byte assertions on names, imports, existing properties, and remaining export data, with an unchanged decode_bp function list (uasset_mutate.verify_insert passed). L2 cold boot / L3 in-game not verified.",
+ "install_note": "First package to mix variable-length and equal-length edits. If loading fails with a fatal error, restore the whole package from the baseline backup.",
  "entries": [
   {
    "relative_path": "deathwatchgame/Content/Characters/Buffs/BUFF_25PercentGain1APOnBeginTurn.uasset",
@@ -23,13 +23,13 @@
  "detail": [
   {
    "asset": "Characters/Buffs/BUFF_25PercentGain1APOnBeginTurn",
-   "what": "AND1 第一输入 prop5→3（旁路 TurnNumber 守卫，保留 0.25）",
+   "what": "AND1 first input prop5 -> 3 (bypasses the TurnNumber guard, keeps 0.25)",
    "byte_offset": "0x1452",
    "anchor": "1ce9ffffff01050000000103000000"
   },
   {
    "asset": "Characters/Buffs/BUFF_Plus1AP_1Turn",
-   "what": "CDO 插入 TurnsLeft=1（IntProperty，变长 +42B）",
+   "what": "Insert TurnsLeft=1 into the CDO (IntProperty, variable-length, +42 bytes)",
    "delta_bytes": 42,
    "add_names": [
     "TurnsLeft"

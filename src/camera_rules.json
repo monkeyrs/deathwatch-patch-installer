@@ -1,32 +1,32 @@
 {
  "patch_name": "camera_unlock",
- "description": "F2 相机限制解除：俯仰上界 89.0°（能水平看，不翻过水平） + 相机距离/高度下界 MinTilesVisible 1.5（原 3.0） / 上界 20.0（原 20.0）。exe 改 native .text 的 MaxPitch 立即数并同步重算 PE CheckSum；蓝图 CDO 改两个 float。全部等长、零布局改动、逐字节可回滚。只分发本清单 + patcher，不含任何原版二进制。",
+ "description": "Camera limit removal: raises the pitch ceiling to 89.0 degrees (allows a level view without tilting past horizontal) and sets the camera distance/height bounds MinTilesVisible to 1.5 (was 3.0) and MaxTilesVisible to 20.0 (unchanged). Patches the MaxPitch immediate in the exe's native .text and recomputes the PE checksum; edits two floats in the blueprint CDO. All edits are equal-length with no layout change and are reversible byte for byte. Only this manifest and the patcher are distributed; no original binaries are included.",
  "game_appid": 394450,
  "game_buildid": 1837603,
  "transform_kind": "equal_length_multi_target",
- "rollback": "exe_patcher.py restore（各目标同目录 .bak-<UTC> 原样还原）",
+ "rollback": "exe_patcher.py restore (restores each target from its adjacent .bak-<UTC> file)",
  "params": {
   "max_pitch_deg": 89.0,
   "min_tiles_visible": 1.5,
   "max_tiles_visible": 20.0,
-  "_说明": {
-   "max_pitch_deg": "俯仰上界（度）。原版 30；89 ≈ 接近水平看；<= 90 保证不会从下往上看。想更保守可试 60/75。",
-   "min_tiles_visible": "相机距离/高度下界（蓝图 CDO）。原版 3.0；数值越小相机越近/越低。想更低试 1.0 或 0.5。",
-   "max_tiles_visible": "相机距离/高度上界。原版 20.0；想拉更远可加大。",
-   "怎么测": "改完本文件后跑 python \"steam patching/tools/camera_unlock.py\" tune --max-pitch 89 --min-tiles 1.5（或直接改 JSON 再 build），然后 python \"steam patching/tools/patch_sandbox.py\" apply camera_unlock，最后启动沙盒 exe 进任务实测。回退：patch_sandbox.py restore <UTC> 或 exe_patcher.py restore。"
+  "_notes": {
+   "max_pitch_deg": "Upper pitch bound in degrees. Vanilla: 30; 89 is near-horizontal; <= 90 prevents looking from below. Use 60/75 for a more conservative setting.",
+   "min_tiles_visible": "Lower camera distance/height bound (blueprint CDO). Vanilla: 3.0; lower values move the camera closer/lower. Try 1.0 or 0.5.",
+   "max_tiles_visible": "Upper camera distance/height bound. Vanilla: 20.0; increase to zoom out farther.",
+   "how_to_test": "After editing this file, rebuild the payload, apply the camera rule in a clean sandbox, then verify in-game. Restore with the sandbox restore command or exe_patcher.py restore."
   }
  },
  "evidence": [
-  "Ghidra FUN_00556a30 / FUN_004b3640 / FUN_004d4440 / FUN_004c36c0（俯仰链）",
-  "Ghidra FUN_004ba710 用 DeathwatchPlayerMovement 的 +0xe0/+0xe4 作相机距离 clamp",
-  "ue4prop 解析 BP_DropgamePlayerPawn 的 DeathwatchPlayerMovement CDO：MinTilesVisible=3.0 / MaxTilesVisible=20.0，覆盖 native 构造函数的 200/1000",
-  "BP 的 DeathwatchCameraComponent CDO 未覆盖 MaxPitch/Pitch；Config 无同名键",
-  "427/probes/camera_*_probe.py（只读复算脚本）"
+  "Ghidra FUN_00556a30 / FUN_004b3640 / FUN_004d4440 / FUN_004c36c0 (pitch chain)",
+  "Ghidra FUN_004ba710 uses DeathwatchPlayerMovement +0xe0/+0xe4 as the camera distance clamp",
+  "ue4prop parsing of BP_DropgamePlayerPawn DeathwatchPlayerMovement CDO: MinTilesVisible=3.0 / MaxTilesVisible=20.0, overriding the native constructor values 200/1000",
+  "BP DeathwatchCameraComponent CDO does not override MaxPitch/Pitch; no matching Config key",
+  "Read-only camera probe scripts (static recomputation)"
  ],
  "grading": [
-  "【已确认·字节级+反编译】俯仰载体与 [0, MaxPitch] 钳制",
-  "【较高可信度推断】Min/MaxTilesVisible 是相机距离/高度 clamp 上下界（依据 FUN_004ba710 的读写与 CDO 覆盖；字段语义未做运行时取证）",
-  "【用户实机验收通过·11-13】默认档 max_pitch_deg=89 / min_tiles_visible=1.5 进任务实测裁定「测了，可以。完工」⇒ 效果 L2/L3 通过、参数定稿；自动截图判读作废、不作证据"
+  "Confirmed at byte level and via decompilation: pitch carrier and [0, MaxPitch] clamp.",
+  "High-confidence inference: Min/MaxTilesVisible are the camera distance/height clamp bounds (based on FUN_004ba710 reads/writes and CDO overrides; field semantics not verified at runtime).",
+  "Default profile (max_pitch_deg=89 / min_tiles_visible=1.5) verified in-game in a mission: L2/L3 effect verified; parameters finalized."
  ],
  "targets": [
   {

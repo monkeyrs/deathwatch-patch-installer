@@ -1,9 +1,9 @@
 {
  "name": "bugfix_parry",
- "description": "c) 逻辑 BUG 修复包 · OB-01 招架数值与文案不一致（用户裁定数值向）：BUFF_Parry 的 DamageReduction 0.8 -> 0.2，使实际吸收 80%/承受 20%，与既有描述「absorbing 80% of the damage」一致。单字节等长就地改，文件大小不变、资产内部偏移零改动。",
- "source": "Steam 干净基准 Build 1837603（就地改，不引用 refs/PC_EE 任何资产）",
- "grading": "L0 构成：等长 + 只改 1 字节 + 唯一性断言（全资产 0.8f 只 1 处）+ 回读 0.2f；L1：属性表可被同一解析器重读；L2/L3 实机未验证（不得写「已修复」）。分级：【已确认 字节级定位】+【玩法变更：用户 2026-11-12 明确裁定数值向】",
- "install_note": "按 relative_path 覆盖到游戏同名路径（先自行备份原文件）。回滚：用 manifest 的 src_sha256 校验原文件并还原。",
+ "description": "Logic bug fix: the parry value does not match its description. Changes BUFF_Parry DamageReduction from 0.8 to 0.2 so the buff absorbs 80% of incoming damage and lets 20% through, matching the existing \"absorbing 80% of the damage\" text. Single-byte equal-length in-place edit; file size and internal offsets are unchanged.",
+ "source": "Clean Steam baseline, Build 1837603 (edited in place; no assets from refs/PC_EE are referenced).",
+ "grading": "L0: equal length, single-byte change, uniqueness assertion (only one 0.8f in the asset), and readback of 0.2f; L1: property table re-readable by the same parser. L2/L3 in-game not verified. Confirmed byte-level location; gameplay value set to 0.2.",
+ "install_note": "Overwrite the game file at the matching relative_path (back up the original first). To roll back, verify the original against the manifest's src_sha256 and restore it.",
  "entries": [
   {
    "relative_path": "deathwatchgame/Content/Characters/Buffs/BUFF_Parry.uasset",
