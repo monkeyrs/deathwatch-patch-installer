@@ -13,7 +13,7 @@
   <a href="https://github.com/monkeyrs/deathwatch-patch-installer/releases/latest"><img src="https://img.shields.io/badge/download-v1.0-0ab887" alt="Download v1.0"></a>
   <a href="../../LICENSE"><img src="https://img.shields.io/github/license/monkeyrs/deathwatch-patch-installer" alt="GPL-3.0 license"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.13-blue" alt="Python 3.13"></a>
-  <a href="https://ko-fi.com/monkeyrs" rel="nofollow"><img src="https://img.shields.io/badge/Ko--fi-F16061?logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
+  <a href="https://ko-fi.com/monkeyrs" rel="nofollow"><img src="https://img.shields.io/badge/Buy_me_a_Ko--fi-F16061?logo=ko-fi&logoColor=white" alt="Buy me a Ko-fi"></a>
 </p>
 
 <p align="center"><a href="../../README.md">English</a> · <b>简体中文</b></p>
