@@ -8,8 +8,8 @@ Design decisions:
 Subcommands:
   python "steam patching/tools/flairname_lexicon.py" init
       Create/refresh two helper sheets in the master spreadsheet (idempotent; **preserves filled-in Chinese**):
-        `FlairName_待填`      16 distinct English strings × 1 row; only column E is filled in
-        `FlairName_资产清单`  62 UTP_* assets → English string mapping (read-only reference)
+        helper sheet A: 16 distinct English strings × 1 row; only column E is filled in
+        helper sheet B: 62 UTP_* assets → English string mapping (read-only reference)
   python "steam patching/tools/flairname_lexicon.py" check
       check: read-only; reports fill progress, translation validity, and the number of assets that would change; writes nothing.
   python "steam patching/tools/flairname_lexicon.py" build
@@ -70,25 +70,27 @@ L2L3_EVIDENCE = {
     "verdict": "L2 + L3 PASS",
     "report": "steam patching/reports/flairname_ab_varlen4_20261112T100345Z/report.json",
     "shot": "steam patching/reports/flairname_ab_varlen4_20261112T100345Z/05_outpost_final.png",
-    "method": "62 个资产全量投放 sandbox → auto_test.py run "
+    "method": "All 62 assets rolled out to sandbox → auto_test.py run "
               "\"steam patching/tools/auto_test_scenarios/flairname_ab.json\" --tag varlen4",
     "canonical_scenario": "steam patching/tools/auto_test_scenarios/flairname_ab.json"
-                          "（已入库，varlen4 直接跑的就是这一份）",
-    "l2": "verdict=PASS，游戏冷启动 6.16s 开窗、全流程未崩；非黑率与主菜单基线一致，"
-          "存档自动还原黄金 5e5e6963…、进程正常收尾。",
-    "l3": "前哨站 6 张卡职业小字全部变中文：CLEUTIN 老兵 / MARCELLUS 毁灭者 / THORGIR 突击兵 / "
-          "REGULIUS 战术兵 / MAGNUS 战术兵 / VARRAS 极限战士药剂师；"
-          "VARRAS 的 7 字长中文裁剪放大回看为完整清晰汉字、非豆腐块、未截断，"
-          "证明变长的「长中文」在真机同样成立。",
-    "note": "PNG 截图被 gitignore，仅本机留档；跨机器共享需另存可入库文本。"
-            "放大图 steam patching/out/varlen4_varras_zoom.png。",
+                          " (committed; this is the exact scenario varlen4 runs)",
+    "l2": "verdict=PASS; the game opened in 6.16s on cold start with no crash through the full run; "
+          "the non-black rate matched the main-menu baseline; the save auto-restored the golden "
+          "5e5e6963… and the process exited cleanly.",
+    "l3": "All 6 outpost cards' small class text switched to Chinese: CLEUTIN 老兵 / MARCELLUS 毁灭者 / "
+          "THORGIR 突击兵 / REGULIUS 战术兵 / MAGNUS 战术兵 / VARRAS 极限战士药剂师; "
+          "VARRAS's 7-character Chinese, when cropped and zoomed in, showed complete, clear glyphs "
+          "with no tofu blocks and no truncation, proving that long variable-length Chinese works "
+          "in-game too.",
+    "note": "PNG screenshots are gitignored and kept only locally; sharing across machines requires "
+            "a committable text summary. Zoomed image: steam patching/out/varlen4_varras_zoom.png.",
     # L2/L3 evidence only applies to the term set that was rolled out; once column E changes, the fingerprint no longer matches,
     # and the generator downgrades the package to "L0 PASS / L2+L3 pending re-verification" rather than claiming in-game validation.
     # After the final term revisions,
     # the variable-length test was rerun and the fingerprint updated to the current set.
     "terms_sha256": "5b7c0c622ae8ee5c",
-    "terms_note": "sha256(sorted(en,zh))[:16]；对应 varlen4 实机投放的 16 条译名集"
-                  "（c78b14e6453e6689=varlen2、d34174dd0debf695=varlen3 为历史集合）。",
+    "terms_note": "sha256(sorted(en,zh))[:16]; the 16-term set used in the varlen4 in-game rollout "
+                  "(c78b14e6453e6689=varlen2 and d34174dd0debf695=varlen3 are historical sets).",
 }
 
 
@@ -102,12 +104,12 @@ SHEET_TERMS = "FlairName_待填"
 SHEET_ASSETS = "FlairName_资产清单"
 SHEET_ORDER = [SHEET_KEYS, SHEET_TERMS, SHEET_ASSETS]
 
-TERM_COLS = ["英文 FlairName", "资产数", "主表精确译文", "主表术语线索",
-             "中文译文（填这列）", "来源", "建议字数", "备注",
-             "数据表译名（参考）", "数据表依据"]
+TERM_COLS = ["English FlairName", "Asset count", "Exact translation in master", "Master term hints",
+             "Chinese translation (fill this column)", "Source", "Suggested length", "Notes",
+             "Data-table translation (reference)", "Data-table basis"]
 TERM_WIDTHS = [26, 9, 18, 46, 22, 20, 11, 56, 22, 46]
-ASSET_COLS = ["序号", "资产文件", "英文 FlairName", "原英文字数", "FText 偏移",
-              "存档在用", "将采用的中文", "loc_key（FText）"]
+ASSET_COLS = ["No.", "Asset file", "English FlairName", "Original EN length", "FText offset",
+              "Used in save", "Chinese to apply", "loc_key (FText)"]
 ASSET_WIDTHS = [7, 48, 26, 14, 14, 12, 22, 36]
 
 # Templates actually used by the 6 units in the saved game (recompute with the units command)
@@ -155,9 +157,9 @@ def locate_ftext_off(data: bytes, r: dict) -> tuple[int | None, int | None, int 
                 tag_off = p.get("tag_off")
                 tag_size = p.get("size")
                 if ft is None or tag_off is None or tag_size is None:
-                    raise RuntimeError("FlairName tag 元数据不全（tag_off/value_off/size）")
+                    raise RuntimeError("FlairName tag metadata incomplete (tag_off/value_off/size)")
                 if p.get("type") != "TextProperty":
-                    raise RuntimeError(f"FlairName 不是 TextProperty: {p.get('type')}")
+                    raise RuntimeError(f"FlairName is not TextProperty: {p.get('type')}")
                 return ft, tag_off, tag_size
     return None, None, None
 
@@ -166,15 +168,15 @@ def source_fstring_bounds(data: bytes, r: dict) -> tuple[int, int, int, int, int
     """Return (src_len_off, old_fs_total, ftext_off, tag_off, tag_size)."""
     ft, tag_off, tag_size = locate_ftext_off(data, r)
     if ft is None:
-        raise RuntimeError("FlairName FText 未定位")
+        raise RuntimeError("FlairName FText not located")
     loc_len_off = ft + 9                      # flags(4) + source_flags(4) + history(1)
     loc_len = struct.unpack_from("<i", data, loc_len_off)[0]
     if loc_len <= 0:
-        raise RuntimeError(f"loc_key FString 非 ANSI (len={loc_len})，需单独处理")
+        raise RuntimeError(f"loc_key FString is not ANSI (len={loc_len}); needs separate handling")
     slo = loc_len_off + 4 + loc_len
     old_len = struct.unpack_from("<i", data, slo)[0]
     if old_len <= 0:
-        raise RuntimeError(f"source FString 已是 UTF-16LE (len={old_len})，非原版")
+        raise RuntimeError(f"source FString is already UTF-16LE (len={old_len}); not the original")
     return slo, 4 + old_len, ft, tag_off, tag_size
 
 
@@ -262,15 +264,15 @@ def term_hints(en: str, pairs: list[tuple[str, str]]) -> str:
         if len(hits) >= 4:
             break
     if not hits:
-        return "（主表无相关短词，请自行定名）"
+        return "(no related short word in master; choose a name yourself)"
     return "；".join(f"{e}={z}" for e, z in hits[:4])
 
 
 def read_terms() -> dict[str, str]:
-    """Read Chinese: from the single sheet take en_source->zh_to_fill where domain=flairname_asset; the old layout reads FlairName_待填!E."""
+    """Read the Chinese layer: from the single sheet take en_source->zh_to_fill where domain=flairname_asset; the legacy layout reads column E of the old helper sheet."""
     from openpyxl import load_workbook
     if not LEXICON.is_file():
-        raise SystemExit(f"[ERR] 主表不存在：{LEXICON}")
+        raise SystemExit(f"[ERR] Master spreadsheet not found: {LEXICON}")
     wb = load_workbook(LEXICON, read_only=True, data_only=True)
     try:
         # 1. Single-sheet layout: keys has a domain column
@@ -289,9 +291,9 @@ def read_terms() -> dict[str, str]:
                         if en and zh:
                             out[en] = zh
                 return out
-        # 2. Old multi-sheet layout: column E of FlairName_待填
+        # 2. Legacy multi-sheet layout: column E of the old sheet
         if SHEET_TERMS not in wb.sheetnames:
-            raise SystemExit(f"[ERR] 主表既无 keys.domain 列，也无 sheet {SHEET_TERMS!r}，请先跑 init")
+            raise SystemExit(f"[ERR] Master has neither a keys.domain column nor sheet {SHEET_TERMS!r}; run init first")
         ws = wb[SHEET_TERMS]
         out = {}
         for row in ws.iter_rows(min_row=2, values_only=True):
@@ -307,15 +309,15 @@ def read_terms() -> dict[str, str]:
 def validate_zh(zh: str) -> list[str]:
     errs = []
     if not zh or not zh.strip():
-        return ["空值"]
+        return ["empty value"]
     if any(ord(c) < 0x20 for c in zh):
-        errs.append("含控制字符")
+        errs.append("contains control characters")
     if "{" in zh or "}" in zh:
-        errs.append("含花括号（会被 FText 当占位符）")
+        errs.append("contains curly braces (FText treats them as placeholders)")
     if not any(ord(c) > 0x7F for c in zh):
-        errs.append("全 ASCII（没有汉字，等于未汉化）")
+        errs.append("all ASCII (no Chinese characters, i.e. not localized)")
     if len(zh) > 32:
-        errs.append(f"过长 {len(zh)} 字（>32，卡片可能溢出）")
+        errs.append(f"too long: {len(zh)} characters (>32, card may overflow)")
     return errs
 
 
@@ -338,7 +340,7 @@ def cmd_init(_args) -> int:
     from openpyxl.comments import Comment
 
     if not LEXICON.is_file():
-        raise SystemExit(f"[ERR] 主表不存在：{LEXICON}")
+        raise SystemExit(f"[ERR] Master spreadsheet not found: {LEXICON}")
     assets = scan_assets()
     exact, extra = master_translations()
     pairs = extra["pairs"]
@@ -353,7 +355,7 @@ def cmd_init(_args) -> int:
     bak_dir.mkdir(parents=True, exist_ok=True)
     bak = bak_dir / LEXICON.name
     shutil.copy2(LEXICON, bak)
-    print(f"已备份主表 → {bak}  ({bak.stat().st_size} B)")
+    print(f"Backed up master → {bak}  ({bak.stat().st_size} B)")
 
     wb = load_workbook(LEXICON)
     # Preserve filled-in column E plus F/I/J reference values (keyed by English string) and restore them after rebuild;
@@ -379,12 +381,12 @@ def cmd_init(_args) -> int:
         wt.column_dimensions[chr(64 + i)].width = w
     _style_header(wt, len(TERM_COLS))
     wt["E1"].comment = Comment(
-        "只填这一列：填该英文 FlairName 对应的中文。\n"
-        "同一英文串下的所有 UTP_* 资产共用此译文（共 16 个英文串 → 62 个资产）。\n"
-        "2026-11-12 起已支持变长变换，字数不受原英文长度限制；\n"
-        "但卡片排版空间有限，建议不超过「建议字数」列。\n"
-        "留空 = 该英文串保持原版英文，不生成补丁。\n"
-        "存盘后跑：python \"steam patching/tools/flairname_lexicon.py\" check",
+        "Fill only this column: enter the Chinese translation for the English FlairName in column A.\n"
+        "All UTP_* assets sharing an English string use this one translation (16 English strings → 62 assets).\n"
+        "Since 2026-11-12 variable-length transforms are supported, so length is not limited by the English source;\n"
+        "however card layout space is limited, so stay within the \"Suggested length\" column.\n"
+        "Leave blank = the English string keeps its original English and no patch is generated.\n"
+        "After saving, run: python \"steam patching/tools/flairname_lexicon.py\" check",
         "3DS-DW")
     for en in terms:
         group = by_en[en]
@@ -393,14 +395,14 @@ def cmd_init(_args) -> int:
         k = kept.get(en, {})
         zh = k.get("E") or auto
         if k.get("E"):
-            src = k.get("F") or "用户已填"
+            src = k.get("F") or "filled by user"
         elif auto:
-            src = "主表精确匹配（可改）"
+            src = "exact master match (editable)"
         else:
-            src = "待用户填写"
+            src = "to be filled by user"
         soft = max(2, (len(en) + 1) // 2)
-        wt.append([en, len(group), auto or "（无）", hint, zh, src, soft,
-                   f"影响 {len(group)} 个资产，见 {SHEET_ASSETS}；变长已支持，字数不限",
+        wt.append([en, len(group), auto or "(none)", hint, zh, src, soft,
+                   f"affects {len(group)} assets, see {SHEET_ASSETS}; variable length supported, no length limit",
                    k.get("I", ""), k.get("J", "")])
         r = wt.max_row
         for c in range(1, len(TERM_COLS) + 1):
@@ -426,7 +428,7 @@ def cmd_init(_args) -> int:
         who = SAVE_UNITS.get(a["stem"], "")
         wa.append([i, a["file"], a["en"], len(a["en"]),
                    f"0x{a['ftext_off']:x}", f"✓ {who}" if who else "",
-                   f"=IFERROR(VLOOKUP(C{row},'{SHEET_TERMS}'!$A:$E,5,FALSE),\"(未填)\")",
+                   f"=IFERROR(VLOOKUP(C{row},'{SHEET_TERMS}'!$A:$E,5,FALSE),\"(unfilled)\")",
                    a["loc_key"][:16] + "…" if a["loc_key"] else ""])
         for c in range(1, len(ASSET_COLS) + 1):
             cell = wa.cell(row=row, column=c)
@@ -448,11 +450,11 @@ def cmd_init(_args) -> int:
     filled = sum(1 for en in terms
                  if (kept.get(en, {}).get("E") or exact.get(en) or exact.get(en.lower())))
     kept_n = sum(1 for v in kept.values() if v.get("E"))
-    print(f"主表已更新: {LEXICON}")
+    print(f"Master updated: {LEXICON}")
     print(f"  sheets = {SHEET_ORDER}  (active = {SHEET_TERMS})")
-    print(f"  术语 {len(terms)} 条 / 资产 {len(assets)} 个 / 已有译文 {filled} 条 / 待填 {len(terms)-filled} 条")
-    print(f"  用户已填保留 = {kept_n} 条")
-    print("  下一步：在 Excel 里填 `FlairName_待填` 的 E 列（浅黄），存盘后跑 check")
+    print(f"  terms {len(terms)} / assets {len(assets)} / translated {filled} / to fill {len(terms)-filled}")
+    print(f"  user-filled entries preserved = {kept_n}")
+    print("  Next: fill column E (light yellow) of `FlairName_待填` in Excel, save, then run check")
     return 0
 
 
@@ -471,10 +473,10 @@ def parse_html_units(path: pathlib.Path) -> dict:
     s = path.read_text(encoding="utf-8")
     m = re.search(r'<script id="DATA" type="application/json">(.*?)</script>', s, re.S)
     if not m:
-        raise SystemExit(f"[ERR] {path} 里没有 <script id=\"DATA\"> JSON 块")
+        raise SystemExit(f"[ERR] No <script id=\"DATA\"> JSON block in {path}")
     D = json.loads(m.group(1))
     if "units" not in D:
-        raise SystemExit("[ERR] DATA JSON 缺少 units 数组")
+        raise SystemExit("[ERR] DATA JSON missing units array")
     return D
 
 
@@ -502,19 +504,20 @@ def derive_html_translations(assets: list[dict], D: dict, exact: dict) -> dict:
         cand, kind = "", ""
         if len(names) == 1 and names:
             cand = next(iter(names))
-            kind = ("units.name（该英文串仅 1 个资产）" if len(group) == 1
-                    else f"units.name（{len(group)} 个资产全部一致）")
+            kind = ("units.name (only 1 asset for this English string)" if len(group) == 1
+                    else f"units.name (all {len(group)} assets agree)")
             if len(group) == 1:
-                kind += "；注意数据表 name 可能是单位昵称而非 FlairName 直译，请审阅"
+                kind += "; note: data-table name may be a unit nickname rather than a direct FlairName translation, please review"
         elif en in GENERIC_FROM_MASTER:
             key, expect_cls = GENERIC_FROM_MASTER[en]
             cand = exact.get(key) or exact.get(key.lower()) or ""
-            kind = (f"HTML units.name 有 {len(names)} 种（单位昵称，不采用）；"
-                    f"改取主表短词 `{key}={cand}`，与 HTML units.cls=`{cls}` "
-                    f"{'一致' if cls == expect_cls else '不一致（请复核）'}")
+            kind = (f"HTML units.name has {len(names)} variants (unit nicknames, not used); "
+                    f"using master short word `{key}={cand}` instead, "
+                    f"{'matching' if cls == expect_cls else 'DIFFERING from (please recheck)'} "
+                    f"HTML units.cls=`{cls}`")
         else:
-            kind = (f"HTML units.name 有 {len(names)} 种（单位昵称，不采用）；"
-                    f"HTML units.cls=`{cls}` 供参考；无统一译名，留给用户填")
+            kind = (f"HTML units.name has {len(names)} variants (unit nicknames, not used); "
+                    f"HTML units.cls=`{cls}` for reference only; no consistent translation, left for the user")
         out[en] = dict(candidate=cand, basis=kind, n_assets=len(group),
                        names=dict(names), cls=dict(clss), unmatched=unmatched)
     return out
@@ -528,7 +531,7 @@ def cmd_import_html(args) -> int:
     if args.file:
         src = pathlib.Path(args.file)
         if not src.is_file():
-            raise SystemExit(f"[ERR] 数据表不存在：{src}")
+            raise SystemExit(f"[ERR] Data table not found: {src}")
         D = parse_html_units(src)
         assets = scan_assets()
         exact, _ = master_translations()
@@ -537,29 +540,30 @@ def cmd_import_html(args) -> int:
             "source_file": str(src),
             "source_sha256": sha(src.read_bytes()),
             "extracted_at_utc": stamp,
-            "rule": "units.name 唯一/一致才当译名；多种 name = 单位昵称，通用兵种串改取主表权威短词",
+            "rule": "Only a unique/consistent units.name counts as a translation; multiple names = unit nickname; "
+                    "generic class strings use the master's authoritative short word",
             "html_totals": {k: len(v) for k, v in D.items()},
             "by_en": derived,
         }
         HTML_MAP_OUT.parent.mkdir(parents=True, exist_ok=True)
         HTML_MAP_OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2),
                                 encoding="utf-8")
-        print(f"已从数据表提取 → {HTML_MAP_OUT}  sha256={payload['source_sha256'][:16]}…")
+        print(f"Extracted from data table → {HTML_MAP_OUT}  sha256={payload['source_sha256'][:16]}…")
     else:
         if not HTML_MAP_OUT.is_file():
-            raise SystemExit("[ERR] 没有已提取的映射；请先用 --file <数据表.html> 跑一次")
+            raise SystemExit("[ERR] No extracted mapping found; first run once with --file <data-table.html>")
         payload = json.loads(HTML_MAP_OUT.read_text(encoding="utf-8"))
         derived = payload["by_en"]
-        print(f"重放已提取映射 ← {HTML_MAP_OUT}  ({payload.get('extracted_at_utc')})")
+        print(f"Replaying extracted mapping ← {HTML_MAP_OUT}  ({payload.get('extracted_at_utc')})")
 
     bak_dir = BACKUP_ROOT / f"{stamp}_before_html_import"
     bak_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(LEXICON, bak_dir / LEXICON.name)
-    print(f"已备份主表 → {bak_dir / LEXICON.name}")
+    print(f"Backed up master → {bak_dir / LEXICON.name}")
 
     wb = load_workbook(LEXICON)
     if SHEET_TERMS not in wb.sheetnames:
-        raise SystemExit(f"[ERR] 主表缺少 {SHEET_TERMS!r}，请先跑 init")
+        raise SystemExit(f"[ERR] Master missing sheet {SHEET_TERMS!r}; run init first")
     ws = wb[SHEET_TERMS]
     for col, name, width in ((9, TERM_COLS[8], TERM_WIDTHS[8]),
                              (10, TERM_COLS[9], TERM_WIDTHS[9])):
@@ -577,11 +581,11 @@ def cmd_import_html(args) -> int:
             continue
         d = derived.get(en, {})
         cand = str(d.get("candidate") or "")
-        basis = str(d.get("basis") or "（数据表无此串）")
+        basis = str(d.get("basis") or "(string not in data table)")
         if d.get("unmatched"):
-            basis += "；数据表缺 key: " + "、".join(d["unmatched"][:3])
+            basis += "; missing data-table keys: " + ", ".join(d["unmatched"][:3])
         cI, cJ = ws.cell(row=row, column=9), ws.cell(row=row, column=10)
-        cI.value = cand or "（无统一译名）"
+        cI.value = cand or "(no consistent translation)"
         cJ.value = basis
         for c in (cI, cJ):
             c.font = Font(color=LOCK_FONT)
@@ -591,20 +595,20 @@ def cmd_import_html(args) -> int:
         cur = str(ws.cell(row=row, column=5).value or "").strip()
         if cur:
             n_keep += 1
-            cJ.value = "【Excel 已有译文，未覆盖】" + cJ.value
+            cJ.value = "[Excel already has a translation, not overwritten] " + cJ.value
             continue
         if cand and not validate_zh(cand):
             ws.cell(row=row, column=5).value = cand
-            ws.cell(row=row, column=6).value = "数据表译名（可改）"
+            ws.cell(row=row, column=6).value = "data-table translation (editable)"
             n_fill += 1
         else:
             n_blank += 1
     ws.auto_filter.ref = f"A1:J{ws.max_row}"
     wb.save(LEXICON)
     wb.close()
-    print(f"=== import-html 完成 ===")
-    print(f"  补入译文 {n_fill} 条 / 保留已有 {n_keep} 条（**未覆盖**）/ 仍留空 {n_blank} 条")
-    print(f"  I/J 列已写入数据表译名与依据；E 列（浅黄）可直接改")
+    print(f"=== import-html done ===")
+    print(f"  translations added {n_fill} / kept {n_keep} (**not overwritten**) / still blank {n_blank}")
+    print("  Columns I/J now hold data-table translations and their basis; column E (light yellow) is editable")
     return 0
 
 
@@ -632,7 +636,7 @@ def cmd_check(_args) -> int:
                         if en and en not in seen:
                             seen.add(en)
                             rows.append((en, zh))
-        # 2. Old multi-sheet layout: column E of FlairName_待填
+        # 2. Legacy multi-sheet layout: column E of the old sheet
         if not rows and SHEET_TERMS in wb.sheetnames:
             ws = wb[SHEET_TERMS]
             for row in ws.iter_rows(min_row=2, values_only=True):
@@ -653,18 +657,18 @@ def cmd_check(_args) -> int:
             bad.append((en, zh, errs))
         else:
             filled.append((en, zh, by_en.get(en, 0)))
-    print(f"=== FlairName 译文体检（只读） ===")
-    print(f"  术语行 {len(rows)} / 资产 {len(assets)} / 已填且合法 {len(filled)} / 留空 {len(empty)} / 非法 {len(bad)}")
-    print(f"  将被改动的资产 = {sum(n for _, _, n in filled)} / {len(assets)}")
+    print(f"=== FlairName translation health check (read-only) ===")
+    print(f"  term rows {len(rows)} / assets {len(assets)} / filled & valid {len(filled)} / blank {len(empty)} / invalid {len(bad)}")
+    print(f"  assets that would change = {sum(n for _, _, n in filled)} / {len(assets)}")
     for en, zh, n in filled:
-        print(f"    OK  {en:26s} → {zh:12s} ({n} 个资产)")
+        print(f"    OK  {en:26s} → {zh:12s} ({n} assets)")
     if empty:
-        print("  留空（保持原版英文）:")
+        print("  Blank (keeps original English):")
         for en in empty:
-            print(f"    --  {en:26s} ({by_en.get(en, 0)} 个资产)")
+            print(f"    --  {en:26s} ({by_en.get(en, 0)} assets)")
     for en, zh, errs in bad:
         print(f"    !!  {en:26s} → {zh!r}  {errs}")
-    print("  存盘后跑 build 生成 `patches/flairname_zh_full/`。")
+    print("  After saving, run build to generate `patches/flairname_zh_full/`.")
     return 1 if bad else 0
 
 
@@ -684,17 +688,17 @@ def transform_variable(data: bytes, r: dict, zh: str) -> tuple[bytes, dict]:
     delta = len(new_fs) - old_total
 
     if data[-4:] != b"\xc1\x83\x2a\x9e":
-        raise RuntimeError("文件尾缺少 PACKAGE_FILE_TAG，拒绝改写")
+        raise RuntimeError("Missing PACKAGE_FILE_TAG at end of file; refusing to rewrite")
     ex = r["exports"]
     if len(ex) != 1 or ex[0]["off"] != r["headers_size"]:
-        raise RuntimeError("非「单 export + 数据在 header 末尾」结构，拒绝变长")
+        raise RuntimeError("Not a 'single export + data at end of header' layout; refusing variable length")
     eo = r["summary"]["export_offset"]
     if struct.unpack_from("<i", data, eo + 0x18)[0] != ex[0]["size"]:
-        raise RuntimeError("export SerialSize 字段定位校验失败")
+        raise RuntimeError("export SerialSize field location check failed")
     if struct.unpack_from("<i", data, eo + 0x1C)[0] != ex[0]["off"]:
-        raise RuntimeError("export SerialOffset 字段定位校验失败")
+        raise RuntimeError("export SerialOffset field location check failed")
     if struct.unpack_from("<i", data, tag_off + 16)[0] != tag_size:
-        raise RuntimeError("FPropertyTag.Size 字段定位校验失败")
+        raise RuntimeError("FPropertyTag.Size field location check failed")
 
     out = bytearray(data[:slo] + new_fs + data[slo + old_total:-4] + data[-4:])
     struct.pack_into("<i", out, tag_off + 16, tag_size + delta)
@@ -722,18 +726,18 @@ def static_verify(new_data: bytes, stem: str, zh: str, expect_props: int) -> dic
         finally:
             ue4prop.GAME = saved
     if not r2.get("ok"):
-        raise RuntimeError(f"{stem}: 回读 parse 失败 {r2.get('why')}")
+        raise RuntimeError(f"{stem}: readback parse failed {r2.get('why')}")
     if r2["file_size"] != len(new_data):
-        raise RuntimeError(f"{stem}: 回读 file_size 不符 {r2['file_size']} != {len(new_data)}")
+        raise RuntimeError(f"{stem}: readback file_size mismatch {r2['file_size']} != {len(new_data)}")
     props = [p for w in r2.get("walks", []) for p in w.get("props", []) if isinstance(p, dict)]
     if len(props) != expect_props:
-        raise RuntimeError(f"{stem}: 回读属性数不符 {len(props)} != {expect_props}")
+        raise RuntimeError(f"{stem}: readback property count mismatch {len(props)} != {expect_props}")
     flair = [p for p in props if p.get("name") == "FlairName"]
     if len(flair) != 1:
-        raise RuntimeError(f"{stem}: 回读 FlairName 数 {len(flair)}")
+        raise RuntimeError(f"{stem}: readback FlairName count {len(flair)}")
     got = str(flair[0].get("value", {}).get("source", ""))
     if got != zh:
-        raise RuntimeError(f"{stem}: 回读 source={got!r} != {zh!r}")
+        raise RuntimeError(f"{stem}: readback source={got!r} != {zh!r}")
     return dict(ok=True, source=got, n_props=len(props),
                 file_size=r2["file_size"], export_size=r2["exports"][0]["size"])
 
@@ -742,8 +746,8 @@ def selftest_both_directions(assets: list[dict]) -> dict:
     """Show that Δ can be positive or negative: transform the same asset with shorter and longer Chinese strings and read back statically.
 
     Take "Veteran" (src_len=7, FString 12B):
-      老兵 (2 chars) → FString 10B, Δ=-2
-      资深老兵战士 (6 chars) → FString 18B, Δ=+6
+      short CJK string (2 chars) -> FString 10B, delta = -2
+      long CJK string (6 chars)  -> FString 18B, delta = +6
     """
     a = next((x for x in assets if x["en"] == "Veteran"), assets[0])
     data = (ORIG_CONTENT / PKG_REL_DIR / a["file"]).read_bytes()
@@ -757,13 +761,13 @@ def selftest_both_directions(assets: list[dict]) -> dict:
                         file_size=info["new_file_size"], verify_ok=v["ok"],
                         readback_source=v["source"])
     if not (out["shorter"]["delta"] < 0 < out["longer"]["delta"]):
-        raise RuntimeError(f"双向变长自测失败: {out}")
+        raise RuntimeError(f"bidirectional variable-length selftest failed: {out}")
     return dict(asset=a["file"], **out)
 
 
 def cmd_build(_args) -> int:
     assets = scan_assets()
-    terms = read_terms()   # single sheet (domain=flairname_asset) or old layout (FlairName_待填); both return {en: zh}
+    terms = read_terms()   # single sheet (domain=flairname_asset) or legacy multi-sheet layout; both return {en: zh}
 
     problems = [(e, z, validate_zh(z)) for e, z in terms.items() if validate_zh(z)]
     if problems:
@@ -771,16 +775,17 @@ def cmd_build(_args) -> int:
             print(f"[REFUSE] {e} → {z!r}: {errs}")
         return 3
     if not terms:
-        raise SystemExit("[REFUSE] 术语表 E 列全空，没有可生成的译文。请先在主表填中文。")
+        raise SystemExit("[REFUSE] Column E of the term sheet is entirely empty, no translations to generate. "
+                         "Fill in Chinese in the master first.")
 
     fp = term_fingerprint(terms)
     l2_current = fp == L2L3_EVIDENCE["terms_sha256"]
     if not l2_current:
-        print(f"  [注意] 译名集指纹 {fp} != L2/L3 证据的 {L2L3_EVIDENCE['terms_sha256']}："
-              f"当前包只到 L0，L2/L3 须重新实机复验")
+        print(f"  [NOTE] term-set fingerprint {fp} != L2/L3 evidence {L2L3_EVIDENCE['terms_sha256']}: "
+              f"current package is L0 only; L2/L3 require in-game re-verification")
 
     selftest = selftest_both_directions(assets)
-    print(f"  双向变长自测 PASS：{selftest['asset']} "
+    print(f"  Bidirectional variable-length selftest PASS: {selftest['asset']} "
           f"Δ={selftest['shorter']['delta']:+d} / {selftest['longer']['delta']:+d}")
 
     ASSET_OUT = PATCH_DIR / "assets" / SB_REL_DIR
@@ -793,13 +798,13 @@ def cmd_build(_args) -> int:
     for a in assets:
         zh = terms.get(a["en"])
         if not zh:
-            skipped.append(dict(file=a["file"], en=a["en"], reason="术语表未填"))
+            skipped.append(dict(file=a["file"], en=a["en"], reason="not filled in term sheet"))
             continue
         src = ORIG_CONTENT / PKG_REL_DIR / a["file"]
         data = src.read_bytes()
         r = ue4prop.read_package(f"{PKG_REL_DIR}/{a['stem']}")
         if not r.get("ok"):
-            raise RuntimeError(f"{a['stem']}: 原版解析失败")
+            raise RuntimeError(f"{a['stem']}: original parse failed")
         new_data, info = transform_variable(data, r, zh)
         v = static_verify(new_data, a["stem"], zh, a["n_props"])
         dst = ASSET_OUT / a["file"]
@@ -815,18 +820,19 @@ def cmd_build(_args) -> int:
 
     manifest = {
         "name": "flairname_zh_full",
-        "description": "UnitTemplate.FlairName 中文全量包：由 Unify 主表 "
-                       "`zh_lexicon.xlsx` 的 `FlairName_待填` sheet 驱动，"
-                       "按英文串广播到全部 UTP_* 资产；采用变长变换（重算 export SerialSize），"
-                       "中文长度不受原英文限制。",
-        "grading": "L0 PASS：每个生成物均经 ue4prop 静态严格回读"
-                   "（parse ok / file_size 一致 / 全部属性可 walk / FlairName source == 表中译文）；"
-                   "含 Δ<0 与 Δ>0 双向自测。"
-                   + ("L2 PASS：全量投放后游戏冷启动未崩、流程 verdict=PASS。"
-                      "L3 PASS：前哨站 6 张卡职业小字全部显示清晰中文（详见 l2_l3 字段）。"
+        "description": "UnitTemplate.FlairName full Chinese package: driven by the Unify master "
+                       "`zh_lexicon.xlsx` sheet `FlairName_待填`, broadcast by English string to all "
+                       "UTP_* assets; uses a variable-length transform (recomputes export SerialSize), "
+                       "so Chinese length is not limited by the original English.",
+        "grading": "L0 PASS: every generated file is strictly re-read with ue4prop "
+                   "(parse ok / file_size matches / all properties walkable / FlairName source == sheet translation); "
+                   "includes bidirectional selftests with Δ<0 and Δ>0."
+                   + ("L2 PASS: after full rollout the game cold-started without a crash, full run verdict=PASS. "
+                      "L3 PASS: all 6 outpost cards' small class text displayed clear Chinese (see the l2_l3 field)."
                       if l2_current else
-                      "L2 / L3：仅对应上一版译名集（fingerprint 不一致）；"
-                      "当前这批中文尚未实机复验，需在锁空闲后重新 apply + 跑 varlen 场景。"),
+                      "L2 / L3: apply only to the previous term set (fingerprint mismatch); "
+                      "the current Chinese batch has not been verified in-game yet — re-apply once the lock is "
+                      "free and rerun the varlen scenario."),
         "translation_fingerprint": fp,
         "l2_l3": dict(L2L3_EVIDENCE,
                       current_terms_sha256=fp,
@@ -835,19 +841,20 @@ def cmd_build(_args) -> int:
                                             else "L0 PASS / L2 + L3 PENDING_REVERIFY")),
         "source": {
             "lexicon": "427/Tools/zh_lex/out/unified/zh_lexicon.xlsx",
-            "sheet": SHEET_TERMS, "column": "E（中文译文（填这列））",
+            "sheet": SHEET_TERMS, "column": "E (Chinese translation - fill this column)",
             "filled_terms": len(terms), "assets_total": len(assets),
             "assets_patched": len(entries), "assets_skipped": len(skipped),
         },
         "variable_length_selftest": selftest,
         "method": {
-            "fstring": "locres_v3.write_fstring(zh) → UTF-16LE，len = -(字符数+1)（含结尾 NUL）",
-            "variable_length": "替换 source FString（长度可变）→ 尾部 4 字节 PACKAGE_FILE_TAG 随数据平移 → "
-                               "FPropertyTag.Size(@tag_off+16) += Δ → export 记录 +0x18 的 SerialSize += Δ；"
-                               "SerialOffset / TotalHeaderSize 不变。",
-            "why_safe": "76/76 个 UTP_* 均为单 export、序列化数据从 headers_size 一直到文件尾；"
-                        "4 字节对齐扫描 header 无任何 int32 指向 file_size。",
-            "critical": "必须同时改 tag.Size，否则引擎按旧 size 跳过属性值 → 属性流错位（与 -3 崩溃同款）。"
+            "fstring": "locres_v3.write_fstring(zh) → UTF-16LE, len = -(char count + 1) (includes trailing NUL)",
+            "variable_length": "replace the source FString (variable length) → the trailing 4-byte PACKAGE_FILE_TAG "
+                               "shifts with the data → FPropertyTag.Size(@tag_off+16) += Δ → the export record's "
+                               "SerialSize at +0x18 += Δ; SerialOffset / TotalHeaderSize unchanged.",
+            "why_safe": "76/76 UTP_* are single-export, with serialized data running from headers_size to end of "
+                        "file; a 4-byte-aligned header scan finds no int32 pointing to file_size.",
+            "critical": "tag.Size must be updated too, otherwise the engine skips the property value using the old "
+                        "size → the property stream shifts (same class of bug as the -3 crash)."
         },
         "entries": entries,
         "skipped": skipped,
@@ -856,89 +863,109 @@ def cmd_build(_args) -> int:
         json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 
     lines = [
-        "# flairname_zh_full（主表驱动 · 变长全量包）", "",
-        "## 怎么改中文", "",
-        "1. 打开 `427/Tools/zh_lex/out/unified/zh_lexicon.xlsx`，切到 sheet `FlairName_待填`；",
-        "2. 只改 **E 列「中文译文（填这列）」**（浅黄）；同一英文串下所有资产共用一条译文；",
-        "3. 存盘 → `python \"steam patching/tools/flairname_lexicon.py\" check` 看体检；",
-        "4. `python \"steam patching/tools/flairname_lexicon.py\" build` 重新生成本包；",
-        "5. `python \"steam patching/tools/patch_sandbox.py\" apply flairname_zh_full`；",
-        "6. `python \"steam patching/tools/auto_test.py\" run \"steam patching/tools/auto_test_scenarios/flairname_ab.json\" --tag <tag>` 实机验收。", "",
-        "留空的英文串 → 对应资产保持原版英文，不进补丁包。", "",
-        "## 为什么可以不等长", "",
-        "原版每个 UTP_* 都是**单个 export**，其序列化数据从 `headers_size` 起一直到文件末尾，",
-        "末尾 4 字节是 `PACKAGE_FILE_TAG` (0x9E2A83C1)。4 字节对齐扫描整个 header，",
-        "**没有任何字段指向文件总长**。变长要同步改 **两处** 长度：",
-        "① `FPropertyTag.Size`（`@tag_off+16`，TextProperty 值的字节数）；",
-        "② export 记录 `+0x18` 的 `SerialSize`。`SerialOffset` / `TotalHeaderSize` 不变。",
-        "只改 ② 不改 ① 会让引擎按旧 size 跳过属性值 → 属性流错位（与 `-3` 崩溃同款，",
-        "2026-11-12 由 L0 静态回读 `self-table stream incomplete` 直接抓出）。",
-        "配套：`build` 每次自动跑双向自测（同一资产 Δ<0 与 Δ>0 各生成一次并静态回读）。", "",
-        "FString 负长度语义：`|n|` **包含结尾 NUL**（上一棒写成 `-3` 少消费 2 字节导致加载期崩溃，",
-        "见 `LOG.md` §4）；本工具统一走 `locres_v3.write_fstring()`，不再手算。", "",
-        "## 本包统计", "",
-        f"- 术语已填 **{len(terms)}** 条 / 资产改动 **{len(entries)}** 个 / 跳过 **{len(skipped)}** 个",
-        f"- 字节变化合计 Δ = {sum(i['delta'] for i in infos):+d}",
-        f"- 译名集指纹 `{fp}`（L2/L3 证据对应 `{L2L3_EVIDENCE['terms_sha256']}`"
-        + ("，一致）" if l2_current else "，**不一致**）"), "",
-        "| 资产 | 英文 | 中文 | Δ 字节 | FString |", "|---|---|---|---:|---|",
+        "# flairname_zh_full (master-driven, variable-length full package)", "",
+        "## How to change the Chinese text", "",
+        "1. Open `427/Tools/zh_lex/out/unified/zh_lexicon.xlsx` and switch to sheet `FlairName_待填`;",
+        "2. Only edit **column E \"Chinese translation (fill this column)\"** (light yellow); all assets "
+        "under the same English string share one translation;",
+        "3. Save → run `python \"steam patching/tools/flairname_lexicon.py\" check` for the health check;",
+        "4. `python \"steam patching/tools/flairname_lexicon.py\" build` regenerates this package;",
+        "5. `python \"steam patching/tools/patch_sandbox.py\" apply flairname_zh_full`;",
+        "6. `python \"steam patching/tools/auto_test.py\" run \"steam patching/tools/auto_test_scenarios/flairname_ab.json\" --tag <tag>` "
+        "for in-game acceptance.", "",
+        "Blank English strings → the corresponding assets keep their original English and are not "
+        "included in the patch package.", "",
+        "## Why variable length is safe", "",
+        "In the original every UTP_* is a **single export**, whose serialized data runs from "
+        "`headers_size` all the way to end of file,",
+        "with the last 4 bytes being `PACKAGE_FILE_TAG` (0x9E2A83C1). A 4-byte-aligned scan of the "
+        "whole header finds",
+        "**no field pointing to the total file length**. A variable-length edit must update **two** "
+        "lengths in sync:",
+        "① `FPropertyTag.Size` (`@tag_off+16`, the byte length of the TextProperty value);",
+        "② the export record's `SerialSize` at `+0x18`. `SerialOffset` / `TotalHeaderSize` are unchanged.",
+        "Changing only ② and not ① makes the engine skip the property value using the old size → the "
+        "property stream shifts (the same class of bug as the `-3` crash,",
+        "caught directly by the L0 static readback on 2026-11-12 as `self-table stream incomplete`).",
+        "To match, `build` automatically runs a bidirectional selftest on every run (the same asset is "
+        "generated once with Δ<0 and once with Δ>0, each read back statically).", "",
+        "FString negative-length semantics: `|n|` **includes the trailing NUL** (the previous version "
+        "wrote `-3`, consuming 2 bytes too few and crashing at load time,",
+        "see `LOG.md` §4); this tool always goes through `locres_v3.write_fstring()` and never computes "
+        "it by hand.", "",
+        "## Package statistics", "",
+        f"- Terms filled **{len(terms)}** / assets changed **{len(entries)}** / skipped **{len(skipped)}**",
+        f"- Total byte change Δ = {sum(i['delta'] for i in infos):+d}",
+        f"- Term-set fingerprint `{fp}` (L2/L3 evidence `{L2L3_EVIDENCE['terms_sha256']}`"
+        + (", match)" if l2_current else ", **MISMATCH**)"), "",
+        "| Asset | English | Chinese | Δ bytes | FString |", "|---|---|---|---:|---|",
     ]
     for i in infos:
         lines.append(f"| `{i['file']}` | {i['en']} | {i['zh']} | {i['delta']:+d} | "
                      f"{i['old_fs_total']}B → {i['new_fs_total']}B |")
     lines += [
-        "", "## 静态严格回读（L0）", "",
-        "每个生成物都写到临时 Content 树后由 `ue4prop.read_package()` 重新解析，逐项断言：",
-        "`ok=True` / `file_size == 新字节数` / 属性条数与原版一致 / `FlairName.source == 表中译文`。",
-        "任何一项不符即中止并报错，不会写出补丁包。",
-        "`build` 每次还自动跑双向自测：同一 `Veteran` 资产用 2 字（Δ<0）与 6 字（Δ>0）中文各生成一次并回读。", "",
+        "", "## Strict static readback (L0)", "",
+        "Each generated file is written to a temporary Content tree and re-parsed by "
+        "`ue4prop.read_package()`, asserting each item:",
+        "`ok=True` / `file_size == new byte count` / property count matches the original / "
+        "`FlairName.source == sheet translation`.",
+        "Any mismatch aborts with an error; no patch package is written.",
+        "`build` also runs a bidirectional selftest every time: the same `Veteran` asset is generated "
+        "once with a 2-character (Δ<0) and once with a 6-character (Δ>0) Chinese string, each read back.", "",
         *(
             [
-                "## L2 / L3 实机（2026-11-12，均 PASS，译名集与本包一致）", "",
-                f"- 译名集指纹 `{fp}` 与证据一致；报告：`{L2L3_EVIDENCE['report']}`（verdict=PASS，游戏未崩）",
-                f"- 截图：`{L2L3_EVIDENCE['shot']}` 裁剪放大回看："
+                "## L2 / L3 in-game (2026-11-12, both PASS, term set matches this package)", "",
+                f"- Term-set fingerprint `{fp}` matches the evidence; report: `{L2L3_EVIDENCE['report']}` "
+                "(verdict=PASS, no game crash)",
+                f"- Screenshot: `{L2L3_EVIDENCE['shot']}`, cropped and zoomed in for review: "
                 "CLEUTIN `老兵` / MARCELLUS `毁灭者` / THORGIR `突击兵` /",
-                "  REGULIUS `战术兵` / MAGNUS `战术兵` / VARRAS `新兵`，清晰汉字、非豆腐块。",
+                "  REGULIUS `战术兵` / MAGNUS `战术兵` / VARRAS `新兵` — clear glyphs, no tofu blocks.",
             ] if l2_current else [
-                "## L2 / L3 实机（2026-11-12，仅对应**上一版译名集**）", "",
-                f"- ⚠ 本包译名集指纹 `{fp}` ≠ 实机时的 `{L2L3_EVIDENCE['terms_sha256']}`："
-                "主表 `FlairName_待填!E` 已被改动，**当前这批中文只到 L0，L2/L3 尚未复验**；"
-                "下列证据只能证明「变长变换在真机成立」，不能证明当前译文在真机显示正确。",
-                f"- 旧译名集报告：`{L2L3_EVIDENCE['report']}`；截图：`{L2L3_EVIDENCE['shot']}`",
-                "  （回看：CLEUTIN `老兵` / MARCELLUS `毁灭者` / THORGIR `突击兵` /",
-                "  REGULIUS `战术兵` / MAGNUS `战术兵` / VARRAS `新兵`，清晰汉字、非豆腐块）。",
-                "- 待实机锁空闲、无游戏进程后：`patch_sandbox.py apply flairname_zh_full` → "
-                "`auto_test.py run \"steam patching/tools/auto_test_scenarios/flairname_ab.json\" --tag <tag>`，回看 PNG 后把 "
-                "`L2L3_EVIDENCE.terms_sha256` 更新为本包指纹，重新 build 即可恢复 L2/L3 PASS。",
+                "## L2 / L3 in-game (2026-11-12, applies only to the **previous term set**)", "",
+                f"- ⚠ This package's term-set fingerprint `{fp}` ≠ the in-game one "
+                f"`{L2L3_EVIDENCE['terms_sha256']}`: the master's `FlairName_待填!E` has been changed; "
+                "**the current Chinese batch is L0 only, L2/L3 not yet re-verified**; "
+                "the evidence below only proves the variable-length transform works in-game, not that the "
+                "current translations display correctly in-game.",
+                f"- Previous term-set report: `{L2L3_EVIDENCE['report']}`; screenshot: `{L2L3_EVIDENCE['shot']}`",
+                "  (review: CLEUTIN `老兵` / MARCELLUS `毁灭者` / THORGIR `突击兵` /",
+                "  REGULIUS `战术兵` / MAGNUS `战术兵` / VARRAS `新兵` — clear glyphs, no tofu blocks).",
+                "- Once the in-game lock is free and no game process is running: "
+                "`patch_sandbox.py apply flairname_zh_full` → "
+                "`auto_test.py run \"steam patching/tools/auto_test_scenarios/flairname_ab.json\" --tag <tag>`; "
+                "after reviewing the PNG, set `L2L3_EVIDENCE.terms_sha256` to this package's fingerprint "
+                "and rebuild to restore L2/L3 PASS.",
             ]
         ),
-        "- ⇒ 变长变换（改 FString + FPropertyTag.Size + export SerialSize）在真机成立，"
-        "中文长度不再受原英文长度约束。", "",
-        "## 纪律", "",
-        "- 原版源树 `427/assets_drop/steam_original/` 只读，绝不写；",
-        "- 投放一律走 `patch_sandbox.py apply`（自带断链 + 备份 + sha256 校验）；",
-        "- 二进制 `*.uasset` 被 gitignore、不入库；本包只提交 `manifest.json` / `notes.md`；",
-        "- 实机抓图按 `steam patching/docs/AUTO_TEST_SYSTEM.md`：窗口全程置顶、预热首次点击、禁止人工介入；",
-        "- PNG 必须图像工具回看，禁止 grep 冒充视觉验收。", "",
+        "- ⇒ The variable-length transform (edit FString + FPropertyTag.Size + export SerialSize) works "
+        "in-game, and Chinese length is no longer constrained by the original English.", "",
+        "## Conventions", "",
+        "- The original source tree `427/assets_drop/steam_original/` is read-only, never written;",
+        "- All deployment goes through `patch_sandbox.py apply` (built-in unlink + backup + sha256 check);",
+        "- Binary `*.uasset` files are gitignored and not committed; this package only commits "
+        "`manifest.json` / `notes.md`;",
+        "- In-game captures follow `steam patching/docs/AUTO_TEST_SYSTEM.md`: keep the window always on "
+        "top, warm up the first click, no manual intervention;",
+        "- PNGs must be reviewed with an image tool; never use grep as a substitute for visual acceptance.", "",
     ]
     (PATCH_DIR / "notes.md").write_text("\n".join(lines), encoding="utf-8")
 
-    print(f"=== build 完成 ===")
-    print(f"  术语 {len(terms)} 条 / 生成 {len(entries)} 个资产 / 跳过 {len(skipped)} 个")
-    print(f"  Δ 合计 {sum(i['delta'] for i in infos):+d} 字节；L0 静态回读 {len(infos)}/{len(infos)} PASS")
-    print(f"  补丁包: {PATCH_DIR}")
+    print(f"=== build done ===")
+    print(f"  terms {len(terms)} / assets generated {len(entries)} / skipped {len(skipped)}")
+    print(f"  Δ total {sum(i['delta'] for i in infos):+d} bytes; L0 static readback {len(infos)}/{len(infos)} PASS")
+    print(f"  patch package: {PATCH_DIR}")
     return 0
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description="FlairName 中文层：Unify 主表 ↔ 变长全量补丁")
+    ap = argparse.ArgumentParser(description="FlairName Chinese layer: Unify master ↔ variable-length full patch")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("init", help="建/刷新主表辅助 sheet（保留用户已填译文）")
-    p_html = sub.add_parser("import-html", help="整合《死亡守望数据表.html》的现成译名（不覆盖已有）")
+    sub.add_parser("init", help="create/refresh master helper sheets (preserves user-filled translations)")
+    p_html = sub.add_parser("import-html", help="merge existing translations from the Deathwatch data-table HTML (no overwrite)")
     p_html.add_argument("--file", default=None,
-                        help="首次运行传 HTML 路径；省略则从已提取的 JSON 映射重放")
-    sub.add_parser("check", help="只读体检填写状态")
-    sub.add_parser("build", help="读表生成变长全量补丁 + L0 静态严格回读")
+                        help="first run: pass the HTML path; omit to replay the extracted JSON mapping")
+    sub.add_parser("check", help="read-only health check of fill status")
+    sub.add_parser("build", help="generate variable-length full patch from the sheet + L0 strict static readback")
     args = ap.parse_args(argv)
     return {"init": cmd_init, "import-html": cmd_import_html,
             "check": cmd_check, "build": cmd_build}[args.cmd](args)

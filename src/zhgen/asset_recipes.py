@@ -44,15 +44,15 @@ def apply_edits(data: bytes, edits: list[dict]) -> bytes:
         if e.get("slot") == "float" or e.get("kind") == "bytecode":
             old = struct.unpack_from("<f", buf, off)[0]
             if abs(old - float(e["old"])) > 1e-6:
-                raise RuntimeError(f"float 旧值不符 @{off}: {old} != {e['old']}")
+                raise RuntimeError(f"float old value mismatch @{off}: {old} != {e['old']}")
             struct.pack_into("<f", buf, off, float(e["new"]))
         else:
             old = struct.unpack_from("<i", buf, off)[0]
             if old != int(e["old"]):
-                raise RuntimeError(f"int 旧值不符 @{off}: {old} != {e['old']}")
+                raise RuntimeError(f"int old value mismatch @{off}: {old} != {e['old']}")
             struct.pack_into("<i", buf, off, int(e["new"]))
     if len(buf) != len(data):
-        raise RuntimeError("edits 改变了文件长度")
+        raise RuntimeError("edits changed the file length")
     return bytes(buf)
 
 
@@ -68,16 +68,16 @@ def recipe_parry(data: bytes, rel: str) -> bytes:
         hits.append(i)
         i = data.find(PARRY_OLD, i + 1)
     if len(hits) != 1:
-        raise RuntimeError(f"Parry 0.8f 命中 {len(hits)} 处")
+        raise RuntimeError(f"Parry 0.8f matched {len(hits)} occurrences")
     off = hits[0]
     if data.find(b"DamageReduction") < 0 or data.find(b"absorbing") < 0:
-        raise RuntimeError("Parry 锚点/描述缺失")
+        raise RuntimeError("Parry anchor/description missing")
     buf = bytearray(data)
     buf[off:off + 4] = PARRY_NEW
     if abs(struct.unpack_from("<f", buf, off)[0] - 0.2) > 1e-6:
-        raise RuntimeError("Parry 回读不是 0.2")
+        raise RuntimeError("Parry readback is not 0.2")
     if len(buf) != len(data):
-        raise RuntimeError("Parry 长度变化")
+        raise RuntimeError("Parry length changed")
     return bytes(buf)
 
 
@@ -103,21 +103,21 @@ def recipe_maxap(data: bytes, rel: str, control: bytes) -> bytes:
     elems = _parse_maxap_elems(data)
     ctrl = _parse_maxap_elems(control)
     if len(elems) != 9 or [e["index"] for e in elems] != [e["index"] for e in ctrl]:
-        raise RuntimeError("STAT_Plus1AP 元素布局不符")
+        raise RuntimeError("STAT_Plus1AP element layout mismatch")
     cur = {e["index"]: e["value"] for e in elems}
     if cur.get(3) != 1 or cur.get(2) != 0:
-        raise RuntimeError(f"STAT_Plus1AP bug 签名不符: {cur}")
+        raise RuntimeError(f"STAT_Plus1AP bug signature mismatch: {cur}")
     target = next(e for e in elems if e["index"] == 2)
     blk = data[target["tag_off"]:target["tag_off"] + 28]
     if len(blk) != 28 or data.count(blk) != 1:
-        raise RuntimeError("STAT_Plus1AP 目标块不唯一")
+        raise RuntimeError("STAT_Plus1AP target block is not unique")
     buf = bytearray(data)
     struct.pack_into("<i", buf, target["val_off"], 1)
     after = {e["index"]: e["value"] for e in _parse_maxap_elems(bytes(buf))}
     if after != {**cur, 2: 1}:
-        raise RuntimeError(f"STAT_Plus1AP 回读不符: {after}")
+        raise RuntimeError(f"STAT_Plus1AP readback mismatch: {after}")
     if len(buf) != len(data):
-        raise RuntimeError("STAT_Plus1AP 长度变化")
+        raise RuntimeError("STAT_Plus1AP length changed")
     return bytes(buf)
 
 
@@ -133,11 +133,11 @@ def _find_materials_array(data: bytes, rel: str) -> dict:
     rel = rel[:-7] if rel.endswith(".uasset") else rel
     s, names, imps, exps, esz = ue4prop.tables_from_file(data, rel)
     if "Materials" not in names or "ArrayProperty" not in names:
-        raise RuntimeError(f"{rel}: 名字表缺 Materials/ArrayProperty")
+        raise RuntimeError(f"{rel}: name table missing Materials/ArrayProperty")
     mi, ai, oi = names.index("Materials"), names.index("ArrayProperty"), names.index("ObjectProperty")
     mesh = [e for e in exps if e["object_name"] == rel.split("/")[-1]]
     if len(mesh) != 1:
-        raise RuntimeError(f"{rel}: 主 mesh 导出不唯一")
+        raise RuntimeError(f"{rel}: main mesh export is not unique")
     start, size = mesh[0]["serial_offset"], mesh[0]["serial_size"]
     end = start + size
     hit = None
@@ -151,11 +151,11 @@ def _find_materials_array(data: bytes, rel: str) -> dict:
         hit = pos
         break
     if hit is None:
-        raise RuntimeError(f"{rel}: 未找到 Materials ArrayProperty")
+        raise RuntimeError(f"{rel}: Materials ArrayProperty not found")
     arr_size = struct.unpack_from("<i", data, hit + 16)[0]
     count = struct.unpack_from("<i", data, hit + 32)[0]
     if arr_size != count * 4 + 4:
-        raise RuntimeError(f"{rel}: Materials 数组 Size/count 不自洽")
+        raise RuntimeError(f"{rel}: Materials array Size/count inconsistent")
     voff = hit + 36
     values = list(struct.unpack_from("<%di" % count, data, voff))
     world = [i for i, im in enumerate(imps) if im.get("object_name") == "WorldGridMaterial"]
@@ -163,7 +163,7 @@ def _find_materials_array(data: bytes, rel: str) -> dict:
           if str(im.get("object_name", "")).endswith("_Lo")
           and im.get("class_name") == "MaterialInstanceConstant"]
     if len(world) != 1 or len(lo) != 1:
-        raise RuntimeError(f"{rel}: WorldGrid/Lo import 不唯一")
+        raise RuntimeError(f"{rel}: WorldGrid/Lo import is not unique")
     return dict(values_off=voff, values=values,
                 world_ref=-(world[0] + 1), lo_ref=-(lo[0] + 1))
 
@@ -172,16 +172,16 @@ def recipe_wargear(data: bytes, rel: str) -> bytes:
     info = _find_materials_array(data, rel)
     slots = [i for i, v in enumerate(info["values"]) if v == info["world_ref"]]
     if not slots:
-        raise RuntimeError(f"{rel}: 没有 WorldGrid 待修槽")
+        raise RuntimeError(f"{rel}: no WorldGrid slot to patch")
     buf = bytearray(data)
     for i in slots:
         struct.pack_into("<i", buf, info["values_off"] + i * 4, info["lo_ref"])
     if len(buf) != len(data):
-        raise RuntimeError(f"{rel}: 长度变化")
+        raise RuntimeError(f"{rel}: length changed")
     back = _find_materials_array(bytes(buf), rel)
     if back["values"] != [info["lo_ref"] if i in slots else v
                           for i, v in enumerate(info["values"])]:
-        raise RuntimeError(f"{rel}: 材质槽回读不符")
+        raise RuntimeError(f"{rel}: material slot readback mismatch")
     return bytes(buf)
 
 
@@ -195,7 +195,7 @@ def _pixel_layout(data: bytes, rel: str) -> dict:
     s, names, imps, exps, esz = ue4prop.tables_from_file(data, rel)
     ex = [e for e in exps if e["object_name"] == rel.split("/")[-1]]
     if len(ex) != 1:
-        raise RuntimeError(f"{rel}: 主导出不唯一")
+        raise RuntimeError(f"{rel}: main export is not unique")
     start = ex[0]["serial_offset"] + ex[0]["serial_size"]
     region = len(data) - start
     for dim in (256, 128, 64, 32, 16):
@@ -206,23 +206,23 @@ def _pixel_layout(data: bytes, rel: str) -> dict:
         if 0 <= region - o < 8:
             return dict(start=start, chain=o, tail=region - o,
                         tail_bytes=data[start + o:])
-    raise RuntimeError(f"{rel}: 像素布局无法识别")
+    raise RuntimeError(f"{rel}: unrecognized pixel layout")
 
 
 def recipe_chapter(a: bytes, b: bytes) -> tuple[bytes, bytes]:
     ra, rb = CHAPTER_PAIR[0]
     la, lb = _pixel_layout(a, ra), _pixel_layout(b, rb)
     if (la["chain"], la["tail"]) != (lb["chain"], lb["tail"]):
-        raise RuntimeError("chapter 两纹理布局不一致")
+        raise RuntimeError("chapter texture layouts differ")
     if la["tail_bytes"] != lb["tail_bytes"]:
-        raise RuntimeError("chapter 两纹理尾部不同")
+        raise RuntimeError("chapter texture tails differ")
     sa, ca, sb, cb = la["start"], la["chain"], lb["start"], lb["chain"]
     new_a = a[:sa] + b[sb:sb + cb] + a[sa + ca:]
     new_b = b[:sb] + a[sa:sa + ca] + b[sb + cb:]
     if len(new_a) != len(a) or len(new_b) != len(b):
-        raise RuntimeError("chapter 长度变化")
+        raise RuntimeError("chapter length changed")
     if new_a[sa:sa + ca] != b[sb:sb + cb] or new_b[sb:sb + cb] != a[sa:sa + ca]:
-        raise RuntimeError("chapter 像素互换回读不符")
+        raise RuntimeError("chapter pixel-swap readback mismatch")
     return new_a, new_b
 
 
@@ -239,14 +239,14 @@ def _alacrity_a(data: bytes) -> bytes:
         hits.append(i)
         i = data.find(AND_ANCHOR, i + 1)
     if len(hits) != 1:
-        raise RuntimeError(f"Alacrity AND 锚命中 {len(hits)} 处")
+        raise RuntimeError(f"Alacrity AND anchor matched {len(hits)} occurrences")
     off_p = hits[0] + 6
     if struct.unpack_from("<i", data, off_p)[0] != 5:
-        raise RuntimeError("Alacrity AND1 第一输入索引不是 5")
+        raise RuntimeError("Alacrity AND1 first input index is not 5")
     buf = bytearray(data)
     buf[off_p] = 3
     if len(buf) != len(data):
-        raise RuntimeError("Alacrity A 长度变化")
+        raise RuntimeError("Alacrity A length changed")
     return bytes(buf)
 
 
@@ -322,11 +322,11 @@ VISUAL_STREAM = (
 def recipe_visual_ini(data: bytes, tier: str) -> bytes:
     lines = VISUAL_TIERS.get(tier)
     if lines is None:
-        raise RuntimeError(f"未知 visual tier: {tier!r}")
+        raise RuntimeError(f"unknown visual tier: {tier!r}")
     text = data.decode("ascii")
     for old, new in VISUAL_STREAM:
         if text.count(old) != 1:
-            raise RuntimeError(f"visual 流加载键不唯一: {old} count={text.count(old)}")
+            raise RuntimeError(f"visual streaming key is not unique: {old} count={text.count(old)}")
         text = text.replace(old, new)
     block = "[SystemSettings]\r\n" + "\r\n".join(lines + VISUAL_FRAME) + "\r\n"
     block += "[/Script/Engine.Engine]\r\nbSmoothFrameRate=False\r\n"
@@ -390,4 +390,4 @@ def compute_package(content: pathlib.Path, doc: dict) -> dict[str, bytes]:
         out[rel] = recipe_praetorian(content, _read(content, rel))
         return out
 
-    raise RuntimeError(f"未知 recipe: {recipe!r}")
+    raise RuntimeError(f"unknown recipe: {recipe!r}")

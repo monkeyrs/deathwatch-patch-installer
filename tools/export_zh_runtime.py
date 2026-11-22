@@ -63,7 +63,7 @@ def export(lexicon: pathlib.Path) -> dict:
                 "en_source", "zh_to_fill", "asset_file"]
         missing = [c for c in need if c not in header]
         if missing:
-            raise SystemExit(f"[ERR] keys 缺列 {missing}; header={header}")
+            raise SystemExit(f"[ERR] keys missing columns {missing}; header={header}")
         ix = {c: header.index(c) for c in header}
 
         locres, flair, asset_text, bfl = [], {}, [], {}
@@ -128,14 +128,14 @@ def export(lexicon: pathlib.Path) -> dict:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description="导出安装器中文运行时数据")
+    ap = argparse.ArgumentParser(description="Export installer Chinese runtime data")
     ap.add_argument("--lexicon", default=str(DEFAULT_LEXICON))
     ap.add_argument("--out", default=str(APP / "zh_runtime.json"))
     a = ap.parse_args(argv)
 
     lex = pathlib.Path(a.lexicon)
     if not lex.is_file():
-        raise SystemExit(f"[ERR] 主表不存在: {lex}")
+        raise SystemExit(f"[ERR] master lexicon not found: {lex}")
     data = export(lex)
     out = pathlib.Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -145,7 +145,7 @@ def main(argv=None) -> int:
           f"asset_text={c['asset_text']} bfl={c['bfl']}")
     for k in ("locres", "flairname", "asset_text", "bfl"):
         if c[k] <= 0:
-            print(f"[ERR] domain {k} 条数为 0")
+            print(f"[ERR] domain {k} has 0 entries")
             return 3
     return 0
 

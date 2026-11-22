@@ -39,9 +39,9 @@ def _rel(root: pathlib.Path, p: pathlib.Path) -> str:
 def _safe_rel(rel: str) -> pathlib.PurePosixPath:
     p = pathlib.PurePosixPath(str(rel).replace("\\", "/"))
     if not p.parts or p.is_absolute() or ".." in p.parts:
-        raise RuntimeError(f"非法相对路径: {rel!r}")
+        raise RuntimeError(f"illegal relative path: {rel!r}")
     if p.parts[0].endswith(":"):
-        raise RuntimeError(f"非法相对路径: {rel!r}")
+        raise RuntimeError(f"illegal relative path: {rel!r}")
     return p
 
 
@@ -84,7 +84,7 @@ def apply_locres(content: pathlib.Path, rows: list[dict], backup: _Backup,
     target = content / "Localization" / "Game" / "en" / "Game.locres"
     res = _result("locres")
     if not target.is_file():
-        res.update(ok=False, errors=[f"缺少 {target}"])
+        res.update(ok=False, errors=[f"missing {target}"])
         return res
     raw = target.read_bytes()
     is_v3 = raw[:16] == struct.pack("<4I", *locres_v3.MAGIC)
@@ -98,7 +98,7 @@ def apply_locres(content: pathlib.Path, rows: list[dict], backup: _Backup,
             continue
         if int(r["hash"]) != src_hash:
             drift += 1
-            res["errors"].append(f"hash 漂移，跳过 {ns}/{key}")
+            res["errors"].append(f"hash drift, skipping {ns}/{key}")
             continue
         if r["zh"] == val:
             skipped += 1
@@ -108,7 +108,7 @@ def apply_locres(content: pathlib.Path, rows: list[dict], backup: _Backup,
     absent = len(table)
     if not applied:
         res.update(skipped=skipped,
-                   detail=f"已是最新（{skipped} 条）；未命中 {absent} 条")
+                   detail=f"already up to date ({skipped} entries); {absent} entries not found")
         return res
     backup.save(target)
     tmp = target.with_name("Game.locres.dwgen")
@@ -117,17 +117,17 @@ def apply_locres(content: pathlib.Path, rows: list[dict], backup: _Backup,
     chk = locres_v3.parse_any(tmp)
     if len(chk.entries) != len(entries):
         tmp.unlink(missing_ok=True)
-        raise RuntimeError("locres 回读条数不符")
+        raise RuntimeError("locres readback entry count mismatch")
     a = {(n, k) for n, k, _h, _v in entries}
     b = {(n, k) for n, k, _h, _v in chk.entries}
     if a != b:
         tmp.unlink(missing_ok=True)
-        raise RuntimeError("locres 回读 namespace/key 集合不符")
+        raise RuntimeError("locres readback namespace/key set mismatch")
     _Backup.write_atomic(target, tmp.read_bytes())
     tmp.unlink(missing_ok=True)
     res.update(applied=applied, skipped=skipped,
-               detail=f"写入 {applied} 条，已是中文 {skipped} 条，"
-                      f"未命中 {absent} 条，hash 漂移 {drift} 条")
+               detail=f"wrote {applied} entries, already Chinese {skipped} entries, "
+                      f"{absent} entries not found, hash drift {drift} entries")
     log(f"[zh] locres: {res['detail']}")
     return res
 
@@ -186,7 +186,7 @@ def apply_flairname(content: pathlib.Path, mapping: dict, backup: _Backup,
             else:
                 res["errors"].append(f"{src.name}: {exc}")
     res.update(applied=applied, skipped=skipped, ok=not res["errors"],
-               detail=f"改写 {applied} 个资产，已中文 {skipped} 个，失败 {len(res['errors'])} 个")
+               detail=f"rewrote {applied} assets, already Chinese {skipped} assets, failed {len(res['errors'])}")
     log(f"[zh] FlairName: {res['detail']}")
     return res
 
@@ -210,7 +210,7 @@ def apply_asset_text(content: pathlib.Path, rows: list[dict], backup: _Backup,
             res["errors"].append(f"{rel}: {exc}")
             continue
         if not path.is_file():
-            res["errors"].append(f"{rel}: 文件不存在")
+            res["errors"].append(f"{rel}: file does not exist")
             continue
         try:
             for r in items:
@@ -229,7 +229,7 @@ def apply_asset_text(content: pathlib.Path, rows: list[dict], backup: _Backup,
         except Exception as exc:                  # noqa: BLE001
             res["errors"].append(f"{rel}: {exc}")
     res.update(applied=applied, skipped=skipped, ok=not res["errors"],
-               detail=f"改写 {applied} 处，已中文 {skipped} 处，失败 {len(res['errors'])} 处")
+               detail=f"rewrote {applied} entries, already Chinese {skipped} entries, failed {len(res['errors'])}")
     log(f"[zh] asset_text: {res['detail']}")
     return res
 
@@ -242,10 +242,10 @@ def apply_bfl(content: pathlib.Path, mapping: dict, backup: _Backup,
     try:
         r, raw, ctx = bfl.load(bfl.REL, game=content)
         if not r.get("exports") or not r.get("names"):
-            raise RuntimeError("BFL 资产解析失败（无可读导出/名称表）")
+            raise RuntimeError("BFL asset parse failed (no readable exports/name table)")
         targets = bfl.find_targets(r, raw, ctx, mapping)
         if not targets:
-            res.update(skipped=1, detail="已是中文（未发现 0x1F 可翻串）")
+            res.update(skipped=1, detail="already Chinese (no translatable 0x1F strings found)")
             return res
         applied_src, applied_zh = [], []
         for _e, _bc, _info, _new_bc, _delta, rep in targets:
@@ -265,12 +265,12 @@ def apply_bfl(content: pathlib.Path, mapping: dict, backup: _Backup,
         backup.save(target)
         _Backup.write_atomic(target, new_raw)
         res.update(applied=len(applied_zh),
-                   detail=f"改写 {len(applied_zh)} 条显示名")
+                   detail=f"rewrote {len(applied_zh)} display names")
         log(f"[zh] BFL: {res['detail']}")
         return res
     except Exception as exc:                      # noqa: BLE001
-        res.update(ok=False, errors=[str(exc)], detail="BFL 生成失败")
-        log(f"[zh] BFL 失败: {exc}")
+        res.update(ok=False, errors=[str(exc)], detail="BFL generation failed")
+        log(f"[zh] BFL failed: {exc}")
         return res
 
 
@@ -317,6 +317,6 @@ def apply_zh_text(root: pathlib.Path, data: dict, backup_dir: pathlib.Path,
         try:
             results.append(fn())
         except Exception as exc:                  # noqa: BLE001
-            results.append(_result(name, ok=False, errors=[str(exc)], detail="异常"))
-            log(f"[zh] {name} 异常: {exc}")
+            results.append(_result(name, ok=False, errors=[str(exc)], detail="exception"))
+            log(f"[zh] {name} exception: {exc}")
     return results

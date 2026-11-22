@@ -45,6 +45,7 @@ VISUAL_LEGACY_ARCHIVE = HERE.parents[1] / "patches" / "archive" / "visual_enhanc
 VISUAL_LEGACY = ["g9_glow_down30", "g11_bright_dim_glow",
                  "g12_bright_dim_glow_plus", "g13_bright_maxfx"]
 BALANCE = list(_feature("balance").get("packages") or [])
+WEAPON_SKILLS = list(_feature("weapon_skills").get("packages") or [])
 
 # the installer payload no longer ships full uassets for these packages: only manifest.recipe,
 # computed at runtime from the user's original assets by INSTALLER/src/zhgen/asset_recipes.py.
@@ -237,6 +238,12 @@ def main() -> int:
         total += sum(x["size"] for x in files)
         index["packages"].append({"id": pid, "kind": "balance", "files": files})
         print(f"[OK] balance/{pid}: {len(files)} files")
+    for pid in WEAPON_SKILLS:
+        # Full-file uassets are required here: these skill edits are variable-length.
+        files = copy_pkg(PATCHES / pid, OUT / "weapon_skills" / pid)
+        total += sum(x["size"] for x in files)
+        index["packages"].append({"id": pid, "kind": "weapon_skills", "files": files})
+        print(f"[OK] weapon_skills/{pid}: {len(files)} files")
     (OUT / "payload_index.json").write_text(
         json.dumps(index, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"[OK] payload total {total/1024/1024:.2f} MB -> {OUT}")

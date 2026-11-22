@@ -210,6 +210,8 @@ S = {
     "visual_detail": {"zh": "参数说明", "en": "Tier details"},
     "visual_notice_title": {"zh": "光影增强 · 档位参数", "en": "Visual Enhancement · Tier parameters"},
     "balance_detail": {"zh": "数值说明", "en": "Numeric details"},
+    "weapon_skills_detail": {"zh": "技能说明", "en": "Skill details"},
+    "weapon_skills_dialog_title": {"zh": "武器技能补丁 · 技能说明", "en": "Weapon Skill Patch · Skill details"},
     "camera_caution": {"zh": "谨慎", "en": "Caution"},
     "balance_dialog_title": {"zh": "武器平衡性补丁 · 数值说明", "en": "Weapon Balance Patch · Numeric details"},
     "next": {"zh": "下一步", "en": "Next"},

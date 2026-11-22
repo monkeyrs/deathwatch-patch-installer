@@ -67,8 +67,9 @@ check("zh_text uses runtime generation mode",
       _zh.get("locres_mode") == "generate_at_install"
       and _zh.get("runtime") == "zh_text" and _zh["packages"] == [])
 _bug = next(f for f in m.FEATURES if f["id"] == "bugfix")
-check("bugfix enabled at launch with 7 implemented packages", _bug["enabled"] is True
-      and len(_bug["packages"]) == 7 and "bugfix_lod" not in _bug["packages"])
+check("bugfix enabled at launch with 8 implemented packages", _bug["enabled"] is True
+      and len(_bug["packages"]) == 8 and "bugfix_lod" not in _bug["packages"]
+      and "bugfix_if_heavybolter_emissive" in _bug["packages"])
 check("bugfix list zh/en resources are bundled",
       all((m.APP_DIR / p).is_file() for p in _bug["detail_doc"].values()))
 check("bugfix checked by default", _bug["default_checked"] is True)
@@ -476,9 +477,12 @@ check("balance card has Numeric details link",
 check("camera card has Caution link",
       fp.cards["camera"].detail_link is not None
       and "谨慎" in fp.cards["camera"].detail_link.text())
+check("weapon skills card has Skill details link",
+      fp.cards["weapon_skills"].detail_link is not None
+      and "技能说明" in fp.cards["weapon_skills"].detail_link.text())
 check("other cards have no detail links",
       all(c.detail_link is None for fid, c in fp.cards.items()
-          if fid not in ("bugfix", "visual", "balance", "camera", "vo_zh")))
+          if fid not in ("bugfix", "visual", "balance", "camera", "vo_zh", "weapon_skills")))
 QTest.mouseClick(fp.cards["bugfix"], Qt.MouseButton.LeftButton)
 check("bugfix can be unchecked (card unhighlighted)",
       not fp.cards["bugfix"].isChecked()
@@ -669,21 +673,59 @@ check("balance notice keeps only hobbyist/unofficial/rollback wording, no repeat
 _bal_list = (m.APP_DIR / "balance_list_zh.md").read_text(encoding="utf-8")
 check("balance numeric list carries all six directions",
       all(x in _bal_list for x in ("1AP", "激光炮", "导弹发射器", "热熔", "重力枪", "致残射击")))
-check("balance package points to r17 (includes crippling-shot BUFF .edit)",
-      _bal_feat["packages"] == ["balance_user_r17"])
-_r17 = json.loads((m.APP_DIR / "payload/balance/balance_user_r17/manifest.json").read_text(encoding="utf-8"))
-_t2 = next(e for e in _r17["entries"] if e["relative_path"].endswith("WST_T2_MissileLauncher.uasset"))
-check("balance r17: T2 missile launcher range key 13->8 / value 0->-3 equal-byte edits in place",
+check("balance package points to r22 (full re-solve from current PROPOSAL_updated)",
+      _bal_feat["packages"] == ["balance_user_r22"])
+_r22 = json.loads((m.APP_DIR / "payload/balance/balance_user_r22/manifest.json").read_text(encoding="utf-8"))
+check("balance r22: chapter-converged payload has 107 entries / 265 edits",
+      len(_r22["entries"]) == 107
+      and sum(len(e["edits"]) for e in _r22["entries"]) == 265)
+_t2 = next(e for e in _r22["entries"] if e["relative_path"].endswith("WST_T2_MissileLauncher.uasset"))
+check("balance r22: T2 missile launcher range key 13->8 / value 0->-3 equal-byte edits in place",
       any(e["off"] == 763 and e["old"] == 13 and e["new"] == 8 and e["kind"] == "key_redirect"
           for e in _t2["edits"])
       and any(e["off"] == 767 and e["old"] == 0 and e["new"] == -3
               for e in _t2["edits"]))
+_ifhb = next(e for e in _r22["entries"] if e["relative_path"].endswith("WST_T2_IF_HeavyBolter.uasset"))
+check("balance r22: IF heavy bolter uses crit/crit-dmg slots, no damage key_redirect",
+      any(e["off"] == 677 and e["old"] == 1 and e["new"] == 2 and e["kind"] == "delta"
+          for e in _ifhb["edits"])
+      and any(e["off"] == 705 and e["old"] == 1 and e["new"] == 3 and e["kind"] == "delta"
+              for e in _ifhb["edits"])
+      and not any(e["kind"] == "key_redirect" for e in _ifhb["edits"]))
+_pc3 = next(e for e in _r22["entries"] if e["relative_path"].endswith("WST_T3_PlasmaCannon.uasset"))
+check("balance r22: T3 plasma cannon retuned to damage-only slot7 delta 3->68",
+      any(e["off"] == 730 and e["old"] == 3 and e["new"] == 68 and e["kind"] == "delta"
+          for e in _pc3["edits"])
+      and len(_pc3["edits"]) == 1)
+_ulhb = next(e for e in _r22["entries"] if e["relative_path"].endswith("WST_T3_UL_HeavyBolter.uasset"))
+check("balance r22: UL heavy bolter slot7 delta 3->16 emitted by solver (no manual restore)",
+      any(e["off"] == 733 and e["old"] == 3 and e["new"] == 16 and e["kind"] == "delta"
+          for e in _ulhb["edits"]))
 check("balance unchecked by default and enabled", _bal_feat["default_checked"] is False
       and _bal_feat["enabled"] is True)
 QTest.mouseClick(bal, Qt.MouseButton.LeftButton)
 check("balance click only toggles selection (details via numeric link)",
       bal.isChecked() and "balance" in fp.selected())
 bal.setChecked(False, emit=False)   # reset to avoid affecting later selected assertions
+
+_ws_feat = next(f for f in m.FEATURES if f["id"] == "weapon_skills")
+check("weapon skills card unchecked, enabled, one full-file package",
+      _ws_feat["enabled"] is True and _ws_feat["default_checked"] is False
+      and _ws_feat["packages"] == ["weapon_skills_v1"]
+      and _ws_feat.get("warning_modal") is True)
+check("weapon skills zh/en detail docs are bundled",
+      all((m.APP_DIR / p).is_file() for p in _ws_feat["detail_doc"].values()))
+_ws_doc_zh = (m.APP_DIR / "weapon_skills_list_zh.md").read_text(encoding="utf-8")
+check("IF heavy bolter final skills are Resilient + Killing Blow, not Parry",
+      "坚韧、必杀一击" in _ws_doc_zh and "招架、坚韧" not in _ws_doc_zh
+      and "风暴之牙" in _ws_doc_zh)
+_ws_manifest = json.loads((m.APP_DIR / "payload/weapon_skills/weapon_skills_v1/manifest.json").read_text(encoding="utf-8"))
+check("weapon skills payload carries six full-file uasset entries",
+      len(_ws_manifest["entries"]) == 6
+      and all(e["relative_path"].endswith(".uasset") and e.get("dst_sha256")
+              for e in _ws_manifest["entries"])
+      and all((m.APP_DIR / "payload/weapon_skills/weapon_skills_v1/assets" / e["relative_path"]).is_file()
+              for e in _ws_manifest["entries"]))
 
 # 11) Black Shield offer (completion page): text + unchecked by default; click behavior in section 16
 bs = w.pages[3].cards["bonus_blackshield"]
@@ -787,6 +829,11 @@ finally:
     fp.open_camera_warning = _orig_cam
 check("selecting camera unlock enters install plan",
       "camera" in [a["id"] for a in w._build_plan()])
+check("apply order covers voice and weapon skills",
+      m.InstallerWindow.APPLY_ORDER == ["bugfix", "zh_text", "vo_zh", "visual", "camera", "balance", "weapon_skills"])
+check("balance runs after localization; weapon skills run last",
+      m.InstallerWindow.APPLY_ORDER.index("balance") > m.InstallerWindow.APPLY_ORDER.index("zh_text")
+      and m.InstallerWindow.APPLY_ORDER[-1] == "weapon_skills")
 QTest.mouseClick(fp.cards["camera"], Qt.MouseButton.LeftButton)   # uncheck (no warning dialog)
 _orig_vis16 = fp.open_visual_notice
 fp.open_visual_notice = lambda: None

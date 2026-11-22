@@ -1,8 +1,9 @@
 # -*- mode: python ; coding: utf-8 -*-
 """真实安装器构建（含全部载荷）。与 Demo spec 的唯一区别：随包 app/payload 且不写 demo_mode.txt。
 
-载荷 = bugfix 7 包 + visual 3 档 + zh_runtime.json（汉化运行时生成）+ camera_rules.json（相机等长变换）。
-所有源路径用 SPECPATH 拼绝对路径：PyInstaller 的 datas/pathex 相对路径按当前工作目录解析。
+Payload: 8 bugfix packages + 3 visual tiers + weapon skills + balance r22
++ zh_runtime.json (generated at install) + camera_rules.json (equal-length camera edits).
+All source paths are absolutized via SPECPATH: PyInstaller resolves datas/pathex relative to the CWD.
 """
 from pathlib import Path
 
@@ -22,6 +23,8 @@ a = Analysis(
         (str(APP / "bugfix_list_en.md"), '.'),
         (str(APP / "balance_list_zh.md"), '.'),
         (str(APP / "balance_list_en.md"), '.'),
+        (str(APP / "weapon_skills_list_zh.md"), '.'),
+        (str(APP / "weapon_skills_list_en.md"), '.'),
         (str(APP / "visual_list_zh.md"), '.'),
         (str(APP / "visual_list_en.md"), '.'),
         (str(APP / "zh_runtime.json"), '.'),

@@ -93,11 +93,11 @@ def load_translations(xlsx_path=XLSX_PATH):
     wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
     try:
         if "keys" not in wb.sheetnames:
-            raise SystemExit(f"主表缺 keys sheet: {xlsx_path}")
+            raise SystemExit(f"master workbook missing keys sheet: {xlsx_path}")
         it = wb["keys"].iter_rows(values_only=True)
         hdr = list(next(it))
         if "domain" not in hdr:
-            raise SystemExit("keys 缺 domain 列；主表结构异常（应为单表 14 列契约）")
+            raise SystemExit("keys sheet missing domain column; unexpected master layout (expected single-sheet 14-column contract)")
         di = hdr.index("domain")
         ei = hdr.index("en_source")
         zi = hdr.index("zh_to_fill")
@@ -135,9 +135,9 @@ def patch_function(bc, ctx, base, translations):
     """Parse bc and return (new_bc: bytes, delta: int, report: dict). Returns (None, 0, {}) if no strings can be translated."""
     stmts, consumed, unknown = bp.decode_function(bc, ctx, base)
     if unknown:
-        raise RuntimeError(f"函数解析含未知 opcode: {[hex(u) for u in unknown]}")
+        raise RuntimeError(f"function decode contains unknown opcodes: {[hex(u) for u in unknown]}")
     if consumed != len(bc):
-        raise RuntimeError(f"函数解析不完整 consumed={consumed} len={len(bc)}")
+        raise RuntimeError(f"function decode incomplete consumed={consumed} len={len(bc)}")
 
     # Collect edits: string replacements + offset-field rewrites
     # The first of the three strings inside EX_TextConst (FText) (source/key/namespace) being 0x1F is the deserialization marker
@@ -366,17 +366,17 @@ def validate(new_raw, applied_src, applied_zh):
                 residual_1f.add(n.operands["value"])
     missing = set(applied_zh) - seen_zh
     if missing:
-        problems.append(f"未以 0x34 出现: {sorted(missing)}")
+        problems.append(f"not present as 0x34: {sorted(missing)}")
     if residual_1f:
-        problems.append(f"仍以 0x1F 残留: {sorted(residual_1f)}")
+        problems.append(f"still present as 0x1F: {sorted(residual_1f)}")
     return problems, sorted(seen_zh)
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dry", action="store_true", help="只验证，写到临时文件")
-    ap.add_argument("--out", help="验证通过后写出的 .uasset 路径")
-    ap.add_argument("--report", help="JSON 报告输出路径")
+    ap.add_argument("--dry", action="store_true", help="validate only; write to a temp file")
+    ap.add_argument("--out", help=".uasset path to write after validation")
+    ap.add_argument("--report", help="output path for the JSON report")
     args = ap.parse_args()
 
     translations = load_translations()
@@ -385,7 +385,7 @@ def main():
           f"exports={len(r.get('exports', []))} translations={len(translations)}")
 
     targets = find_targets(r, raw, ctx, translations)
-    print(f"[scan] 含可翻串的函数 {len(targets)} 个:")
+    print(f"[scan] functions with translatable strings: {len(targets)}")
     total_delta = 0
     for e, bc, info, new_bc, delta, rep in targets:
         total_delta += delta
@@ -393,11 +393,11 @@ def main():
               f"touched={rep['touched']:2d} old={rep['old_len']:4d}->new={rep['new_len']:4d} delta={delta:+d}")
 
     if not targets:
-        print("[warn] 没有任何函数含可翻串，退出")
+        print("[warn] no functions with translatable strings; exiting")
         return 1
 
     new_raw, funcs = assemble(raw, r, targets)
-    print(f"[assemble] 新文件大小 {len(raw)} -> {len(new_raw)} (总 delta {len(new_raw)-len(raw):+d})")
+    print(f"[assemble] new file size {len(raw)} -> {len(new_raw)} (total delta {len(new_raw)-len(raw):+d})")
 
     applied_src = set()
     applied_zh = set()
@@ -405,7 +405,7 @@ def main():
         for v in rep.get("applied", []):
             applied_src.add(v.lower())
             applied_zh.add(translations[v.lower()])
-    print(f"[apply] 实际写入 {len(applied_src)} 条（{len(translations)-len(applied_src)} 条在 EX_TextConst 内/未填，保持原样）")
+    print(f"[apply] wrote {len(applied_src)} entries ({len(translations)-len(applied_src)} inside EX_TextConst / unfilled, left unchanged)")
 
     problems, seen_zh = validate(new_raw, applied_src, applied_zh)
     if problems:
@@ -413,7 +413,7 @@ def main():
         for p in problems:
             print("   !", p)
         return 2
-    print(f"[VALIDATION PASSED] 翻译串全部以 0x34 出现（{len(seen_zh)} 条中文），无 0x1F 残留，解析完整。")
+    print(f"[VALIDATION PASSED] all translated strings appear as 0x34 ({len(seen_zh)} Chinese strings), no 0x1F residue, decode complete.")
 
     report = {
         "source_file": str(ue4prop.package_path(REL)),
@@ -436,11 +436,11 @@ def main():
     elif args.dry:
         tmp = pathlib.Path(r"D:/3DS-DW/steam patching/out/_bfl_patched_dry.uasset")
         tmp.write_bytes(new_raw)
-        print(f"[dry] 临时写出 -> {tmp}")
+        print(f"[dry] temporary write -> {tmp}")
     else:
         # no arguments = update the patch-package asset directly (used by the pipeline)
         DEFAULT_OUT.write_bytes(new_raw)
-        print(f"[write] -> {DEFAULT_OUT}（补丁包资产，需再 apply bfl_display_zh 投放）")
+        print(f"[write] -> {DEFAULT_OUT} (patch-package asset; run apply bfl_display_zh to deploy)")
     return 0
 
 

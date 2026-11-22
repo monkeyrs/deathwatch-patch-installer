@@ -914,7 +914,7 @@ def add_unit(b: bytes, name: str = "Black Shield",
     # idempotence: refuse if a marine with the same name exists (byte-level: matching UnitName lps in the MarineList payload)
     name_lps = encode_lps(name)
     if not force and payload.find(name_lps) >= 0:
-        raise RuntimeError(f"MarineList 已存在名为 {name!r} 的战士（--force 覆盖）")
+        raise RuntimeError(f"MarineList already contains a marine named {name!r} (use --force to override)")
 
     # element boundaries
     starts = [(int(m.group(1)), m.start()) for m in UNIT_ELEM_HEAD.finditer(payload)]

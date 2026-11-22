@@ -1,0 +1,30 @@
+{
+ "name": "bugfix_if_heavybolter_emissive",
+ "description": "Visual fix: the IF T2 mastercrafted heavy bolter material differs between the Steam baseline and the PC EE reference. Reproduce the visible reference look with a minimal equal-length change to EmissiveStrength, keeping the Steam asset as the base.",
+ "source": "Steam clean baseline Build 1837603 as base; the PC EE asset is used only as the visual target for one scalar parameter.",
+ "grading": "L0: equal-length 4-byte edit, ue4prop property read-back PASS, src/dst SHA-256 verified. L2/L3: in-game self-test pending.",
+ "install_note": "Enable the Bug Fixes card or apply this package to a Steam-clean installation. To roll back, restore the file whose sha256 equals src_sha256.",
+ "entries": [
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/HeavyBolters/HeavyBolter_T2/MI_T2_HeavyBolter_IF.uasset",
+   "src_sha256": "b3ee886f958e44e68409e545beb7f0a1ba6fb536cedf1641b953bba43c85cc4d",
+   "dst_sha256": "43fc6716e76b20b251e5a70ea6890e7045d36ff30de66c59d31f6460cc9fa5d6",
+   "size": 2327,
+   "differs_from_steam": true
+  }
+ ],
+ "detail": [
+  {
+   "asset": "Wargear/HeavyBolters/HeavyBolter_T2/MI_T2_HeavyBolter_IF",
+   "parameter": "EmissiveStrength",
+   "byte_offset": 1635,
+   "before": 0.0,
+   "after": 227.653549,
+   "before_hex": "00000000",
+   "after_hex": "4fa76343",
+   "steam_sha256": "b3ee886f958e44e68409e545beb7f0a1ba6fb536cedf1641b953bba43c85cc4d",
+   "pc_ee_sha256": "667fe1fbb6305f83ecf55199f186fcc2a0e16c0855c35450939a7c2012af070f",
+   "ignored_pc_ee_noise": "GUID fields at offsets 81-96 and 1527-1542 differ from 3DM re-save; not copied."
+  }
+ ]
+}

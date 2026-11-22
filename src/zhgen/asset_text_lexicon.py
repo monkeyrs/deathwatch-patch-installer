@@ -14,7 +14,7 @@ Background (from in-game screenshots on 2026-11-13):
 Approach (same variable-length transform as the FlairName package, but with multi-export support):
   Only the FText source FString is replaced (loc_key is unchanged; the engine falls back to the source string when a key is missing),
   three lengths must be kept in sync:
-    ① FPropertyTag.Size（tag_off + 16）
+    ① FPropertyTag.Size (tag_off + 16)
     ② the owning export's SerialSize (export table + 0x18)
     ③ the SerialOffset of every later export (export table + 0x1C) += Δ
   and the "file length minus 4" field in the summary trailer. HeadersSize and the export table position stay unchanged
@@ -77,7 +77,7 @@ def load_rows() -> list[dict]:
     need = ["domain", "key", "en_source", "zh_to_fill", "asset_file"]
     miss = [c for c in need if c not in ix]
     if miss:
-        raise SystemExit(f"[ERR] 主表缺列 {miss}")
+        raise SystemExit(f"[ERR] master sheet missing columns {miss}")
     out = []
     for r in rows[1:]:
         dv = str(r[ix["domain"]] or "").strip()
@@ -101,18 +101,18 @@ def validate(rows: list[dict]) -> list[dict]:
     for x in rows:
         tag = f"{x['asset_file']} :: {x['key']}"
         if x["key"] in seen:
-            errs.append(f"{tag}: key 重复")
+            errs.append(f"{tag}: duplicate key")
             continue
         seen.add(x["key"])
         if not x["asset_file"]:
-            errs.append(f"{tag}: asset_file 为空")
+            errs.append(f"{tag}: asset_file is empty")
         if not x["en"]:
-            errs.append(f"{tag}: en_source 为空")
+            errs.append(f"{tag}: en_source is empty")
         if not x["zh"]:
-            errs.append(f"{tag}: zh_to_fill 为空（留空表示不生成，不写补丁）")
+            errs.append(f"{tag}: zh_to_fill is empty (leave blank to skip generation; no patch is written)")
             continue
         if not any("\u4e00" <= ch <= "\u9fff" for ch in x["zh"]):
-            errs.append(f"{tag}: 译文不含汉字 {x['zh']!r}")
+            errs.append(f"{tag}: translation contains no Han characters {x['zh']!r}")
             continue
         ok.append(x)
     return errs, ok
@@ -151,10 +151,10 @@ def find_prop(rel: str, key: str) -> tuple[dict, dict, dict]:
             if p.get("type") == "TextProperty" and v.get("loc_key") == key:
                 hits.append((w, p))
     if len(hits) != 1:
-        raise RuntimeError(f"{rel}: loc_key {key} 命中 {len(hits)} 处（要求 1）")
+        raise RuntimeError(f"{rel}: loc_key {key} matched {len(hits)} occurrences (expected 1)")
     w, p = hits[0]
     if p.get("value_off") is None or p.get("tag_off") is None or p.get("size") is None:
-        raise RuntimeError(f"{rel}: FText tag 元数据不全")
+        raise RuntimeError(f"{rel}: FText tag metadata incomplete")
     return r, w, p
 
 
@@ -162,7 +162,7 @@ def source_bounds(data: bytes, p: dict) -> dict:
     """Value layout: flags(4) source_flags(4) history(1) key FString src FString."""
     v = p.get("value") or {}
     if (v.get("flags"), v.get("source_flags"), v.get("history_type")) != (0, 0, 0):
-        raise RuntimeError(f"FText 头不是 (0,0,0): {v}")
+        raise RuntimeError(f"FText header is not (0,0,0): {v}")
     vo = p["value_off"]
     key, key_end = parse_fstring(data, vo + 9)
     src, src_end = parse_fstring(data, key_end)
@@ -176,29 +176,29 @@ def source_bounds(data: bytes, p: dict) -> dict:
 def transform(data: bytes, r: dict, p: dict, key: str, en: str | None, zh: str):
     sb = source_bounds(data, p)
     if sb["key"] != key:
-        raise RuntimeError(f"key 不符 {sb['key']} != {key}")
+        raise RuntimeError(f"key mismatch {sb['key']} != {key}")
     if en is not None and sb["src"] != en:
-        raise RuntimeError(f"源串不符 {sb['src']!r} != {en!r}")
+        raise RuntimeError(f"source string mismatch {sb['src']!r} != {en!r}")
     if data[-4:] != TAG:
-        raise RuntimeError("文件尾缺少 PACKAGE_FILE_TAG")
+        raise RuntimeError("PACKAGE_FILE_TAG missing at end of file")
     s = parse_summary_pos(data)
     ex = r["exports"]
     slo = sb["src_len_off"]
     hits = [i for i, e in enumerate(ex) if e["off"] <= slo < e["off"] + e["size"]]
     if len(hits) != 1:
-        raise RuntimeError(f"source 偏移 {slo} 未唯一落在 export 内: {hits}")
+        raise RuntimeError(f"source offset {slo} does not fall uniquely inside an export: {hits}")
     ei = hits[0]
     e = ex[ei]
     eo = r["summary"]["export_offset"]
     base = eo + ei * EXPORT_REC
     if struct.unpack_from("<i", data, base + EXP_SIZE_OFF)[0] != e["size"]:
-        raise RuntimeError("export SerialSize 字段定位失败")
+        raise RuntimeError("failed to locate export SerialSize field")
     if struct.unpack_from("<i", data, base + EXP_OFF_OFF)[0] != e["off"]:
-        raise RuntimeError("export SerialOffset 字段定位失败")
+        raise RuntimeError("failed to locate export SerialOffset field")
     if struct.unpack_from("<i", data, p["tag_off"] + 16)[0] != sb["tag_size"]:
-        raise RuntimeError("FPropertyTag.Size 字段定位失败")
+        raise RuntimeError("failed to locate FPropertyTag.Size field")
     if struct.unpack_from("<i", data, s["pos"]["headers_size"])[0] != ex[0]["off"]:
-        raise RuntimeError("HeadersSize != 首 export SerialOffset")
+        raise RuntimeError("HeadersSize != first export SerialOffset")
 
     new_fs = locres_v3.write_fstring(zh)
     delta = len(new_fs) - sb["old_total"]
@@ -211,7 +211,7 @@ def transform(data: bytes, r: dict, p: dict, key: str, en: str | None, zh: str):
     if s.get("tail1_pos"):
         struct.pack_into("<i", out, s["tail1_pos"], len(out) - 4)
     if len(out) != len(data) + delta:
-        raise RuntimeError("重建长度不符")
+        raise RuntimeError("rebuilt length mismatch")
     info = dict(delta=delta, old_fs=sb["old_total"], new_fs=len(new_fs),
                 old_size=len(data), new_size=len(out), export_index=ei,
                 export_name=e["name"], old_export_size=e["size"],
@@ -231,7 +231,7 @@ def verify(dst: bytes, rel: str, key: str, zh: str, orig: bytes, r0: dict, info:
         finally:
             ue4prop.GAME = saved
     if r2.get("file_size") != len(dst):
-        raise RuntimeError(f"{rel}: 回读 file_size 不符")
+        raise RuntimeError(f"{rel}: readback file_size mismatch")
     p2 = None
     for w in r2.get("walks") or []:
         for q in w.get("props") or []:
@@ -239,33 +239,33 @@ def verify(dst: bytes, rel: str, key: str, zh: str, orig: bytes, r0: dict, info:
             if isinstance(vq, dict) and vq.get("loc_key") == key:
                 p2 = q
     if p2 is None or not isinstance(p2.get("value"), dict) or p2["value"].get("source") != zh:
-        raise RuntimeError(f"{rel}: 回读 source != {zh!r}")
+        raise RuntimeError(f"{rel}: readback source != {zh!r}")
 
     s2 = parse_summary_pos(dst)
     if dst[-4:] != TAG:
-        raise RuntimeError(f"{rel}: 文件尾 tag 丢失")
+        raise RuntimeError(f"{rel}: trailing tag missing at end of file")
     if struct.unpack_from("<i", dst, s2["tail1_pos"])[0] != len(dst) - 4:
-        raise RuntimeError(f"{rel}: 尾块文件长字段未同步")
+        raise RuntimeError(f"{rel}: trailer file-length field not updated")
     ex0, ex2 = r0["exports"], r2["exports"]
     if len(ex0) != len(ex2):
-        raise RuntimeError(f"{rel}: export 数变化")
+        raise RuntimeError(f"{rel}: export count changed")
     eo = r0["summary"]["export_offset"]
     d = info["delta"]
     for i, (a, b) in enumerate(zip(ex0, ex2)):
         want_off = a["off"] + (d if a["off"] > info["src_off"] else 0)
         want_sz = a["size"] + (d if i == info["export_index"] else 0)
         if b["off"] != want_off or b["size"] != want_sz:
-            raise RuntimeError(f"{rel}: export[{i}] 偏移/大小不符 {b} vs ({want_off},{want_sz})")
+            raise RuntimeError(f"{rel}: export[{i}] offset/size mismatch {b} vs ({want_off},{want_sz})")
         if struct.unpack_from("<i", dst, eo + i * EXPORT_REC + EXP_OFF_OFF)[0] != want_off:
-            raise RuntimeError(f"{rel}: export[{i}] SerialOffset 字段不符")
+            raise RuntimeError(f"{rel}: export[{i}] SerialOffset field mismatch")
         if struct.unpack_from("<i", dst, eo + i * EXPORT_REC + EXP_SIZE_OFF)[0] != want_sz:
-            raise RuntimeError(f"{rel}: export[{i}] SerialSize 字段不符")
+            raise RuntimeError(f"{rel}: export[{i}] SerialSize field mismatch")
         # Unchanged exports: data is byte-for-byte identical
         if i != info["export_index"]:
             a0 = orig[a["off"]:a["off"] + a["size"]]
             b0 = dst[b["off"]:b["off"] + b["size"]]
             if a0 != b0:
-                raise RuntimeError(f"{rel}: export[{i}] 数据被改动")
+                raise RuntimeError(f"{rel}: export[{i}] data was modified")
     return dict(ok=True, file_size=len(dst), export_index=info["export_index"],
                 export_name=info["export_name"], source=zh)
 
@@ -281,7 +281,7 @@ def cmd_check(_a) -> int:
     if errs:
         return 3
     ue4prop.GAME = ORIG_CONTENT
-    print(f"asset_text 行 {len(rows)}，可生成 {len(ok)}")
+    print(f"asset_text rows {len(rows)}, generatable {len(ok)}")
     for x in ok:
         rel = x["asset_file"]
         try:
@@ -304,7 +304,7 @@ def cmd_build(_a) -> int:
             print("[REFUSE]", e)
         return 3
     if not ok:
-        raise SystemExit("[REFUSE] 没有可生成的 asset_text 行")
+        raise SystemExit("[REFUSE] no generatable asset_text rows")
     ue4prop.GAME = ORIG_CONTENT
     ASSET_OUT = PATCH_DIR / "assets" / "deathwatchgame" / "Content"
     if ASSET_OUT.exists():
@@ -342,8 +342,8 @@ def cmd_build(_a) -> int:
     total_delta = sum(t["delta"] for t in table)
     manifest = {
         "name": "asset_text_zh",
-        "description": "资产内嵌 FText 中文包（locres 未收录 loc_key）：14 个 UNT_* 单位/场景物显示名 + WI_OverwatchExplanation 瞄准提示。由 zh_lexicon.xlsx（domain=asset_text）驱动，变长替换源串、loc_key 不变。",
-        "grading": "L0 PASS：15 个生成物均经 ue4prop 严格回读（source==主表译文 / export 偏移与 SerialSize 同步 / 未改动 export 数据逐字节一致 / 尾块文件长字段同步）。L2/L3 待实机复验（目标屏为战斗 HUD，需可复现战斗场景）。",
+        "description": "Chinese layer for FText embedded in assets (loc_key not in locres): 14 UNT_* unit/scenery display names + the WI_OverwatchExplanation aim prompt. Driven by zh_lexicon.xlsx (domain=asset_text); variable-length source-string replacement, loc_key unchanged.",
+        "grading": "L0 PASS: all 15 generated assets strictly read back with ue4prop (source == lexicon translation / export offsets in sync with SerialSize / untouched export data byte-for-byte identical / trailer file-length field in sync). L2/L3 pending in-game verification (target screen is the combat HUD; requires a reproducible combat scenario).",
         "installable": True,
         "source": {
             "lexicon": "427/Tools/zh_lex/out/unified/zh_lexicon.xlsx",
@@ -352,13 +352,13 @@ def cmd_build(_a) -> int:
             "entries": len(entries),
         },
         "method": {
-            "fstring": "locres_v3.write_fstring(zh) → UTF-16LE，负长度 |n| 含结尾 NUL",
-            "variable_length": "替换 FText.source；FPropertyTag.Size += Δ；所属 export SerialSize += Δ；其后 export SerialOffset += Δ；summary 尾块文件长-4 += Δ。",
+            "fstring": "locres_v3.write_fstring(zh) → UTF-16LE; negative length |n| includes the trailing NUL",
+            "variable_length": "Replace FText.source; FPropertyTag.Size += Δ; owning export SerialSize += Δ; later exports SerialOffset += Δ; summary trailer file-length-4 += Δ.",
             "why_keyless": "Both loc keys are absent from the locres files for all six cultures, so the engine falls back to the source string. Only source strings are edited; adding keys was verified ineffective.",
         },
         "l2_l3": {
             "verdict": "PENDING",
-            "note": "目标文本出现在战斗 HUD 与教程浮条，需可复现的战斗场景才能实机验收；静态 L0 已过。",
+            "note": "Target text appears on the combat HUD and tutorial banner; in-game acceptance requires a reproducible combat scenario. Static L0 passed.",
         },
         "entries": sorted(entries, key=lambda e: e["relative_path"]),
         "skipped": [],
@@ -368,55 +368,55 @@ def cmd_build(_a) -> int:
         json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
 
     lines = [
-        "# asset_text_zh（资产内嵌 FText · locres 未收录键）",
+        "# asset_text_zh (FText embedded in assets; loc_key not in locres)",
         "",
-        "## 由来",
+        "## Background",
         "",
-        "战斗 HUD 左上单位名与教程浮条是**资产内嵌 FText**，其 loc_key 不在 en locres 的 2068 条里，"
-        "因此 `zh_cn` / `flairname_zh_full` / `bfl_display_zh` 三条链都覆盖不到。",
+        "Combat HUD unit names and the tutorial banner are **FText embedded in assets**; their loc_key is not among the 2068 entries in the en locres,"
+        "so the `zh_cn` / `flairname_zh_full` / `bfl_display_zh` chains do not cover them.",
         "Adding locres keys was verified ineffective; this package keeps the variable-length source-string replacement route",
-        "（loc_key 保持不变，引擎查不到 key 时回退 source）。",
+        "(loc_key is unchanged; the engine falls back to the source string when the key is missing).",
         "",
-        "## 怎么改中文",
+        "## How to edit the Chinese text",
         "",
-        "1. 打开 `427/Tools/zh_lex/out/unified/zh_lexicon.xlsx`，`keys` sheet；",
-        "2. 找 `domain=asset_text` 的行，只改 **F 列 `zh_to_fill`**；",
-        "3. 推荐一条命令全量同步（UI / FlairName / asset_text / BFL + 可选配音）：",
-        "   `python 427/Tools/zh_lex/zh_unify.py --sync-all --apply`；",
-        "4. 只重建本包：`python \"steam patching/tools/asset_text_lexicon.py\" check` → `build`；",
-        "5. 投放：`python \"steam patching/tools/patch_sandbox.py\" apply asset_text_zh`。",
+        "1. Open `427/Tools/zh_lex/out/unified/zh_lexicon.xlsx`, `keys` sheet;",
+        "2. Find rows with `domain=asset_text` and edit only **column F `zh_to_fill`**;",
+        "3. Recommended one-command full sync (UI / FlairName / asset_text / BFL + optional voice-over):",
+        "   `python 427/Tools/zh_lex/zh_unify.py --sync-all --apply`;",
+        "4. Rebuild only this package: `python \"steam patching/tools/asset_text_lexicon.py\" check` → `build`;",
+        "5. Deploy: `python \"steam patching/tools/patch_sandbox.py\" apply asset_text_zh`.",
         "",
-        "## 变长规则（多 export）",
+        "## Variable-length rules (multiple exports)",
         "",
-        "插入点在 header 之后的 export 数据区，因此 export 表位置不变；需要同步：",
-        "① `FPropertyTag.Size`（tag_off+16）；② 所属 export 的 `SerialSize`（+0x18）；",
-        "③ 其后所有 export 的 `SerialOffset`（+0x1C）+= Δ；④ summary 尾块「文件长-4」。",
-        "只改 ② 不改 ① 会让引擎按旧 size 跳过属性值 → 属性流错位。",
+        "The insertion point is in the export data area after the header, so the export table position is unchanged. Keep in sync:",
+        "① `FPropertyTag.Size` (tag_off+16); ② owning export `SerialSize` (+0x18);",
+        "③ `SerialOffset` (+0x1C) of every later export += Δ; ④ summary trailer \"file length - 4\".",
+        "Changing ② without ① makes the engine skip the property value using the old size → property stream misalignment.",
         "",
-        "## 本包统计",
+        "## Package statistics",
         "",
-        f"- 条目 **{len(entries)}** 个 / 字节变化合计 Δ = {total_delta:+d}",
+        f"- **{len(entries)}** entries / total byte change Δ = {total_delta:+d}",
         "",
-        "| 资产 | 英文 | 中文 | Δ 字节 | FString |",
+        "| Asset | English | Chinese | Δ bytes | FString |",
         "|---|---|---|---:|---|",
     ]
     for t in sorted(table, key=lambda t: t["asset"]):
         lines.append(f"| `{t['asset'].split('/')[-1]}` | {t['en']} | {t['zh']} | "
                      f"{t['delta']:+d} | {t['old_fs']}B → {t['new_fs']}B |")
-    lines += ["", "## 验收入口", "",
-              "- L0：`build` 已对 15 个生成物逐个严格回读；",
-              "- L2/L3：待可复现战斗场景后实机确认「HORMAGAUNT → 刀虫」「CLICK WHERE… → 点击你想瞄准的位置」。",
+    lines += ["", "## Acceptance criteria", "",
+              "- L0: `build` strictly read back all 15 generated assets;",
+              "- L2/L3: confirm in-game once a reproducible combat scenario is available (\"HORMAGAUNT → 刀虫\", \"CLICK WHERE… → 点击你想瞄准的位置\").",
               ""]
     (PATCH_DIR / "notes.md").write_text("\n".join(lines), encoding="utf-8")
-    print(f"\nBUILD OK  条目 {len(entries)}  Δ合计 {total_delta:+d}  → {PATCH_DIR}")
+    print(f"\nBUILD OK  entries {len(entries)}  total Δ {total_delta:+d}  → {PATCH_DIR}")
     return 0
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description="asset_text 中文层（locres 未收录 FText）")
+    ap = argparse.ArgumentParser(description="asset_text Chinese layer (FText not in locres)")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("check", help="只读体检").set_defaults(func=cmd_check)
-    sub.add_parser("build", help="生成补丁包（不碰沙盒/原版）").set_defaults(func=cmd_build)
+    sub.add_parser("check", help="read-only check").set_defaults(func=cmd_check)
+    sub.add_parser("build", help="build the patch package (does not touch the sandbox or original)").set_defaults(func=cmd_build)
     a = ap.parse_args(argv)
     return a.func(a)
 

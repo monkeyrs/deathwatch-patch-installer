@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Weapon Balance · 武器平衡</title>
+<style>
+  :root{--ink:#18211f;--sub:#66716e;--line:#dfe5e2;--new:#1f6f5c;--old:#9aa5ad;--bg:#fafbf9}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.65 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+  .wrap{max-width:1120px;margin:0 auto;padding:48px 24px 80px}
+  header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;border-bottom:2px solid var(--ink);padding-bottom:20px;margin-bottom:32px}
+  h1{font-size:27px;margin:0 0 8px;letter-spacing:-.3px}
+  h2{font-size:18px;margin:0 0 12px}
+  p{margin:0 0 14px;color:var(--sub)}
+  .lede{max-width:760px}
+  .langs{display:flex;gap:6px;flex:none}
+  button{border:1px solid var(--line);background:#fff;color:var(--sub);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:12px}
+  button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .en{display:none}
+  body.en-mode .zh{display:none}
+  body.en-mode .en{display:inline}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;border:1px solid var(--line);background:var(--line);margin:0 0 34px}
+  .kpis div{background:#fff;padding:13px 16px}
+  .kpis .v{font-size:21px;font-weight:650;letter-spacing:-.4px}
+  .kpis .k{font-size:11.5px;color:var(--sub);margin-top:2px}
+  section{margin:0 0 40px}
+  .fig{margin:0 0 28px}
+  img{width:100%;display:block;border:1px solid var(--line);border-radius:3px;background:#fff}
+  figcaption{margin-top:8px;font-size:12px;color:var(--sub)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--sub);font-weight:600}
+  .ok{color:var(--new);font-weight:600}
+  .mid{color:#9a6c1a;font-weight:600}
+  code{background:#eef1ef;padding:1px 5px;border-radius:2px;font-size:12px}
+  footer{border-top:1px solid var(--line);padding-top:16px;font-size:12px;color:var(--sub)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1><span class="zh">武器平衡 · 原版 / r22</span><span class="en">Weapon Balance · Vanilla / r22</span></h1>
+    <p class="lede"><span class="zh">19 个武器族、93 件武器，84 个数值槽纳入 r22。所有值按 <code>final = base + step × delta</code> 现场计算；最大偏差 4.69%，战团件均值 0.99×。</span><span class="en">19 weapon families, 93 weapons, and 84 value slots in r22. Every value is computed as <code>final = base + step × delta</code>; maximum deviation 4.69%, chapter-item mean 0.99×.</span></p>
+  </div>
+  <div class="langs"><button id="btn-zh" class="on">中文</button><button id="btn-en">EN</button></div>
+</header>
+
+<div class="kpis">
+  <div><div class="v">84</div><div class="k"><span class="zh">改动槽位</span><span class="en">edited slots</span></div></div>
+  <div><div class="v">4.69%</div><div class="k"><span class="zh">最大终值偏差</span><span class="en">max final-value deviation</span></div></div>
+  <div><div class="v">19/19</div><div class="k"><span class="zh">族内 DPA 单调</span><span class="en">families monotonic</span></div></div>
+  <div><div class="v">0.99×</div><div class="k"><span class="zh">战团件均值</span><span class="en">chapter-item mean</span></div></div>
+</div>
+
+<section>
+  <h2><span class="zh">规则摘要</span><span class="en">Design rules</span></h2>
+  <p><span class="zh">模型：期望 <code>E = D × (1 + c·m) × p</code>，<code>DPA = E / AP</code>；弹发数只影响方差。T3 锚定 Δ伤害 = 2；AP 阶梯与精度/暴击/暴伤基线保持不变。战团件允许 ±15% 窗口；编辑保持等长，不引入游戏资源。</span><span class="en">Model: <code>E = D × (1 + c·m) × p</code>, <code>DPA = E / AP</code>; pellet count affects variance only. T3 anchors damage delta at 2; AP tiers and accuracy/critical baselines are unchanged. Chapter items stay within a ±15% window. Edits are equal-length and ship no game assets.</span></p>
+</section>
+
+<section>
+  <h2><span class="zh">图 1 · 四档 DPA 梯度</span><span class="en">Fig. 1 · DPA ladder by tier</span></h2>
+  <figure class="fig">
+    <img src="images/fig1_ladder.png" alt="DPA ladder">
+    <figcaption><span class="zh">灰线＝原版，墨绿＝r22；空心点与实心点分别为单件真值与族均值。爆弹枪 T2、热熔枪 T2 已恢复正梯度。</span><span class="en">Grey = vanilla, green = r22; hollow and solid dots show individual items and family means. Boltgun T2 and Meltagun T2 now have positive gradients.</span></figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2><span class="zh">图 2 · 战团件影响</span><span class="en">Fig. 2 · Chapter item impact</span></h2>
+  <figure class="fig">
+    <img src="images/fig11_chapter_impact.png" alt="Chapter item impact">
+    <figcaption><span class="zh">27 件战团专属武器全部有改动；r20 起 DPA 相对原版收敛到 ±10% 内。</span><span class="en">All 27 chapter-specific weapons changed; since r20 their DPA delta is within ±10% of vanilla.</span></figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2><span class="zh">图 3 · 手感四象限</span><span class="en">Fig. 3 · Feel quadrants</span></h2>
+  <figure class="fig">
+    <img src="images/fig10_feel_quadrant.png" alt="Feel quadrants">
+    <figcaption><span class="zh">横轴＝波动指数，纵轴＝灵活指数 <code>√(射程 × 3 / 单发 AP)</code>；实心圆＝新版 T3 模板，空心圆＝原版代表件。</span><span class="en">X = volatility, Y = flexibility <code>√(range × 3 / AP)</code>; filled circles = new T3 templates, hollow circles = vanilla representatives.</span></figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2><span class="zh">关键校验</span><span class="en">Validation</span></h2>
+  <table>
+    <tr><th><span class="zh">检查项</span><span class="en">Check</span></th><th><span class="zh">结果</span><span class="en">Result</span></th></tr>
+    <tr><td><span class="zh">灰格锁定不可改</span><span class="en">Locked cells unchanged</span></td><td class="ok">652 / 652</td></tr>
+    <tr><td><span class="zh">数值边界</span><span class="en">Value bounds</span></td><td class="ok"><span class="zh">0 越界</span><span class="en">0 violations</span></td></tr>
+    <tr><td><span class="zh">族内 DPA 单调 / T4 ≥ T3</span><span class="en">DPA monotonic / T4 ≥ T3</span></td><td class="ok">19 / 19</td></tr>
+    <tr><td><span class="zh">3AP 族 T4/T3 伤害比</span><span class="en">3AP T4/T3 damage ratio</span></td><td class="mid"><span class="zh">激光炮偏宽</span><span class="en">Laser cannon wide</span></td></tr>
+    <tr><td><span class="zh">战团件 ±15% 窗口</span><span class="en">Chapter ±15% window</span></td><td class="ok">27 / 27</td></tr>
+  </table>
+</section>
+
+<footer>
+  <span class="zh">数据源：<code>weapons_compare.csv</code>、<code>feel_quadrant.csv</code>。仅展示数值计算结果，不包含游戏素材。</span>
+  <span class="en">Sources: <code>weapons_compare.csv</code>, <code>feel_quadrant.csv</code>. Values only; no game assets are included.</span>
+</footer>
+</div>
+<script>
+  const zh=document.getElementById('btn-zh'), en=document.getElementById('btn-en');
+  zh.onclick=()=>{document.body.classList.remove('en-mode');zh.classList.add('on');en.classList.remove('on');document.documentElement.lang='zh-CN';};
+  en.onclick=()=>{document.body.classList.add('en-mode');en.classList.add('on');zh.classList.remove('on');document.documentElement.lang='en';};
+</script>
+</body>
+</html>

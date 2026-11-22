@@ -14,7 +14,7 @@
    "src_sha256": "5124ad5a4bc79d5513f376b9a69029611b1716fa022e3b3257bebd8c3183ef95",
    "dst_sha256": "a1e656daff8e0cdcdfe2cced98e99778a67f5c0cf44dd6572234bfa1ca4b595e",
    "size": 148358,
-   "hypothesis": "g13 plus the semi-transparent lighting volume 128, validated in the sandbox; default tier for mainstream discrete GPUs such as the RTX 4060. MSAA stays at the vanilla value of 4; the AA chain is unchanged.",
+   "hypothesis": "= 用户实机验收的 g13 + 半透明光照体积 128（sandbox 2026-11-18 试玩中），默认档；4060 级主流独显。MSAA 保持原版 4（用户确认「AO 维持现状」后不再动 AA 链）。",
    "recalc": "python \"steam patching/patches/visual_enhance/build_tiers.py\" --check",
    "acceptable_src_sha256": [
     "09aa96b5b2919703643c100d2bb9a115d77f2a288ced2d5a74729966256963e9",

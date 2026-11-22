@@ -1,0 +1,37 @@
+{
+ "package": "weapon_skills_v1",
+ "generated": "2026-11-22",
+ "scope": "Three T2 chapter weapons gain original-game weapon-granted skills and matching armoury descriptor icons. IF Heavy Bolter uses Killing Blow instead of Parry (v2). Full-file uasset replacement (variable-length ArrayProperty edits).",
+ "entries": [
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/PlasmaGuns/WPDT_T2_DA_PlasmaGun.uasset",
+   "src_sha256": "27b4c64d45699ac355f66c12c78efffa6bf3176386e30402379df66a17c92508",
+   "dst_sha256": "3407279abab6168e788fadcf44081b6879ecf73e994a68110760b8daa07c41f7"
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/PlasmaGuns/WT_T2_DA_PlasmaGun.uasset",
+   "src_sha256": "85417bf5680705c2b9e3ea6ae4ae48cb20a6472e1cf0223e36cf15b699a7a740",
+   "dst_sha256": "d6327d7f0e97bbdfefe2e66ec2cf6347f9c24f326943fe97487e570b40bdb8ce"
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Powerswords/WPDT_T2_BT_Powersword.uasset",
+   "src_sha256": "c8cb5e74a1a2efa0216ce6ff32072514053504835d64fba0efa5776b06ce0946",
+   "dst_sha256": "86cd8da602b2a7d6cb46e6aeae9700be4292aa1ae38e8ce276694b19a8ffbe2c"
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/Powerswords/WT_T2_BT_Powersword.uasset",
+   "src_sha256": "fe71f615ddad95937c58d67c0547b968ea96abf453cd272ae82bb95d770b5395",
+   "dst_sha256": "d69067bb7f0d7587038528c1f766875817bb6efd4fee2bf0b2c4c5174617ce77"
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WPDT_T2_IF_HeavyBolter.uasset",
+   "src_sha256": "8298e59a6536a7e0db20289f27c3c7d67d6bde6cf6d7aabbbb5ac1a76dddb974",
+   "dst_sha256": "5b8da691981c787f241106405c8f6e0a3532305843f54668831237a2ea6c7865"
+  },
+  {
+   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WT_T2_IF_HeavyBolter.uasset",
+   "src_sha256": "1ddc9027e5a6e761af201687a4559a286bc42352fd72ecc87daeaf22077e4cbf",
+   "dst_sha256": "0c6d5d825eef117106667bcb34c3289f566d95e608adebb5f0b4193911f50226"
+  }
+ ]
+}

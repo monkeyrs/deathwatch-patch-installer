@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/monkeyrs/deathwatch-patch-installer/releases/latest"><img src="https://img.shields.io/badge/download-v1.1-0ab887" alt="Download v1.1"></a>
+  <a href="https://github.com/monkeyrs/deathwatch-patch-installer/releases/latest"><img src="https://img.shields.io/badge/download-v1.2-0ab887" alt="Download v1.2"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/monkeyrs/deathwatch-patch-installer" alt="GPL-3.0 license"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.13-blue" alt="Python 3.13"></a>
   <a href="https://ko-fi.com/monkeyrs" rel="nofollow"><img src="https://img.shields.io/badge/Buy_me_a_Ko--fi-F16061?logo=ko-fi&logoColor=white" alt="Buy me a Ko-fi"></a>
@@ -35,7 +35,7 @@
 
 ## Download
 
-**[Download DeathwatchPatchInstaller.exe (v1.1) →](https://github.com/monkeyrs/deathwatch-patch-installer/releases/latest)**
+**[Download DeathwatchPatchInstaller.exe (v1.2) →](https://github.com/monkeyrs/deathwatch-patch-installer/releases/latest)**
 
 The release is a single Windows executable. End users do not need Python or an internet connection. Pick your game executable and the installer derives the game root, verifies the build, then offers the feature cards.
 
@@ -46,10 +46,11 @@ The release is a single Windows executable. End users do not need Python or an i
 | Feature | What it does |
 | --- | --- |
 | **Chinese Text** | Full Chinese UI, flair and chapter names, generated at install time; selected by default when the system language is Chinese. |
-| **Bug Fixes** | Seven player-verified fixes, enabled by default. See [bug details](src/bugfix_list_en.md). |
+| **Bug Fixes** | Eight player-verified fixes, enabled by default. See [bug details](src/bugfix_list_en.md). |
 | **Visual Enhancement** | Three config-level tiers — Integrated / Discrete / Max. Original look is restored with the Restore action. See [visual details](src/visual_list_en.md). |
 | **Camera Unlock** | Removes camera height / pitch limits. Off by default with an on-screen caution. |
-| **Weapon Balance** | Fan-made weapon-only numerical tweaks, off by default. Equal-byte edits, backed up and reversible. See [balance details](src/balance_list_en.md). |
+| **Weapon Balance (r22)** | Fan-made weapon-only numerical tweaks: 84 slots, max final-value deviation 4.69%, 19/19 families monotonic. Off by default, backed up and reversible. See [balance details](src/balance_list_en.md) and the [bilingual visualization](docs/balance-viz/index.html). |
+| **Weapon Skills** | Restores original-game weapon-granted skills and matching armoury icons for three T2 chapter weapons. Off by default. See [skill details](src/weapon_skills_list_en.md). |
 | **Bonus: Black Shield** | Adds a Black Shield to your save. Backs up the save first; restoring loses progress made after injection. |
 
 Chinese voice acting is **not** distributed or downloaded. The installer only shows a local DIY prompt.
@@ -114,7 +115,7 @@ The output is `dist\DeathwatchPatchInstaller.exe`. The spec prunes unused Qt mod
 - [Design and delivery plan](docs/PLAN.md)
 - [Third-party notices](THIRD_PARTY_NOTICES.md)
 - [Feature registry](src/features.json)
-- [Bug details](src/bugfix_list_en.md) · [Visual details](src/visual_list_en.md) · [Balance details](src/balance_list_en.md)
+- [Bug details](src/bugfix_list_en.md) · [Visual details](src/visual_list_en.md) · [Balance details](src/balance_list_en.md) · [Balance visualization](docs/balance-viz/index.html) · [Weapon skills](src/weapon_skills_list_en.md)
 
 ## Project layout
 

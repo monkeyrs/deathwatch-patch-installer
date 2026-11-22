@@ -2,11 +2,11 @@
 """Installer core engine: backup sessions, manifest package deployment, restore, and Black Shield save preflight/injection.
 
 Backup layout:
-    <安装根>/.dwpatch_backup/
+    <install root>/.dwpatch_backup/
         index.json            # Global earliest-backup index (files / created), used for cross-session restore
-        <UTC 时间戳>/
+        <UTC timestamp>/
             session.json      # This session's files + created
-            files/<相对路径>   # Originals of overwritten files (may reference an earlier session's backup of the same path)
+            files/<relative path>   # Originals of overwritten files (may reference an earlier session's backup of the same path)
             save/dw_metagame.save # Save backup taken before Black Shield injection
 
 All overwrites use a temporary file + os.replace; dst_sha256 from the manifest is always verified after writing.
@@ -49,9 +49,9 @@ def safe_rel_path(rel: str) -> pathlib.PurePosixPath:
     """Constrain a relative path from a manifest/index to stay under the target root (reject absolute paths, drive letters, and ..)."""
     p = pathlib.PurePosixPath(str(rel).replace("\\", "/"))
     if not p.parts or p.is_absolute() or ".." in p.parts:
-        raise RuntimeError(f"非法相对路径: {rel!r}")
+        raise RuntimeError(f"illegal relative path: {rel!r}")
     if p.parts[0].endswith(":"):
-        raise RuntimeError(f"非法相对路径: {rel!r}")
+        raise RuntimeError(f"illegal relative path: {rel!r}")
     return p
 
 
@@ -62,7 +62,7 @@ def safe_join(base: pathlib.Path, rel: str) -> pathlib.Path:
 class BackupIndex:
     """Cross-session global backup index.
 
-    `<游戏根>/.dwpatch_backup/index.json` records the earliest original file by `relative_path`:
+    `<game root>/.dwpatch_backup/index.json` records the earliest original file by `relative_path`:
         files:   {rel: {relative_path, sha256, size, backup_path}}
         created: [rel]   files created by the installer that were absent in the original (deleted on restore)
     Only the earliest backup is kept for a file installed multiple times; empty sessions are not indexed.
@@ -306,7 +306,7 @@ def restore_session(root, session_dir) -> dict:
         data = json.loads((session_dir / "session.json").read_text(encoding="utf-8"))
     except Exception as exc:                      # noqa: BLE001
         return {"ok": False, "restored": 0, "deleted": 0,
-                "errors": [f"session.json 读取失败: {exc}"]}
+                "errors": [f"failed to read session.json: {exc}"]}
     for e in data.get("files") or []:
         rel = e.get("relative_path")
         try:
@@ -316,10 +316,10 @@ def restore_session(root, session_dir) -> dict:
                 src = safe_join(session_dir.parent, e["backup_path"])
             dst = safe_join(root, rel)
             if not src.is_file():
-                raise FileNotFoundError(f"备份缺失: {src}")
+                raise FileNotFoundError(f"backup missing: {src}")
             got = sha256_file(src)
             if e.get("sha256") and got != e["sha256"]:
-                raise RuntimeError("备份文件校验失败")
+                raise RuntimeError("backup file verification failed")
             write_atomic(dst, src.read_bytes())
             res["restored"] += 1
         except Exception as exc:                  # noqa: BLE001
@@ -360,18 +360,18 @@ def restore_all(root) -> dict:
         try:
             backup_path = e.get("backup_path")
             if not backup_path:
-                raise RuntimeError("索引缺 backup_path")
+                raise RuntimeError("index missing backup_path")
             src = safe_join(idx.base, backup_path)
             if not src.is_file():
-                raise FileNotFoundError(f"备份缺失: {src}")
+                raise FileNotFoundError(f"backup missing: {src}")
             got = sha256_file(src)
             want = e.get("sha256")
             if want and got != want:
-                raise RuntimeError("备份文件校验失败")
+                raise RuntimeError("backup file verification failed")
             dst = safe_join(root, rel)
             write_atomic(dst, src.read_bytes())
             if want and sha256_file(dst) != want:
-                raise RuntimeError("写回后 hash 校验失败")
+                raise RuntimeError("post-write hash verification failed")
             res["restored"] += 1
         except Exception as exc:                  # noqa: BLE001
             res["errors"].append(f"{rel}: {exc}")
@@ -388,20 +388,20 @@ def restore_all(root) -> dict:
 def apply_equal_length_transform(data: bytes, transform: dict) -> bytes:
     """Apply an equal-length byte transform from manifest.transform (no full assets required)."""
     if not isinstance(transform, dict):
-        raise ValueError("transform 不是对象")
+        raise ValueError("transform is not an object")
     if transform.get("kind") != "equal_length_bytes":
-        raise ValueError(f"不支持的 transform.kind: {transform.get('kind')!r}")
+        raise ValueError(f"unsupported transform.kind: {transform.get('kind')!r}")
     buf = bytearray(data)
     for op in transform.get("operations") or []:
         off = int(op["offset"], 16)
         before = bytes.fromhex(op["before_hex"])
         after = bytes.fromhex(op["after_hex"])
         if not before or len(before) != len(after):
-            raise ValueError(f"规则 {op.get('label', '?')} 不是等长变换")
+            raise ValueError(f"rule {op.get('label', '?')} is not an equal-length transform")
         if off < 0 or off + len(before) > len(buf):
-            raise ValueError(f"规则 {op.get('label', '?')} 越界")
+            raise ValueError(f"rule {op.get('label', '?')} out of bounds")
         if bytes(buf[off:off + len(before)]) != before:
-            raise RuntimeError(f"规则 {op.get('label', '?')} 前置字节不符")
+            raise RuntimeError(f"rule {op.get('label', '?')} prefix bytes mismatch")
         buf[off:off + len(after)] = after
     return bytes(buf)
 
@@ -435,10 +435,10 @@ def pre_restore_selected(root, rels, log=print) -> dict:
                 continue
             backup_path = e.get("backup_path")
             if not backup_path:
-                raise RuntimeError("索引缺 backup_path")
+                raise RuntimeError("index missing backup_path")
             src = safe_join(idx.base, backup_path)
             if not src.is_file():
-                raise FileNotFoundError(f"备份缺失: {src}")
+                raise FileNotFoundError(f"backup missing: {src}")
             dst = safe_join(root, rel)
             want = e.get("sha256")
             cur = sha256_file(dst) if dst.is_file() else None
@@ -447,10 +447,10 @@ def pre_restore_selected(root, rels, log=print) -> dict:
                 continue
             got = sha256_file(src)
             if want and got != want:
-                raise RuntimeError("备份文件校验失败")
+                raise RuntimeError("backup file verification failed")
             write_atomic(dst, src.read_bytes())
             if want and sha256_file(dst) != want:
-                raise RuntimeError("预还原后 hash 校验失败")
+                raise RuntimeError("post-pre-restore hash verification failed")
             res["restored"] += 1
         except Exception as exc:                  # noqa: BLE001
             res["errors"].append(f"{rel}: {exc}")
@@ -470,11 +470,11 @@ def apply_manifest_package(root, pkg_dir, session: Session, log=print) -> dict:
     try:
         meta = json.loads(mf.read_text(encoding="utf-8"))
     except Exception as exc:                      # noqa: BLE001
-        res.update(ok=False, errors=[f"manifest 读取失败: {exc}"])
+        res.update(ok=False, errors=[f"failed to read manifest: {exc}"])
         return res
     entries = meta.get("entries") or []
     if not entries:
-        res.update(ok=False, errors=[f"{pkg_dir.name}: manifest.entries 为空"])
+        res.update(ok=False, errors=[f"{pkg_dir.name}: manifest.entries is empty"])
         return res
     recipe = meta.get("recipe")
     if recipe:
@@ -487,39 +487,39 @@ def apply_manifest_package(root, pkg_dir, session: Session, log=print) -> dict:
                 rel = e.get("relative_path")
                 dst = safe_join(root, rel)
                 if not dst.is_file():
-                    raise FileNotFoundError(f"目标文件缺失: {dst}")
+                    raise FileNotFoundError(f"target file missing: {dst}")
                 cur = sha256_file(dst)
                 expect = e.get("src_sha256")
                 if expect and cur != expect:
-                    raise RuntimeError("目标文件不是预期原版（recipe 需先预还原）")
+                    raise RuntimeError("target file is not the expected original (recipe requires pre-restore first)")
             outs = asset_recipes.compute_package(content, meta)
             for e in entries:
                 rel = e.get("relative_path")
                 want = e.get("dst_sha256")
                 if want and sha256_bytes(outs[rel]) != want:
-                    raise RuntimeError(f"{rel}: recipe 结果 hash 不符")
+                    raise RuntimeError(f"{rel}: recipe result hash mismatch")
             for e in entries:
                 rel = e.get("relative_path")
                 dst = safe_join(root, rel)
                 session.backup(dst)
                 write_atomic(dst, outs[rel])
                 if e.get("dst_sha256") and sha256_file(dst) != e["dst_sha256"]:
-                    raise RuntimeError(f"{rel}: 写入后 hash 校验失败")
+                    raise RuntimeError(f"{rel}: post-write hash verification failed")
                 res["applied"] += 1
             res["ok"] = True
-            res["detail"] = f"recipe={recipe}，计算并写入 {res['applied']} 个文件"
+            res["detail"] = f"recipe={recipe}, computed and wrote {res['applied']} file(s)"
             log(f"[pkg] {pkg_dir.name}: {res['detail']}")
             return res
         except Exception as exc:                  # noqa: BLE001
             res.update(ok=False, errors=[f"{type(exc).__name__}: {exc}"])
-            res["detail"] = f"recipe={recipe} 失败: {exc}"
+            res["detail"] = f"recipe={recipe} failed: {exc}"
             log(f"[pkg] {pkg_dir.name}: {res['detail']}")
             return res
     for e in entries:
         rel = e.get("relative_path")
         try:
             if not rel:
-                raise ValueError("entry 缺 relative_path")
+                raise ValueError("entry missing relative_path")
             dst = safe_join(root, rel)
             want = e.get("dst_sha256")
             already_fixed = e.get("already_fixed_sha256") or []
@@ -529,7 +529,7 @@ def apply_manifest_package(root, pkg_dir, session: Session, log=print) -> dict:
             if transform:
                 # Only equal-length transforms are shipped; the installer payload contains no full locres.
                 if not dst.is_file():
-                    raise FileNotFoundError(f"目标文件缺失: {dst}")
+                    raise FileNotFoundError(f"target file missing: {dst}")
                 cur = sha256_file(dst)
                 if want and cur == want:
                     res["skipped"] += 1
@@ -538,22 +538,22 @@ def apply_manifest_package(root, pkg_dir, session: Session, log=print) -> dict:
                     res["skipped"] += 1
                     continue
                 if expect_src and cur != expect_src and cur not in acceptable:
-                    raise RuntimeError("目标文件不是预期原版（src_sha256 不符）")
+                    raise RuntimeError("target file is not the expected original (src_sha256 mismatch)")
                 out = apply_equal_length_transform(dst.read_bytes(), transform)
                 if want and sha256_bytes(out) != want:
-                    raise RuntimeError("变换后 hash 不符")
+                    raise RuntimeError("post-transform hash mismatch")
                 session.backup(dst)
                 write_atomic(dst, out)
                 if want and sha256_file(dst) != want:
-                    raise RuntimeError("写入后 hash 校验失败")
+                    raise RuntimeError("post-write hash verification failed")
                 res["applied"] += 1
                 continue
             src = safe_join(pkg_dir / "assets", rel)
             if not src.is_file():
-                raise FileNotFoundError(f"包内资产缺失: {src}")
+                raise FileNotFoundError(f"asset missing in package: {src}")
             src_hash = sha256_file(src)
             if want and src_hash != want:
-                raise RuntimeError(f"包内资产 hash 不符（{src_hash[:12]} != {want[:12]}）")
+                raise RuntimeError(f"package asset hash mismatch ({src_hash[:12]} != {want[:12]})")
             if dst.is_file() and want and sha256_file(dst) == want:
                 res["skipped"] += 1
                 continue
@@ -564,19 +564,20 @@ def apply_manifest_package(root, pkg_dir, session: Session, log=print) -> dict:
                 continue
             cur = sha256_file(dst) if dst.is_file() else None
             if dst.is_file() and expect_src and cur != expect_src and cur not in acceptable:
-                raise RuntimeError("目标文件不是预期原版（src_sha256 不符）")
+                raise RuntimeError("target file is not the expected original (src_sha256 mismatch)")
             if dst.is_file():
                 session.backup(dst)
             else:
                 session.mark_created(dst)
             write_atomic(dst, src.read_bytes())
             if want and sha256_file(dst) != want:
-                raise RuntimeError("写入后 hash 校验失败")
+                raise RuntimeError("post-write hash verification failed")
             res["applied"] += 1
         except Exception as exc:                  # noqa: BLE001
             res["errors"].append(f"{rel}: {exc}")
     res["ok"] = not res["errors"]
-    res["detail"] = f"写入 {res['applied']} 个文件，已是最新 {res['skipped']} 个，失败 {len(res['errors'])} 个"
+    res["detail"] = (f"wrote {res['applied']} file(s), up-to-date {res['skipped']}, "
+                     f"failed {len(res['errors'])}")
     log(f"[pkg] {pkg_dir.name}: {res['detail']}")
     return res
 
@@ -613,9 +614,9 @@ def apply_camera_patch(root, rules_path, session: Session, log=print) -> dict:
         doc = json.loads(pathlib.Path(rules_path).read_text(encoding="utf-8"))
         targets = doc.get("targets") or []
         if not targets:
-            raise ValueError("camera_rules.json 没有 targets")
+            raise ValueError("camera_rules.json has no targets")
     except Exception as exc:                      # noqa: BLE001
-        res.update(ok=False, errors=[f"规则读取失败: {exc}"])
+        res.update(ok=False, errors=[f"failed to read rules: {exc}"])
         return res
     changed = []
     for t in targets:
@@ -628,20 +629,20 @@ def apply_camera_patch(root, rules_path, session: Session, log=print) -> dict:
                 res["skipped"] += 1
                 continue
             if cur != t["src_sha256"]:
-                raise RuntimeError(f"版本不符（sha={cur[:12]}…），拒绝强改")
+                raise RuntimeError(f"version mismatch (sha={cur[:12]}…), refusing forced change")
             buf = bytearray(p.read_bytes())
             for r in t["rules"]:
                 off = int(r["offset"], 16)
                 before = bytes.fromhex(r["before_hex"])
                 after = bytes.fromhex(r["after_hex"])
                 if len(before) != len(after):
-                    raise RuntimeError(f"规则 {r['label']} 不是等长变换")
+                    raise RuntimeError(f"rule {r['label']} is not an equal-length transform")
                 if bytes(buf[off:off + len(before)]) != before:
-                    raise RuntimeError(f"规则 {r['label']} 前置字节不符")
+                    raise RuntimeError(f"rule {r['label']} prefix bytes mismatch")
                 buf[off:off + len(after)] = after
             out = bytes(buf)
             if sha256_bytes(out) != t["dst_sha256"]:
-                raise RuntimeError("变换后 hash 不符")
+                raise RuntimeError("post-transform hash mismatch")
             session.backup(p)
             write_atomic(p, out)
             res["applied"] += 1
@@ -686,7 +687,7 @@ def apply_balance_splash_text(root, session: Session, log=print) -> dict:
     p = pathlib.Path(root) / SPLASH_DESC_REL
     if not p.is_file():
         res["ok"] = False
-        res["errors"].append(f"locres 缺失: {p}")
+        res["errors"].append(f"locres missing: {p}")
         res["detail"] = "locres missing"
         return res
     raw = p.read_bytes()
@@ -695,7 +696,7 @@ def apply_balance_splash_text(root, session: Session, log=print) -> dict:
         ob, nb = old.encode("utf-16-le"), new.encode("utf-16-le")
         if len(ob) != len(nb):
             res["ok"] = False
-            res["errors"].append("溅射串不等长")
+            res["errors"].append("splash strings have different lengths")
             return res
         if raw.count(ob) == 1:
             chosen = (ob, nb)
@@ -706,14 +707,14 @@ def apply_balance_splash_text(root, session: Session, log=print) -> dict:
             res["detail"] = "already 99%"
             return res
         res["ok"] = False
-        res["errors"].append("溅射 35% 串未唯一命中（en/zh 皆无）")
+        res["errors"].append("splash 35% string not uniquely found (neither en nor zh)")
         res["detail"] = "splash string not found"
         return res
     ob, nb = chosen
     out = raw.replace(ob, nb)
     if len(out) != len(raw):
         res["ok"] = False
-        res["errors"].append("替换后长度变化")
+        res["errors"].append("length changed after replacement")
         return res
     session.backup(p)
     write_atomic(p, out)
@@ -737,7 +738,7 @@ def apply_balance_crippling_text(root, session: Session, log=print) -> dict:
     p = pathlib.Path(root) / CRIPPLING_DESC_REL
     if not p.is_file():
         res["ok"] = False
-        res["errors"].append(f"locres 缺失: {p}")
+        res["errors"].append(f"locres missing: {p}")
         res["detail"] = "locres missing"
         return res
     raw = p.read_bytes()
@@ -747,7 +748,7 @@ def apply_balance_crippling_text(root, session: Session, log=print) -> dict:
         ob, nb = old.encode("utf-16-le"), new.encode("utf-16-le")
         if len(ob) != len(nb):
             res["ok"] = False
-            res["errors"].append("致残射击显示串不等长")
+            res["errors"].append("crippling shot display strings have different lengths")
             return res
         cnt = out.count(ob)
         if cnt:
@@ -756,7 +757,7 @@ def apply_balance_crippling_text(root, session: Session, log=print) -> dict:
     if replaced:
         if len(out) != len(raw):
             res["ok"] = False
-            res["errors"].append("替换后长度变化")
+            res["errors"].append("length changed after replacement")
             return res
         session.backup(p)
         write_atomic(p, out)
@@ -770,7 +771,7 @@ def apply_balance_crippling_text(root, session: Session, log=print) -> dict:
         res["detail"] = "already 8%"
     else:
         res["ok"] = False
-        res["errors"].append("致残射击 2% 串未命中（en/zh 皆无，且 8% 不在）")
+        res["errors"].append("crippling shot 2% string not found (neither en nor zh, and 8% absent)")
         res["detail"] = "crippling 2% string not found"
     return res
 
@@ -791,12 +792,12 @@ def inject_blackshield(session: Session, save_path=None, log=print) -> dict:
     if not pre.get("exists"):
         res.update(skipped=1, detail="save_not_found",
                    errors=[])
-        log("[save] 未检测到存档，跳过黑盾注入")
+        log("[save] no save detected, skipping Black Shield injection")
         return res
     if not pre.get("parse_ok"):
         res.update(skipped=1, detail="save_unreadable",
-                   errors=[pre.get("reason") or "存档无法解析"])
-        log("[save] 存档无法解析，跳过黑盾注入")
+                   errors=[pre.get("reason") or "save could not be parsed"])
+        log("[save] save could not be parsed, skipping Black Shield injection")
         return res
     src = pathlib.Path(pre["path"])
     tmp = src.with_name(src.name + ".dwnew")
@@ -823,17 +824,17 @@ def inject_blackshield(session: Session, save_path=None, log=print) -> dict:
             write_atomic(src, orig)
             raise
         res.update(ok=True, applied=1, backup=str(bak),
-                   detail=f"已追加 {BLACKSHIELD_DEFAULT['name']}（存档 {len(orig)}→{len(out)} B）")
+                   detail=f"appended {BLACKSHIELD_DEFAULT['name']} (save {len(orig)}→{len(out)} B)")
         log(f"[save] {res['detail']}")
         return res
     except Exception as exc:                      # noqa: BLE001
         msg = str(exc)
-        if "已存在" in msg:
-            res.update(ok=True, skipped=1, detail="存档里已有黑盾，未重复注入")
+        if "already contains" in msg:
+            res.update(ok=True, skipped=1, detail="save already contains Black Shield, not injected again")
             log(f"[save] {res['detail']}")
             return res
         res.update(errors=[msg])
-        log(f"[save] 注入失败: {msg}")
+        log(f"[save] injection failed: {msg}")
         return res
     finally:
         try:

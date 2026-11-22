@@ -1,5 +1,5 @@
 {
- "package": "balance_user_r17",
+ "package": "balance_user_r18",
  "generated": "2026-11-21",
  "scope": "Weapons only: 37 slots within +/-5% final-value tolerance (max deviation 0.00%); missile splash multiplier 0.35->0.99; crippling shot chance 2%->8%; T2 missile launcher range key 13->8 / value 0->-3 (final 7); one conflicting slot omitted; marines and skills unchanged.",
  "entries": [
@@ -496,7 +496,7 @@
   {
    "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WST_T2_HeavyBolter.uasset",
    "src_sha256": "2aae8d3eae8953b2d8f52a69aaa1d1d5e9bb02ed4824ca43e03e7f8c96eac94a",
-   "dst_sha256": "38e8e796e212be76457baa11a012c815251a707981f86f409370e93662506fcc",
+   "dst_sha256": "a95a3747ac866f63927ed0b728524032db65312bd47144bc0355fd0dced1a6b5",
    "edits": [
     {
      "slot": 3,
@@ -511,26 +511,12 @@
      "new": -4,
      "off": 727,
      "kind": "delta"
-    }
-   ]
-  },
-  {
-   "relative_path": "deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WST_T2_IF_HeavyBolter.uasset",
-   "src_sha256": "732b2f9edb816ab62a69d8c7fbba4fc571b61d00ae48b33a11e184b2d3ba7b28",
-   "dst_sha256": "fb28cbe5937a031b364f5082bcd7a57a76d7750c6a43e7f2544e2c9e2a1889b9",
-   "edits": [
-    {
-     "slot": 3,
-     "old": 0,
-     "new": 1,
-     "off": 621,
-     "kind": "delta"
     },
     {
      "slot": 5,
      "old": 1,
-     "new": -1,
-     "off": 677,
+     "new": 0,
+     "off": 671,
      "kind": "delta"
     }
    ]
