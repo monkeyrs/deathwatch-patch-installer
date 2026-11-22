@@ -49,11 +49,19 @@ Release 是单文件 Windows 程序，最终用户不需要 Python，也不需�
 | **Bug 修正** | 8 项已验证修复，默认勾选。详见 [Bug 详情](../../src/bugfix_list_zh.md)。 |
 | **光影增强** | 三档配置级画质增强：核显 / 独显 / 最高。原版外观用「还原到原版」恢复。详见[光影详情](../../src/visual_list_zh.md)。 |
 | **镜头限制解除** | 解除镜头高度 / 俯仰限制；默认不勾选，勾选时会显示谨慎提醒。 |
-| **武器平衡性补丁（r22）** | 爱好者自制的武器数值调整：84 个槽位，最大终值偏差 4.69%，19/19 族内 DPA 单调。默认不勾选，逐文件备份可还原。详见[平衡详情](../../src/balance_list_zh.md)和[双语可视化](../../docs/balance-viz/index.html)。 |
+| **武器平衡性补丁（r22）** | 爱好者自制的武器数值调整：84 个槽位，最大终值偏差 4.69%，19/19 族内 DPA 单调。默认不勾选，逐文件备份可还原。详见[平衡详情](../../src/balance_list_zh.md)。 |
 | **武器技能补丁** | 为三件 T2 战团武器恢复原版武器赋予技能与对应军械库图标。默认不勾选。详见[技能详情](../../src/weapon_skills_list_zh.md)。 |
 | **Bonus：插入一名黑盾** | 向存档加入一名黑盾。注入前会备份存档；还原存档会丢失注入之后的进度。 |
 
 中文配音**不分发、不下载**，安装器只显示本地 DIY 提示词。
+
+### 平衡性一览
+
+<p align="center"><img src="../balance-viz/images/fig1_ladder.png" width="860" alt="各武器族四档 DPA 梯度"></p>
+<p align="center"><sub>图 1 — DPA 梯度：灰色＝原版，墨绿＝r22；空心点与实心点分别为单件真值与族均值。</sub></p>
+
+<p align="center"><img src="../balance-viz/images/fig10_feel_quadrant.png" width="860" alt="武器族手感四象限"></p>
+<p align="center"><sub>图 3 — 手感四象限：横轴＝波动，纵轴＝灵活；实心圆＝r22 T3 模板，空心圆＝原版代表件。</sub></p>
 
 <a id="how-it-works"></a>
 
@@ -115,7 +123,7 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
 - [设计与交付规划](../PLAN.md)
 - [第三方声明](../../THIRD_PARTY_NOTICES.md)
 - [特性注册表](../../src/features.json)
-- [Bug 详情](../../src/bugfix_list_zh.md) · [光影详情](../../src/visual_list_zh.md) · [平衡详情](../../src/balance_list_zh.md) · [平衡可视化](../../docs/balance-viz/index.html) · [武器技能](../../src/weapon_skills_list_zh.md)
+- [Bug 详情](../../src/bugfix_list_zh.md) · [光影详情](../../src/visual_list_zh.md) · [平衡详情](../../src/balance_list_zh.md) · [武器技能](../../src/weapon_skills_list_zh.md)
 
 ## 项目结构
 

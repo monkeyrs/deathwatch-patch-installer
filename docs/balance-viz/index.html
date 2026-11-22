@@ -42,7 +42,7 @@
 <header>
   <div>
     <h1><span class="zh">武器平衡 · 原版 / r22</span><span class="en">Weapon Balance · Vanilla / r22</span></h1>
-    <p class="lede"><span class="zh">19 个武器族、93 件武器，84 个数值槽纳入 r22。所有值按 <code>final = base + step × delta</code> 现场计算；最大偏差 4.69%，战团件均值 0.99×。</span><span class="en">19 weapon families, 93 weapons, and 84 value slots in r22. Every value is computed as <code>final = base + step × delta</code>; maximum deviation 4.69%, chapter-item mean 0.99×.</span></p>
+    <p class="lede"><span class="zh">19 个武器族、93 件武器，84 个数值槽纳入 r22。所有值按 <code>final = base + step × delta</code> 现场计算；最大偏差 4.69%。</span><span class="en">19 weapon families, 93 weapons, and 84 value slots in r22. Every value is computed as <code>final = base + step × delta</code>; maximum deviation 4.69%.</span></p>
   </div>
   <div class="langs"><button id="btn-zh" class="on">中文</button><button id="btn-en">EN</button></div>
 </header>
@@ -51,12 +51,11 @@
   <div><div class="v">84</div><div class="k"><span class="zh">改动槽位</span><span class="en">edited slots</span></div></div>
   <div><div class="v">4.69%</div><div class="k"><span class="zh">最大终值偏差</span><span class="en">max final-value deviation</span></div></div>
   <div><div class="v">19/19</div><div class="k"><span class="zh">族内 DPA 单调</span><span class="en">families monotonic</span></div></div>
-  <div><div class="v">0.99×</div><div class="k"><span class="zh">战团件均值</span><span class="en">chapter-item mean</span></div></div>
 </div>
 
 <section>
   <h2><span class="zh">规则摘要</span><span class="en">Design rules</span></h2>
-  <p><span class="zh">模型：期望 <code>E = D × (1 + c·m) × p</code>，<code>DPA = E / AP</code>；弹发数只影响方差。T3 锚定 Δ伤害 = 2；AP 阶梯与精度/暴击/暴伤基线保持不变。战团件允许 ±15% 窗口；编辑保持等长，不引入游戏资源。</span><span class="en">Model: <code>E = D × (1 + c·m) × p</code>, <code>DPA = E / AP</code>; pellet count affects variance only. T3 anchors damage delta at 2; AP tiers and accuracy/critical baselines are unchanged. Chapter items stay within a ±15% window. Edits are equal-length and ship no game assets.</span></p>
+  <p><span class="zh">模型：期望 <code>E = D × (1 + c·m) × p</code>，<code>DPA = E / AP</code>；弹发数只影响方差。T3 锚定 Δ伤害 = 2；AP 阶梯与精度/暴击/暴伤基线保持不变。编辑保持等长，不引入游戏资源。</span><span class="en">Model: <code>E = D × (1 + c·m) × p</code>, <code>DPA = E / AP</code>; pellet count affects variance only. T3 anchors damage delta at 2; AP tiers and accuracy/critical baselines are unchanged. Edits are equal-length and ship no game assets.</span></p>
 </section>
 
 <section>
@@ -64,14 +63,6 @@
   <figure class="fig">
     <img src="images/fig1_ladder.png" alt="DPA ladder">
     <figcaption><span class="zh">灰线＝原版，墨绿＝r22；空心点与实心点分别为单件真值与族均值。爆弹枪 T2、热熔枪 T2 已恢复正梯度。</span><span class="en">Grey = vanilla, green = r22; hollow and solid dots show individual items and family means. Boltgun T2 and Meltagun T2 now have positive gradients.</span></figcaption>
-  </figure>
-</section>
-
-<section>
-  <h2><span class="zh">图 2 · 战团件影响</span><span class="en">Fig. 2 · Chapter item impact</span></h2>
-  <figure class="fig">
-    <img src="images/fig11_chapter_impact.png" alt="Chapter item impact">
-    <figcaption><span class="zh">27 件战团专属武器全部有改动；r20 起 DPA 相对原版收敛到 ±10% 内。</span><span class="en">All 27 chapter-specific weapons changed; since r20 their DPA delta is within ±10% of vanilla.</span></figcaption>
   </figure>
 </section>
 

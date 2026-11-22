@@ -49,11 +49,19 @@ The release is a single Windows executable. End users do not need Python or an i
 | **Bug Fixes** | Eight player-verified fixes, enabled by default. See [bug details](src/bugfix_list_en.md). |
 | **Visual Enhancement** | Three config-level tiers — Integrated / Discrete / Max. Original look is restored with the Restore action. See [visual details](src/visual_list_en.md). |
 | **Camera Unlock** | Removes camera height / pitch limits. Off by default with an on-screen caution. |
-| **Weapon Balance (r22)** | Fan-made weapon-only numerical tweaks: 84 slots, max final-value deviation 4.69%, 19/19 families monotonic. Off by default, backed up and reversible. See [balance details](src/balance_list_en.md) and the [bilingual visualization](docs/balance-viz/index.html). |
+| **Weapon Balance (r22)** | Fan-made weapon-only numerical tweaks: 84 slots, max final-value deviation 4.69%, 19/19 families monotonic. Off by default, backed up and reversible. See [balance details](src/balance_list_en.md). |
 | **Weapon Skills** | Restores original-game weapon-granted skills and matching armoury icons for three T2 chapter weapons. Off by default. See [skill details](src/weapon_skills_list_en.md). |
 | **Bonus: Black Shield** | Adds a Black Shield to your save. Backs up the save first; restoring loses progress made after injection. |
 
 Chinese voice acting is **not** distributed or downloaded. The installer only shows a local DIY prompt.
+
+### Balance at a glance
+
+<p align="center"><img src="docs/balance-viz/images/fig1_ladder.png" width="860" alt="DPA ladder by weapon family and tier"></p>
+<p align="center"><sub>Fig. 1 — DPA ladder: grey = vanilla, green = r22; hollow and solid dots show individual items and family means.</sub></p>
+
+<p align="center"><img src="docs/balance-viz/images/fig10_feel_quadrant.png" width="860" alt="Weapon feel quadrants"></p>
+<p align="center"><sub>Fig. 3 — Feel quadrants: X = volatility, Y = flexibility; filled circles = r22 T3 templates, hollow circles = vanilla representatives.</sub></p>
 
 <a id="how-it-works"></a>
 
@@ -115,7 +123,7 @@ The output is `dist\DeathwatchPatchInstaller.exe`. The spec prunes unused Qt mod
 - [Design and delivery plan](docs/PLAN.md)
 - [Third-party notices](THIRD_PARTY_NOTICES.md)
 - [Feature registry](src/features.json)
-- [Bug details](src/bugfix_list_en.md) · [Visual details](src/visual_list_en.md) · [Balance details](src/balance_list_en.md) · [Balance visualization](docs/balance-viz/index.html) · [Weapon skills](src/weapon_skills_list_en.md)
+- [Bug details](src/bugfix_list_en.md) · [Visual details](src/visual_list_en.md) · [Balance details](src/balance_list_en.md) · [Weapon skills](src/weapon_skills_list_en.md)
 
 ## Project layout
 
