@@ -55,14 +55,6 @@ The release is a single Windows executable. End users do not need Python or an i
 
 Chinese voice acting is **not** distributed or downloaded. The installer only shows a local DIY prompt.
 
-### Balance at a glance
-
-<p align="center"><img src="docs/balance-viz/images/fig1_ladder.png" width="860" alt="DPA ladder by weapon family and tier"></p>
-<p align="center"><sub>Fig. 1 — DPA ladder: grey = vanilla, green = r22; hollow and solid dots show individual items and family means.</sub></p>
-
-<p align="center"><img src="docs/balance-viz/images/fig10_feel_quadrant.png" width="860" alt="Weapon feel quadrants"></p>
-<p align="center"><sub>Fig. 3 — Feel quadrants: X = volatility, Y = flexibility; filled circles = r22 T3 templates, hollow circles = vanilla representatives.</sub></p>
-
 <a id="how-it-works"></a>
 
 ## How it works
@@ -123,7 +115,7 @@ The output is `dist\DeathwatchPatchInstaller.exe`. The spec prunes unused Qt mod
 - [Design and delivery plan](docs/PLAN.md)
 - [Third-party notices](THIRD_PARTY_NOTICES.md)
 - [Feature registry](src/features.json)
-- [Bug details](src/bugfix_list_en.md) · [Visual details](src/visual_list_en.md) · [Balance details](src/balance_list_en.md) · [Weapon skills](src/weapon_skills_list_en.md)
+- [Bug details](src/bugfix_list_en.md) · [Visual details](src/visual_list_en.md) · [Balance details](src/balance_list_en.md) · [Balance at a glance](docs/balance-at-a-glance.md) · [Weapon skills](src/weapon_skills_list_en.md)
 
 ## Project layout
 
