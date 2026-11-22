@@ -6,7 +6,7 @@
 <p align="center"><sub>图 1 — DPA 梯度：灰色＝原版，墨绿＝r22；空心点与实心点分别为单件真值与族均值。</sub></p>
 
 <p align="center"><img src="../docs/balance-viz/images/fig10_feel_quadrant.png" width="860" alt="武器族手感四象限"></p>
-<p align="center"><sub>图 3 — 手感四象限：横轴＝波动，纵轴＝灵活；实心圆＝r22 T3 模板，空心圆＝原版代表件。</sub></p>
+<p align="center"><sub>图 2 — 手感四象限：横轴＝波动，纵轴＝灵活；实心圆＝r22 T3 模板，空心圆＝原版代表件。</sub></p>
 
 - 所有重型武器获得 **1AP 可用变体**。
 - 激光炮、等离子炮：提高精度与近距离爆发。

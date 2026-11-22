@@ -8,6 +8,6 @@
 <p align="center"><sub>Fig. 1 — DPA ladder: grey = vanilla, green = r22; hollow and solid dots show individual items and family means.<br>图 1 — DPA 梯度：灰色＝原版，墨绿＝r22；空心点与实心点分别为单件真值与族均值。</sub></p>
 
 <p align="center"><img src="balance-viz/images/fig10_feel_quadrant.png" width="860" alt="Weapon feel quadrants"></p>
-<p align="center"><sub>Fig. 3 — Feel quadrants: X = volatility, Y = flexibility; filled circles = r22 T3 templates, hollow circles = vanilla representatives.<br>图 3 — 手感四象限：横轴＝波动，纵轴＝灵活；实心圆＝r22 T3 模板，空心圆＝原版代表件。</sub></p>
+<p align="center"><sub>Fig. 2 — Feel quadrants: X = volatility, Y = flexibility; filled circles = r22 T3 templates, hollow circles = vanilla representatives.<br>图 2 — 手感四象限：横轴＝波动，纵轴＝灵活；实心圆＝r22 T3 模板，空心圆＝原版代表件。</sub></p>
 
 Full notes: [English](../src/balance_list_en.md) · [简体中文](../src/balance_list_zh.md)
