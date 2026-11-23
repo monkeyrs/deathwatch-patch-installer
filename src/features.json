@@ -137,10 +137,10 @@
         "en": "Weapon Balance Patch"
       },
       "desc": {
-        "zh": "爱好者武器平衡调整（仅武器，不改战士/技能；默认不勾选，点卡查看说明）。",
-        "en": "Fan-made weapon balance tweaks (weapons only, no marine/skill changes; unchecked by default, click for details)."
+        "zh": "爱好者武器平衡数值调整，含三件战团 T2 专属武器的授予技能（不改战士；默认不勾选，点卡查看说明）。",
+        "en": "Fan-made weapon balance tweaks, including granted skills for three T2 chapter weapons (no marine changes; unchecked by default, click for details)."
       },
-      "packages": ["balance_user_r22"],
+      "packages": ["balance_user_r27", "weapon_skills_v1"],
       "detail_doc": {
         "zh": "balance_list_zh.md",
         "en": "balance_list_en.md"
@@ -152,34 +152,8 @@
       "reversible": true,
       "warning_modal": true,
       "warning": {
-        "zh": "注意：这是爱好者基于对游戏机制理解做的武器平衡调整，非官方改动。\n具体调整方向见下方数值说明。仅等字节改数值、逐文件备份可回滚；不改动 exe 与启动校验组件。",
-        "en": "Note: fan-made weapon balance tweaks based on a hobbyist understanding of the mechanics, not an official change.\nSee the numerical details below. Equal-byte numeric edits only, per-file backup and rollback; no exe or boot/DRM component is touched."
-      }
-    },
-    {
-      "id": "weapon_skills",
-      "name": {
-        "zh": "武器技能补丁",
-        "en": "Weapon Skill Patch"
-      },
-      "desc": {
-        "zh": "为三件 T2 战团特色武器补充原版已有的授予技能与卡面图标；默认不勾选，点卡查看清单。",
-        "en": "Adds original-game weapon-granted skills and card icons to three T2 chapter weapons; unchecked by default, click for details."
-      },
-      "packages": ["weapon_skills_v1"],
-      "detail_doc": {
-        "zh": "weapon_skills_list_zh.md",
-        "en": "weapon_skills_list_en.md"
-      },
-      "detail_link_key": "weapon_skills_detail",
-      "detail_title_key": "weapon_skills_dialog_title",
-      "default_checked": false,
-      "enabled": true,
-      "reversible": true,
-      "warning_modal": true,
-      "warning": {
-        "zh": "注意：这是爱好者基于原版已有武器技能做的调整，非官方改动。以整文件替换 6 个武器模板资产，逐文件备份可回滚；不改数值、不改 exe 与启动校验组件。",
-        "en": "Note: fan-made adjustments built from skills that already exist in the game, not an official change. Replaces six weapon-template assets in full, with per-file backup and rollback; no stat edits, no exe or boot/DRM component is touched."
+        "zh": "注意：这是爱好者基于对游戏机制理解做的武器调整，非官方改动。\n数值为等字节修改；另含三件战团 T2 武器的原版授予技能（整文件替换 6 个模板资产）。逐文件备份可回滚；不改动 exe 与启动校验组件。",
+        "en": "Note: fan-made weapon tweaks based on a hobbyist understanding of the mechanics, not an official change.\nStats use equal-byte edits; the three T2 chapter weapons also gain original-game granted skills (six full-file template replacements). Per-file backup and rollback; no exe or boot/DRM component is touched."
       }
     },
     {

@@ -48,7 +48,7 @@ REGISTRY = json.loads((APP_DIR / "features.json").read_text(encoding="utf-8"))
 FEATURES = REGISTRY["features"]
 BONUS = [f for f in FEATURES if f.get("bonus")]
 # Display order: the two Chinese-language tiles come first — Chinese text, then Chinese voice.
-_DISPLAY_ORDER = ["zh_text", "vo_zh", "visual", "camera", "bugfix", "balance", "weapon_skills"]
+_DISPLAY_ORDER = ["zh_text", "vo_zh", "visual", "camera", "bugfix", "balance"]
 CORE_FEATURES = sorted((f for f in FEATURES if not f.get("bonus")),
                        key=lambda f: _DISPLAY_ORDER.index(f["id"]))
 _support_path = APP_DIR / "support.json"
@@ -1477,13 +1477,13 @@ class InstallerWindow(QWidget):
             self.next_btn.setEnabled(self.pages[i].is_valid())
 
     # ---- Execution (real engine: background thread, per-item log output) ----
-    # Install order: bugfix (English layer) -> Chinese text -> Chinese voice (DIY) -> visual -> camera
-    # -> balance -> weapon skills.
+    # Install order: bugfix (English layer) -> Chinese text -> Chinese voice (DIY) -> visual -> camera -> balance.
     # Fixes are applied to the English files first: the crippling locres uses the Steam original as
     # its baseline, so it must run before the Chinese overlay. Balance text edits run after zh_text,
     # because zh_cn overwrites en/Game.locres in place and would otherwise revert 99% splash back to 35%.
-    # Weapon skills replace whole uasset templates, so they run after the other asset edits.
-    APPLY_ORDER = ["bugfix", "zh_text", "vo_zh", "visual", "camera", "balance", "weapon_skills"]
+    # The weapon-skill package is part of the balance card; its full-file templates are applied by the
+    # balance branch after the equal-byte edits (the two package sets touch disjoint assets).
+    APPLY_ORDER = ["bugfix", "zh_text", "vo_zh", "visual", "camera", "balance"]
 
     def _build_plan(self):
         lang = self.lang

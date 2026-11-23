@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/monkeyrs/deathwatch-patch-installer/releases/latest"><img src="https://img.shields.io/badge/download-v1.2-0ab887" alt="Download v1.2"></a>
+  <a href="https://github.com/monkeyrs/deathwatch-patch-installer/releases/latest"><img src="https://img.shields.io/badge/download-v1.3-0ab887" alt="Download v1.3"></a>
   <a href="../../LICENSE"><img src="https://img.shields.io/github/license/monkeyrs/deathwatch-patch-installer" alt="GPL-3.0 license"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.13-blue" alt="Python 3.13"></a>
   <a href="https://ko-fi.com/monkeyrs" rel="nofollow"><img src="https://img.shields.io/badge/Buy_me_a_Ko--fi-F16061?logo=ko-fi&logoColor=white" alt="Buy me a Ko-fi"></a>
@@ -35,7 +35,7 @@
 
 ## 下载
 
-**[下载 DeathwatchPatchInstaller.exe（v1.2）→](https://github.com/monkeyrs/deathwatch-patch-installer/releases/latest)**
+**[下载 DeathwatchPatchInstaller.exe（v1.3）→](https://github.com/monkeyrs/deathwatch-patch-installer/releases/latest)**
 
 Release 是单文件 Windows 程序，最终用户不需要 Python，也不需要联网。选择游戏 exe 后，安装器会推导游戏根目录、校验 build，再显示功能卡片。
 
@@ -49,7 +49,7 @@ Release 是单文件 Windows 程序，最终用户不需要 Python，也不需�
 | **Bug 修正** | 8 项已验证修复，默认勾选。详见 [Bug 详情](../../src/bugfix_list_zh.md)。 |
 | **光影增强** | 三档配置级画质增强：核显 / 独显 / 最高。原版外观用「还原到原版」恢复。详见[光影详情](../../src/visual_list_zh.md)。 |
 | **镜头限制解除** | 解除镜头高度 / 俯仰限制；默认不勾选，勾选时会显示谨慎提醒。 |
-| **武器平衡性补丁（r22）** | 爱好者自制的武器数值调整：84 个槽位，最大终值偏差 4.69%，19/19 族内 DPA 单调。默认不勾选，逐文件备份可还原。详见[平衡详情](../../src/balance_list_zh.md)。 |
+| **武器平衡性补丁（r27）** | 爱好者自制的武器数值调整（89 个槽位，最大终值偏差 0.40%），另含三件 T2 战团武器的原版授予技能。默认不勾选，逐文件备份可还原。详见[平衡详情](../../src/balance_list_zh.md)。 |
 | **武器技能补丁** | 为三件 T2 战团武器恢复原版武器赋予技能与对应军械库图标。默认不勾选。详见[技能详情](../../src/weapon_skills_list_zh.md)。 |
 | **Bonus：插入一名黑盾** | 向存档加入一名黑盾。注入前会备份存档；还原存档会丢失注入之后的进度。 |
 

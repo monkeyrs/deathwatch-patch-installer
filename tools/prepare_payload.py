@@ -45,7 +45,8 @@ VISUAL_LEGACY_ARCHIVE = HERE.parents[1] / "patches" / "archive" / "visual_enhanc
 VISUAL_LEGACY = ["g9_glow_down30", "g11_bright_dim_glow",
                  "g12_bright_dim_glow_plus", "g13_bright_maxfx"]
 BALANCE = list(_feature("balance").get("packages") or [])
-WEAPON_SKILLS = list(_feature("weapon_skills").get("packages") or [])
+# Full-file balance packages ship their uassets (no asset_edits recipe), e.g. granted weapon skills.
+BALANCE_FULLFILE = {"weapon_skills_v1"}
 
 # the installer payload no longer ships full uassets for these packages: only manifest.recipe,
 # computed at runtime from the user's original assets by INSTALLER/src/zhgen/asset_recipes.py.
@@ -224,7 +225,10 @@ def main() -> int:
     for pid in BALANCE:
         src = PATCHES / pid
         dst = OUT / "balance" / pid
-        if not (src / "manifest.json").is_file() and (dst / "manifest.json").is_file():
+        if pid in BALANCE_FULLFILE:
+            # Full-file uassets are required here (variable-length edits); keep them intact.
+            files = copy_pkg(src, dst)
+        elif not (src / "manifest.json").is_file() and (dst / "manifest.json").is_file():
             # the source package may be archived or rebuilt in a parallel session; keep a valid existing payload to avoid a wrong-version swap.
             print(f"[WARN] balance/{pid}: 源包缺失，沿用现有 payload")
             drop = balance_mutate(dst / "manifest.json")
@@ -238,12 +242,10 @@ def main() -> int:
         total += sum(x["size"] for x in files)
         index["packages"].append({"id": pid, "kind": "balance", "files": files})
         print(f"[OK] balance/{pid}: {len(files)} files")
-    for pid in WEAPON_SKILLS:
-        # Full-file uassets are required here: these skill edits are variable-length.
-        files = copy_pkg(PATCHES / pid, OUT / "weapon_skills" / pid)
-        total += sum(x["size"] for x in files)
-        index["packages"].append({"id": pid, "kind": "weapon_skills", "files": files})
-        print(f"[OK] weapon_skills/{pid}: {len(files)} files")
+    # the legacy weapon_skills payload category is gone; drop any stale staged copy
+    stale = OUT / "weapon_skills"
+    if stale.is_dir():
+        shutil.rmtree(stale)
     (OUT / "payload_index.json").write_text(
         json.dumps(index, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"[OK] payload total {total/1024/1024:.2f} MB -> {OUT}")

@@ -1,5 +1,5 @@
 {
- "built_utc": "2026-11-22T13:16:47Z",
+ "built_utc": "2026-11-23T13:52:06Z",
  "packages": [
   {
    "id": "bugfix_parry",
@@ -73,8 +73,8 @@
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "3f15bfb33ef071651b764785cc5ac1a2765d1ee0778bb1c3de6237497c05a40a",
-     "size": 2563
+     "sha256": "c7dc7c70c7560cd97d824e593e7ce6c767c324e9c4af01b2a4fd7bf53e0f1d03",
+     "size": 2636
     }
    ]
   },
@@ -128,19 +128,19 @@
    ]
   },
   {
-   "id": "balance_user_r22",
+   "id": "balance_user_r27",
    "kind": "balance",
    "files": [
     {
      "rel": "manifest.json",
-     "sha256": "ffd5672b892736d843602b8b7c79e4d64bbf851efe7852ac03292b4f59cc9238",
-     "size": 61620
+     "sha256": "4f28f6d96fada8c2d91ae338564c6ede6c5478996961bf3cf7e3226ebdacba9c",
+     "size": 61880
     }
    ]
   },
   {
    "id": "weapon_skills_v1",
-   "kind": "weapon_skills",
+   "kind": "balance",
    "files": [
     {
      "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WPDT_T2_IF_HeavyBolter.uasset",
