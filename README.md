@@ -49,7 +49,7 @@ The release is a single Windows executable. End users do not need Python or an i
 | **Bug Fixes** | Eight player-verified fixes, enabled by default. See [bug details](src/bugfix_list_en.md). |
 | **Visual Enhancement** | Three config-level tiers — Integrated / Discrete / Max. Original look is restored with the Restore action. See [visual details](src/visual_list_en.md). |
 | **Camera Unlock** | Removes camera height / pitch limits. Off by default with an on-screen caution. |
-| **Weapon Balance (r30)** | Fan-made weapon numerical tweaks (42 OK slots, max deviation 0.00%) plus original-game granted skills for three T2 chapter weapons. Off by default, backed up and reversible. See [balance details](src/balance_list_en.md). |
+| **Weapon Balance (r30)** | In-game verified weapon numerical tweaks (42 OK slots, max deviation 0.00%) plus original-game granted skills for three T2 chapter weapons. Off by default, backed up and reversible. See [balance details](src/balance_list_en.md). |
 | **Bonus: Black Shield** | Adds a Black Shield to your save. Backs up the save first; restoring loses progress made after injection. |
 
 Chinese voice acting is **not** distributed or downloaded. The installer only shows a local DIY prompt.
