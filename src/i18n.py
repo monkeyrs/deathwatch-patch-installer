@@ -6,9 +6,11 @@ Chinese text and Chinese voice options are not selected by default.
 """
 import ctypes
 
+APP_VERSION = "v1.4"
+
 S = {
     "brand": {"zh": "Deathwatch 补丁安装器", "en": "Deathwatch Patch Installer"},
-    "skeleton_tag": {"zh": "v1.0 · 安装前自动备份", "en": "v1.0 · auto-backup before changes"},
+    "skeleton_tag": {"zh": f"{APP_VERSION} · 安装前自动备份", "en": f"{APP_VERSION} · auto-backup before changes"},
     "lang_label": {"zh": "语言", "en": "Language"},
     "step_terms": {"zh": "协议", "en": "Terms"},
     "step_setup": {"zh": "安装", "en": "Setup"},
@@ -98,6 +100,12 @@ S = {
         "zh": "按全局备份索引还原到安装前状态；不覆盖存档。",
         "en": "Restore to the pre-install state from the global backup index; saves are not overwritten.",
     },
+    "restore_notice": {
+        "zh": ("这将还原全部改动，变为原版。\n"
+               "如仍需一部分补丁，可还原后，重新打一遍补丁。"),
+        "en": ("This restores ALL changes back to the original build.\n"
+               "If you still want some patches, restore first, then apply them again."),
+    },
     "features_title": {"zh": "选择特性", "en": "Choose features"},
     "features_hint": {
         "zh": "点卡片即可勾选；灰色 = 暂未开放。勾选镜头卡时会先给出使用提醒。",
@@ -105,19 +113,18 @@ S = {
     },
     "bonus_title": {"zh": "Bonus 彩蛋（可选）", "en": "Bonus extras (optional)"},
     "bonus_hint": {
-        "zh": "点击卡片接受合同；会先检查存档，再决定是否注入。",
-        "en": "Click the tile to accept the contract; the save is checked before anything is injected.",
+        "zh": "门外那位还在等回复。",
+        "en": "Someone is still waiting outside.",
     },
+    "bonus_accept_badge": {"zh": "接纳", "en": "ACCEPT"},
     "bonus_hint_restore": {
         "zh": "当前为还原模式，不会注入额外内容；如需黑盾请先切回「打补丁」。",
         "en": "Restore mode does not inject extras; switch back to Install to add a Black Shield.",
     },
     "bs_nosave_title": {"zh": "还没有存档", "en": "No save yet"},
     "bs_nosave_body": {
-        "zh": ("现在还没有游戏存档。建议先打完教程第一关，再回来运行本程序，"
-               "接受这份黑盾合同。"),
-        "en": ("There is no game save yet. Finish the tutorial / first chapter, then run this "
-               "installer again to accept the Black Shield contract."),
+        "zh": "存档尚未出现，前哨站还没建起来。先打完教程，再回来看看。",
+        "en": "No save yet, so the outpost has not been built. Finish the tutorial, then come back.",
     },
     "bs_fail_title": {"zh": "黑盾注入失败", "en": "Black Shield injection failed"},
     "camera_warning_title": {"zh": "镜头限制解除 · 谨慎", "en": "Camera Unlock · Caution"},
@@ -172,6 +179,10 @@ S = {
     "log_pre_restore": {
         "zh": "选中项已有补丁：先还原 {restored} 个文件 / 删除 {deleted} 个新建文件，再按当前选择重打。",
         "en": "Selected features already had patches: pre-restored {restored} files / removed {deleted} created files, then re-applying the current selection.",
+    },
+    "log_originals_mismatch": {
+        "zh": "有 {n} 个目标文件不是原版（已记录，不阻塞安装）。",
+        "en": "{n} target file(s) are not the pristine original (logged, does not block the install).",
     },
     "log_restored": {"zh": "已还原 {n} 个文件。", "en": "Restored {n} files."},
     "log_restore_none": {"zh": "没有找到可还原的备份。", "en": "No backup found to restore."},

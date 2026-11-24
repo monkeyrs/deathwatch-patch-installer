@@ -98,7 +98,7 @@ check("CORE/BONUS partition is complete",
       len(m.CORE_FEATURES) + len(m.BONUS) == len(m.FEATURES)
       and not ({f["id"] for f in m.CORE_FEATURES} & {f["id"] for f in m.BONUS}))
 check("Black Shield card name has no Bonus prefix",
-      next(f for f in m.FEATURES if f["id"] == "bonus_blackshield")["name"]["zh"] == "插入一名黑盾")
+      next(f for f in m.FEATURES if f["id"] == "bonus_blackshield")["name"]["zh"] == "黑盾入队")
 check("Bonus appears once across UI (section title only)",
       sum(v["zh"].count("Bonus") for v in S.values()) == 1
       and sum(v["en"].count("Bonus") for v in S.values()) == 1
@@ -393,6 +393,9 @@ check("four left-side task steps present",
 check("initial step = 0", w.current() == 0)
 check("current step synced in left navigation", w.rail.current == 0 and w.rail.accent.name() == m.BLUE.lower())
 check("title bar keeps brand name", "Deathwatch" in w.windowTitle())
+check("title bar shows current app version", "v1.4" in w.windowTitle())
+check("README badge uses current app version",
+      "download-v1.4" in (m.APP_DIR.parent / "README.md").read_text(encoding="utf-8"))
 check("language radios in bottom nav (below page stack)",
       w.lang_zh.mapTo(w, QPoint(0, 0)).y() > w.stack.geometry().bottom()
       and not hasattr(w, "lang_combo"))
@@ -434,9 +437,18 @@ check("P0: restore mode disables Black Shield on completion page",
 QTest.mouseClick(setup.install_card, Qt.MouseButton.LeftButton)
 check("switch back to patch = green", w.mode == "install" and w.accent == m.GREEN)
 check("P0: patch mode re-enables Black Shield on completion page",
-      bs0._enabled and "点击卡片" in w.pages[3].section.picker.hint.text())
+      bs0._enabled and "门外那位还在等回复" in w.pages[3].section.picker.hint.text())
 w.next_page()
 check("navigates to features page", w.current() == 2)
+# Restore is all-or-nothing: the grid is masked on the features page and unmasked on install.
+w.set_mode("restore")
+check("restore masks the feature grid with the all-or-nothing notice",
+      w.pages[2].restore_overlay.isVisible()
+      and "还原全部改动" in w.pages[2].restore_overlay._text
+      and "原版" in w.pages[2].restore_overlay._text)
+w.set_mode("install")
+check("install mode unmasks the feature grid",
+      not w.pages[2].restore_overlay.isVisible())
 
 # 9) features page: uniform card grid + card interactions
 fp = w.pages[2]
@@ -482,6 +494,34 @@ check("no standalone weapon skills card (merged into balance)",
 check("other cards have no detail links",
       all(c.detail_link is None for fid, c in fp.cards.items()
           if fid not in ("bugfix", "visual", "balance", "camera", "vo_zh")))
+
+# Detail links open their dialog without toggling the parent tile (regression: visual notice did not open).
+_orig_dialogs = (m.BugDetailDialog, m.CameraWarningDialog, m.VoDiyDialog)
+class _CountedDialog:
+    opened = 0
+    def __init__(self, *args, **kwargs):
+        pass
+    def exec(self):
+        type(self).opened += 1
+class _FakeBugDialog(_CountedDialog): pass
+class _FakeCameraDialog(_CountedDialog): pass
+class _FakeDiyDialog(_CountedDialog): pass
+m.BugDetailDialog = _FakeBugDialog
+m.CameraWarningDialog = _FakeCameraDialog
+m.VoDiyDialog = _FakeDiyDialog
+try:
+    for _fid in ("bugfix", "visual", "balance", "camera", "vo_zh"):
+        _card = fp.cards[_fid]
+        _before = _card.isChecked()
+        QTest.mouseClick(_card.detail_link, Qt.MouseButton.LeftButton)
+        check(f"{_fid} detail link does not toggle card",
+              _card.isChecked() == _before)
+    check("all detail links open their dialogs",
+          _FakeBugDialog.opened == 3 and _FakeCameraDialog.opened == 1
+          and _FakeDiyDialog.opened == 1)
+finally:
+    m.BugDetailDialog, m.CameraWarningDialog, m.VoDiyDialog = _orig_dialogs
+
 QTest.mouseClick(fp.cards["bugfix"], Qt.MouseButton.LeftButton)
 check("bugfix can be unchecked (card unhighlighted)",
       not fp.cards["bugfix"].isChecked()
@@ -499,17 +539,23 @@ check("Bug details dialog title/buttons",
 dlg.close()
 dlg_bal = m.BugDetailDialog(w, "balance")
 body_bal = dlg_bal.view.toPlainText()
-check("balance numeric dialog shows Chinese general wording",
-      "爱好者" in body_bal and "1AP 可用变体" in body_bal and "base" in body_bal
-      and "动力剑" in body_bal and "重型爆弹枪" not in body_bal and "通用口径" not in body_bal)
+check("balance numeric dialog shows tested wording",
+      "实机验证" in body_bal and "冷板凳增强" in body_bal
+      and "1AP 可用变体" in body_bal and "动力剑" in body_bal
+      and "爱好者" not in body_bal and "非官方" not in body_bal
+      and "未实机验证" not in body_bal
+      and "重型爆弹枪" not in body_bal and "通用口径" not in body_bal)
 check("balance numeric dialog has no duplicate entries",
       body_bal.count("1AP 可用变体") == 1 and body_bal.count("导弹发射器") == 1
-      # Crippling Shot appears once as a granted-skill mention and once as the 2%->8% balance bullet.
-      and body_bal.count("致残射击") == 2)
+      # Crippling Shot appears once, as the 2%->8% balance bullet.
+      and body_bal.count("致残射击") == 1)
 check("balance numeric dialog title",
       dlg_bal.windowTitle() == "武器平衡性补丁 · 数值说明")
 check("balance numeric dialog includes crippling shot 2%->8%",
       "致残射击" in body_bal and "2%" in body_bal and "8%" in body_bal)
+check("balance dialog stays plain text without embedded images",
+      "<img" not in body_bal and "<p" not in body_bal
+      and "docs/balance-viz/index.html" in body_bal)
 dlg_bal.close()
 
 # 9b) visual: three-way segmented choice (integrated / discrete / max) + parameter dialog on card click
@@ -664,54 +710,59 @@ check("balance card selectable but unchecked by default",
       bal._enabled and not bal.isChecked() and "balance" not in fp.selected())
 check("balance card shows no warning inline (dialog type)", bal.warn.isHidden())
 _bal_feat = next(f for f in m.FEATURES if f["id"] == "balance")
-check("balance notice keeps only hobbyist/unofficial/rollback wording, no repeated six directions",
-      "爱好者" in _bal_feat["warning"]["zh"]
-      and "非官方" in _bal_feat["warning"]["zh"]
+check("balance notice states verified wording and rollback, no repeated directions",
+      "实机验证" in _bal_feat["warning"]["zh"]
+      and "爱好者" not in _bal_feat["warning"]["zh"]
+      and "非官方" not in _bal_feat["warning"]["zh"]
       and "等字节" in _bal_feat["warning"]["zh"]
       and "①" not in _bal_feat["warning"]["zh"]
       and "⑥" not in _bal_feat["warning"]["zh"])
 _bal_list = (m.APP_DIR / "balance_list_zh.md").read_text(encoding="utf-8")
-check("balance numeric list carries all six directions",
-      all(x in _bal_list for x in ("1AP", "激光炮", "导弹发射器", "热熔", "重力枪", "致残射击")))
-check("balance card packages = r27 numbers + weapon skills",
-      _bal_feat["packages"] == ["balance_user_r27", "weapon_skills_v1"])
-_r27 = json.loads((m.APP_DIR / "payload/balance/balance_user_r27/manifest.json").read_text(encoding="utf-8"))
-check("balance r27: chapter-converged payload has 108 entries / 264 edits",
-      len(_r27["entries"]) == 108
-      and sum(len(e["edits"]) for e in _r27["entries"]) == 264)
-_t2 = next(e for e in _r27["entries"] if e["relative_path"].endswith("WST_T2_MissileLauncher.uasset"))
-check("balance r27: T2 missile launcher range key 13->8 / value 0->-3 equal-byte edits in place",
+check("balance numeric list carries the listed directions",
+      all(x in _bal_list for x in ("1AP", "导弹发射器", "热熔", "重力枪", "致残射击")))
+check("balance card packages = r30 numbers + weapon skills",
+      _bal_feat["packages"] == ["balance_user_r30", "weapon_skills_v1"])
+_r30 = json.loads((m.APP_DIR / "payload/balance/balance_user_r30/manifest.json").read_text(encoding="utf-8"))
+check("balance r30: final-table payload has 52 entries / 97 edits",
+      len(_r30["entries"]) == 52
+      and sum(len(e["edits"]) for e in _r30["entries"]) == 97)
+_t2 = next(e for e in _r30["entries"] if e["relative_path"].endswith("WST_T2_MissileLauncher.uasset"))
+check("balance r30: T2 missile launcher range key 13->8 / value 0->-3 equal-byte edits in place",
       any(e["off"] == 763 and e["old"] == 13 and e["new"] == 8 and e["kind"] == "key_redirect"
           for e in _t2["edits"])
       and any(e["off"] == 767 and e["old"] == 0 and e["new"] == -3
               for e in _t2["edits"]))
-_ifhb = next(e for e in _r27["entries"] if e["relative_path"].endswith("WST_T2_IF_HeavyBolter.uasset"))
-check("balance r27: IF heavy bolter uses crit/crit-dmg slots, no damage key_redirect",
-      any(e["off"] == 677 and e["old"] == 1 and e["new"] == 4 and e["kind"] == "delta"
-          for e in _ifhb["edits"])
-      and any(e["off"] == 705 and e["old"] == 1 and e["new"] == 3 and e["kind"] == "delta"
-              for e in _ifhb["edits"])
-      and not any(e["kind"] == "key_redirect" for e in _ifhb["edits"]))
-_pc3 = next(e for e in _r27["entries"] if e["relative_path"].endswith("WST_T3_PlasmaCannon.uasset"))
-check("balance r27: T3 plasma cannon damage-only slot7 delta 3->41",
-      any(e["off"] == 730 and e["old"] == 3 and e["new"] == 41 and e["kind"] == "delta"
-          for e in _pc3["edits"])
-      and len(_pc3["edits"]) == 1)
-_ulhb = next(e for e in _r27["entries"] if e["relative_path"].endswith("WST_T3_UL_HeavyBolter.uasset"))
-check("balance r27: UL heavy bolter slot7 delta 3->12 emitted by solver (no manual restore)",
-      any(e["off"] == 733 and e["old"] == 3 and e["new"] == 12 and e["kind"] == "delta"
-          for e in _ulhb["edits"]))
-_t4las = next(e for e in _r27["entries"] if e["relative_path"].endswith("WST_T4_SW_Lascannon.uasset"))
-check("balance r27: T4 lascannon damage 383->82 (no inflation), crit 2->-2",
-      any(e["off"] == 727 and e["old"] == 8 and e["new"] == 82 and e["kind"] == "delta"
+check("balance r30: key_redirect only on T2 missile range (no damage inflation elsewhere)",
+      all(e["kind"] != "key_redirect"
+          for entry in _r30["entries"]
+          if not entry["relative_path"].endswith("WST_T2_MissileLauncher.uasset")
+          for e in entry["edits"]))
+_pc3 = next(e for e in _r30["entries"] if e["relative_path"].endswith("WST_T3_PlasmaCannon.uasset"))
+check("balance r30: T3 plasma cannon crit-dmg slot5 delta 0->1",
+      any(e["off"] == 674 and e["old"] == 0 and e["new"] == 1 and e["kind"] == "delta"
+          for e in _pc3["edits"]))
+_t4las = next(e for e in _r30["entries"] if e["relative_path"].endswith("WST_T4_SW_Lascannon.uasset"))
+check("balance r30: T4 lascannon crit delta -3->-1 (no damage inflation)",
+      any(e["off"] == 671 and e["old"] == -3 and e["new"] == -1 and e["kind"] == "delta"
           for e in _t4las["edits"])
-      and not any(e["off"] == 727 and e.get("new", 0) > 100 for e in _t4las["edits"])
-      and any(e["off"] == 671 and e["old"] == -3 and e["new"] == -2 and e["kind"] == "delta"
-          for e in _t4las["edits"]))
-_t4plas = next(e for e in _r27["entries"] if e["relative_path"].endswith("WST_T4_UL_PlasmaCannon.uasset"))
-check("balance r27: T4 plasma cannon damage delta 5->82 (tier curve restored)",
-      any(e["off"] == 736 and e["old"] == 5 and e["new"] == 82 and e["kind"] == "delta"
+      and not any(e.get("new", 0) > 100 for e in _t4las["edits"]))
+_t4plas = next(e for e in _r30["entries"] if e["relative_path"].endswith("WST_T4_UL_PlasmaCannon.uasset"))
+check("balance r30: T4 plasma cannon slot7 delta 5->6 (no tier inflation)",
+      any(e["off"] == 736 and e["old"] == 5 and e["new"] == 6 and e["kind"] == "delta"
           for e in _t4plas["edits"]))
+# r29 core change: three T2 chapter items reach T3 strength via writable crit slots
+# (damage slots stay at vanilla, so no equal-byte conflict remains).
+for _rel, _off, _new in (("WST_T2_IF_HeavyBolter.uasset", 677, 2),
+                         ("WST_T2_DA_PlasmaGun.uasset", 671, 4),
+                         ("WST_T2_BT_Powersword.uasset", 674, 10)):
+    _e = next(x for x in _r30["entries"] if x["relative_path"].endswith(_rel))
+    check("balance r30: %s crit delta -> %d on writable slot" % (_rel, _new),
+          any(e["off"] == _off and e["new"] == _new and e["kind"] == "delta" for e in _e["edits"])
+          and not any(e["kind"] == "key_redirect" for e in _e["edits"]))
+_ulpl = next(x for x in _r30["entries"] if x["relative_path"].endswith("WST_T3_UL_PlasmaGun.uasset"))
+check("balance r30: T3 ultramarines plasma crit delta 0->1 (damage left writable)",
+      any(e["off"] == 671 and e["old"] == 0 and e["new"] == 1 and e["kind"] == "delta"
+          for e in _ulpl["edits"]))
 check("balance unchecked by default and enabled", _bal_feat["default_checked"] is False
       and _bal_feat["enabled"] is True)
 QTest.mouseClick(bal, Qt.MouseButton.LeftButton)
@@ -720,10 +771,11 @@ check("balance click only toggles selection (details via numeric link)",
 bal.setChecked(False, emit=False)   # reset to avoid affecting later selected assertions
 
 check("weapon skills merged into balance card packages",
-      _bal_feat["packages"] == ["balance_user_r27", "weapon_skills_v1"])
+      _bal_feat["packages"] == ["balance_user_r30", "weapon_skills_v1"])
 _ws_doc_zh = (m.APP_DIR / "balance_list_zh.md").read_text(encoding="utf-8")
-check("balance detail names the three chapter weapons' granted skills",
-      all(x in _ws_doc_zh for x in ("致残射击", "还击", "招架", "坚韧", "必杀一击")))
+check("balance detail covers the three chapter weapons with chapter-styled skills",
+      "暗黑天使" in _ws_doc_zh and "黑色圣堂" in _ws_doc_zh and "帝国之拳" in _ws_doc_zh
+      and "授予" in _ws_doc_zh)
 _ws_manifest = json.loads((m.APP_DIR / "payload/balance/weapon_skills_v1/manifest.json").read_text(encoding="utf-8"))
 check("balance payload carries six full-file weapon-skill uasset entries",
       len(_ws_manifest["entries"]) == 6
@@ -745,10 +797,17 @@ check("balance dispatch applies all its packages (no orphan payload)",
 
 # 11) Black Shield offer (completion page): text + unchecked by default; click behavior in section 16
 bs = w.pages[3].cards["bonus_blackshield"]
-check("Black Shield description text verbatim", bs.desc.text() == "接收一名黑盾（可能是堕天使）加入你的守望要塞。")
+check("Black Shield description text verbatim",
+      bs.desc.text() == ("你的守望前哨站之外，出现了一名绿色肩甲的星际战士。\n"
+                         "你向暗黑天使询问。对方称战团查无此人。语气里有一丝愤怒。\n"
+                         "你是否要接纳他，成为一名黑盾？"))
 check("Black Shield unchecked by default", not bs.isChecked())
-check("completion page Bonus hint = check save before inject",
-      "先检查存档" in w.pages[3].section.picker.hint.text())
+check("completion page Bonus hint checks save before recruit",
+      "门外那位还在等回复" in w.pages[3].section.picker.hint.text())
+check("Black Shield copy has no contract wording",
+      "合同" not in w.pages[3].section.picker.hint.text()
+      and "合同" not in bs.desc.text()
+      and "合同" not in S["bs_nosave_body"]["zh"])
 
 # 12) back navigation and language switching (English default on a non-Chinese system)
 w.prev_page()
@@ -894,9 +953,11 @@ check("completion page has third-party notices entry and bundled file",
       and not w.pages[3].section.notice_link.isHidden()
       and "第三方许可" in w.pages[3].section.notice_link.text())
 
-# 16b) Black Shield offer: no save -> ask to return later; save present -> inject and lock
+# 16b) Black Shield offer: card click only toggles; Done applies the selection
 _notices = []
-_orig_notice = m.NoticeDialog
+_inject_calls = []
+_orig_notice, _orig_pre = m.NoticeDialog, patcher.blackshield_preflight
+_orig_new, _orig_inject, _orig_close = patcher.new_session, patcher.inject_blackshield, w.close
 
 
 class _FakeNotice:
@@ -908,35 +969,44 @@ class _FakeNotice:
 
 
 m.NoticeDialog = _FakeNotice
-_orig_pre = patcher.blackshield_preflight
+w.close = lambda: None        # keep the window alive while testing the Done action
+patcher.new_session = lambda *a, **k: type("S", (), {"finalize": lambda self: None})()
+patcher.inject_blackshield = lambda sess, log=print: (
+    _inject_calls.append(1) or {"ok": True, "applied": 1, "skipped": 0,
+                               "errors": [], "detail": "smoke"})
+_accept_badge = w.pages[3].section.picker.accept_badge
 try:
+    check("accept badge hidden before selecting Black Shield",
+          _accept_badge.text() == "接纳" and not _accept_badge.isVisible())
     patcher.blackshield_preflight = lambda *a, **k: {
         "exists": False, "parse_ok": False, "path": "smoke://none",
         "reason": "save_not_found"}
     QTest.mouseClick(bs, Qt.MouseButton.LeftButton)
-    check("no save: offer card reverts to unchecked", not bs.isChecked())
-    check("no save: prompted to finish tutorial and return",
-          bool(_notices) and _notices[-1][0] == "还没有存档"
+    check("card click only toggles selection and shows ACCEPT badge",
+          bs.isChecked() and _accept_badge.isVisible() and not _inject_calls)
+    QTest.mouseClick(w.next_btn, Qt.MouseButton.LeftButton)
+    check("no save on Done: card reverts and user is prompted",
+          not bs.isChecked() and not _accept_badge.isVisible() and not _inject_calls
+          and bool(_notices) and _notices[-1][0] == "还没有存档"
           and "打完教程" in _notices[-1][1])
     patcher.blackshield_preflight = lambda *a, **k: {
         "exists": True, "parse_ok": True, "path": "smoke://save"}
-    _orig_new, _orig_inject = patcher.new_session, patcher.inject_blackshield
-    patcher.new_session = lambda *a, **k: type(
-        "S", (), {"finalize": lambda self: None})()
-    patcher.inject_blackshield = lambda sess, log=print: {
-        "ok": True, "applied": 1, "skipped": 0, "errors": [], "detail": "smoke"}
-    try:
-        QTest.mouseClick(bs, Qt.MouseButton.LeftButton)
-        check("save present: injection succeeds, offer card locked",
-              bs.isChecked() and bs._locked
-              and "黑盾已加入存档" in w.pages[3].log.toPlainText())
-        QTest.mouseClick(bs, Qt.MouseButton.LeftButton)
-        check("after injection offer card locked, click no longer toggles", bs.isChecked())
-    finally:
-        patcher.new_session, patcher.inject_blackshield = _orig_new, _orig_inject
+    QTest.mouseClick(bs, Qt.MouseButton.LeftButton)
+    check("card toggles back on without injecting",
+          bs.isChecked() and _accept_badge.isVisible() and not _inject_calls)
+    QTest.mouseClick(w.next_btn, Qt.MouseButton.LeftButton)
+    check("save present on Done: injection runs once and card locks",
+          len(_inject_calls) == 1 and bs.isChecked() and bs._locked
+          and "黑盾已加入存档" in w.pages[3].log.toPlainText())
 finally:
     patcher.blackshield_preflight = _orig_pre
+    patcher.new_session, patcher.inject_blackshield = _orig_new, _orig_inject
     m.NoticeDialog = _orig_notice
+    w.close = _orig_close
+
+_apply_ops_src = inspect.getsource(patcher._save_inject().apply_ops)
+check("save writeback verifies logical unit IDs, not raw record headers",
+      "新增单位编号" in _apply_ops_src and "整体单位记录数" not in _apply_ops_src)
 
 print("SMOKE PASS: %d/%d" % (len(PASS), len(PASS)))
 for name in PASS:

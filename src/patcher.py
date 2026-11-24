@@ -460,6 +460,31 @@ def pre_restore_selected(root, rels, log=print) -> dict:
     return res
 
 
+def check_originals(root, entries, log=print) -> dict:
+    """Once, at the start of the whole install: verify each target is the pristine original.
+
+    Packages run in sequence, so this is the only point where the targets are still untouched;
+    every later step no longer re-checks src_sha256. Mismatches are reported for the log and
+    do not block the install.
+    """
+    root = pathlib.Path(root)
+    res = {"ok": True, "checked": 0, "matched": 0, "mismatched": [], "errors": []}
+    for rel, src in entries:
+        dst = safe_join(root, rel)
+        if not dst.is_file():
+            res["errors"].append(f"{rel}: missing")
+            continue
+        cur = sha256_file(dst)
+        res["checked"] += 1
+        if cur == src:
+            res["matched"] += 1
+        else:
+            res["mismatched"].append(rel)
+    log(f"[originals] checked={res['checked']} matched={res['matched']} "
+        f"mismatched={len(res['mismatched'])}")
+    return res
+
+
 def apply_manifest_package(root, pkg_dir, session: Session, log=print) -> dict:
     """Deploy one patch package according to the entries in manifest.json."""
     root = pathlib.Path(root)
@@ -483,15 +508,14 @@ def apply_manifest_package(root, pkg_dir, session: Session, log=print) -> dict:
         try:
             from zhgen import asset_recipes
             content = root / "deathwatchgame" / "Content"
+            # No whole-file src_sha256 gate: packages run in sequence, so a target may already be
+            # modified by an earlier package (e.g. the Chinese text layer). Each edit verifies its own
+            # old value / prefix instead of demanding the file be the pristine original.
             for e in entries:
                 rel = e.get("relative_path")
                 dst = safe_join(root, rel)
                 if not dst.is_file():
                     raise FileNotFoundError(f"target file missing: {dst}")
-                cur = sha256_file(dst)
-                expect = e.get("src_sha256")
-                if expect and cur != expect:
-                    raise RuntimeError("target file is not the expected original (recipe requires pre-restore first)")
             outs = asset_recipes.compute_package(content, meta)
             for e in entries:
                 rel = e.get("relative_path")
@@ -523,8 +547,6 @@ def apply_manifest_package(root, pkg_dir, session: Session, log=print) -> dict:
             dst = safe_join(root, rel)
             want = e.get("dst_sha256")
             already_fixed = e.get("already_fixed_sha256") or []
-            expect_src = e.get("src_sha256")
-            acceptable = e.get("acceptable_src_sha256") or []
             transform = e.get("transform")
             if transform:
                 # Only equal-length transforms are shipped; the installer payload contains no full locres.
@@ -537,8 +559,6 @@ def apply_manifest_package(root, pkg_dir, session: Session, log=print) -> dict:
                 if cur in already_fixed:
                     res["skipped"] += 1
                     continue
-                if expect_src and cur != expect_src and cur not in acceptable:
-                    raise RuntimeError("target file is not the expected original (src_sha256 mismatch)")
                 out = apply_equal_length_transform(dst.read_bytes(), transform)
                 if want and sha256_bytes(out) != want:
                     raise RuntimeError("post-transform hash mismatch")
@@ -562,9 +582,6 @@ def apply_manifest_package(root, pkg_dir, session: Session, log=print) -> dict:
                 # so treat it as already fixed and do not write English back.
                 res["skipped"] += 1
                 continue
-            cur = sha256_file(dst) if dst.is_file() else None
-            if dst.is_file() and expect_src and cur != expect_src and cur not in acceptable:
-                raise RuntimeError("target file is not the expected original (src_sha256 mismatch)")
             if dst.is_file():
                 session.backup(dst)
             else:
@@ -628,8 +645,6 @@ def apply_camera_patch(root, rules_path, session: Session, log=print) -> dict:
             if cur == t["dst_sha256"]:
                 res["skipped"] += 1
                 continue
-            if cur != t["src_sha256"]:
-                raise RuntimeError(f"version mismatch (sha={cur[:12]}…), refusing forced change")
             buf = bytearray(p.read_bytes())
             for r in t["rules"]:
                 off = int(r["offset"], 16)

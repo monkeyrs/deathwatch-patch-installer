@@ -14,7 +14,7 @@
    "src_sha256": "5124ad5a4bc79d5513f376b9a69029611b1716fa022e3b3257bebd8c3183ef95",
    "dst_sha256": "42cefb01241a9775ae7a8ae2de8c6f58b2d8e35b6419218bd8cd94b52a2ef221",
    "size": 148226,
-   "hypothesis": "集成显卡档：底座免费清晰度 + 入门阴影 + 基础光效 + 提亮；渲染率 100%、无 AO、无超采样、MSAA/PPAA 不动（原版 4），全部为低成本项。",
+   "hypothesis": "Integrated GPU tier: free clarity pass, entry-level shadows, basic lighting and brightening. Render scale 100%, no AO, no supersampling, MSAA/PPAA unchanged (vanilla 4). All settings are low-cost.",
    "recalc": "python \"steam patching/patches/visual_enhance/build_tiers.py\" --check",
    "acceptable_src_sha256": [
     "09aa96b5b2919703643c100d2bb9a115d77f2a288ced2d5a74729966256963e9",

@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""真实安装器构建（含全部载荷）。与 Demo spec 的唯一区别：随包 app/payload 且不写 demo_mode.txt。
+"""Real installer build (full payload). Unlike the demo spec, it ships app/payload and writes no demo_mode.txt.
 
-Payload: 8 bugfix packages + 3 visual tiers + weapon skills + balance r22
+Payload: 8 bugfix packages + 3 visual tiers + weapon skills + balance r30
 + zh_runtime.json (generated at install) + camera_rules.json (equal-length camera edits).
 All source paths are absolutized via SPECPATH: PyInstaller resolves datas/pathex relative to the CWD.
 """
@@ -43,8 +43,8 @@ a = Analysis(
     noarchive=False, optimize=0,
 )
 
-# 方案 A：保留 PySide6/Qt，但裁掉当前 Qt Widgets UI 未用到的 Qt 模块/插件。
-# 只按归档目标路径过滤，不碰 app/payload 资源。
+# Option A: keep PySide6/Qt but prune modules and plugins unused by the current Qt Widgets UI.
+# Filter only archive target paths; app/payload resources are untouched.
 _EXCLUDE_PREFIXES = (
     "pyside6/opengl32sw.dll",
     "pyside6/qt6quick.dll", "pyside6/qtquick.pyd",

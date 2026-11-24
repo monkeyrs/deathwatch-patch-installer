@@ -137,10 +137,13 @@
         "en": "Weapon Balance Patch"
       },
       "desc": {
-        "zh": "爱好者武器平衡数值调整，含三件战团 T2 专属武器的授予技能（不改战士；默认不勾选，点卡查看说明）。",
-        "en": "Fan-made weapon balance tweaks, including granted skills for three T2 chapter weapons (no marine changes; unchecked by default, click for details)."
+        "zh": "武器平衡数值调整，含三件战团 T2 专属武器的授予技能；已实机验证，不改战士。默认不勾选，点卡查看说明。",
+        "en": "Verified weapon balance tweaks, including granted skills for three T2 chapter weapons; no marine changes. Unchecked by default, click for details."
       },
-      "packages": ["balance_user_r27", "weapon_skills_v1"],
+      "packages": [
+        "balance_user_r30",
+        "weapon_skills_v1"
+      ],
       "detail_doc": {
         "zh": "balance_list_zh.md",
         "en": "balance_list_en.md"
@@ -152,8 +155,8 @@
       "reversible": true,
       "warning_modal": true,
       "warning": {
-        "zh": "注意：这是爱好者基于对游戏机制理解做的武器调整，非官方改动。\n数值为等字节修改；另含三件战团 T2 武器的原版授予技能（整文件替换 6 个模板资产）。逐文件备份可回滚；不改动 exe 与启动校验组件。",
-        "en": "Note: fan-made weapon tweaks based on a hobbyist understanding of the mechanics, not an official change.\nStats use equal-byte edits; the three T2 chapter weapons also gain original-game granted skills (six full-file template replacements). Per-file backup and rollback; no exe or boot/DRM component is touched."
+        "zh": "注意：数值调整与授予技能均已实机验证。\n数值为等字节修改；三件战团 T2 武器另含原版授予技能（6 个模板资产整文件替换）。逐文件备份可回滚；不改动 exe 与启动校验组件。",
+        "en": "Note: stat changes and granted skills have been verified in game.\nStats use equal-byte edits; the three T2 chapter weapons also gain original-game granted skills (six full-file template replacements). Per-file backup and rollback; no exe or boot/DRM component is touched."
       }
     },
     {
@@ -178,12 +181,12 @@
       "id": "bonus_blackshield",
       "bonus": true,
       "name": {
-        "zh": "插入一名黑盾",
-        "en": "Add a Black Shield"
+        "zh": "黑盾入队",
+        "en": "Black Shield joins"
       },
       "desc": {
-        "zh": "接收一名黑盾（可能是堕天使）加入你的守望要塞。",
-        "en": "A Black Shield (possibly a Fallen Angel) joins your fortress."
+        "zh": "你的守望前哨站之外，出现了一名绿色肩甲的星际战士。\n你向暗黑天使询问。对方称战团查无此人。语气里有一丝愤怒。\n你是否要接纳他，成为一名黑盾？",
+        "en": "Beyond your Watch outpost stands a Space Marine with a green pauldron.\nYou ask the Dark Angels about him. They say no such brother exists, and there is an edge of anger in their voice.\nWill you take him in as a Black Shield?"
       },
       "packages": [],
       "default_checked": false,
@@ -191,8 +194,8 @@
       "reversible": true,
       "save_check": "dw_metagame.save",
       "warning": {
-        "zh": "注意：作用于你的存档。注入前会自动备份；但还原存档会丢失注入之后的游玩进度。",
-        "en": "Note: modifies your save. A backup is made first; restoring the save loses any progress made after injection."
+        "zh": "先备份存档；还原会抹掉这次招募之后的进度。",
+        "en": "Backs up the save first; restoring loses progress after recruitment."
       }
     }
   ]

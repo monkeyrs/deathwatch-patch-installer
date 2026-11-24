@@ -1328,14 +1328,25 @@ def apply_ops(b: bytes, ops: list[dict]) -> tuple[bytes, list[dict]]:
         if len(hits) != 1 or hits[0]["value"] != want:
             problems.append(f"NumUnopenedPacks 期望 {want} 实得 "
                             f"{[h['value'] for h in hits]}")
-    # ---- overall parseability: unit count = before + number of add-unit ops (other ops must not change it) ----
+    # ---- overall parseability: logical unit IDs, not raw record headers ----
+    # An add-unit operation writes one named MarineList record plus, in saves that carry mission
+    # replicas, one empty B mirror with the same unit ID. Counting raw headers would report +2 for
+    # a single logical recruit; compare ID sets instead and require at least one named A record.
     try:
-        n_before = len(SA.parse_units(b))
-        n_after = len(SA.parse_units(out))
+        units_before = SA.parse_units(b)
+        units_after = SA.parse_units(out)
+        ids_before = {u.get("unit") for u in units_before}
+        ids_after = {u.get("unit") for u in units_after}
+        new_ids = sorted(ids_after - ids_before, key=lambda x: (x is None, x))
         n_add = sum(1 for o in ops if o.get("op") == "add-unit")
-        if n_after != n_before + n_add:
-            problems.append(f"整体单位记录数 {n_before} -> {n_after}"
-                            f"（期望 {n_before + n_add}），存档结构可能已损坏")
+        if len(new_ids) != n_add:
+            problems.append(f"新增单位编号 {len(new_ids)}（{new_ids}）"
+                            f"与 add-unit 次数 {n_add} 不一致")
+        if ids_before - ids_after:
+            problems.append(f"原有单位编号丢失：{sorted(ids_before - ids_after)}")
+        for uid in new_ids:
+            if not any(u.get("unit") == uid and u.get("UnitName") for u in units_after):
+                problems.append(f"新单位 {uid} 缺少具名记录")
         SGP.parse_props(out)
     except Exception as e:
         problems.append(f"整体解析抛异常：{e}")

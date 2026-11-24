@@ -1,183 +1,183 @@
 {
- "built_utc": "2026-11-23T13:52:06Z",
- "packages": [
-  {
-   "id": "bugfix_parry",
-   "kind": "bugfix",
-   "files": [
+  "built_utc": "2026-11-24T15:42:48Z",
+  "packages": [
     {
-     "rel": "manifest.json",
-     "sha256": "c0e65c5d5f0c8bdae73b2cff791c59d41186c03981dd127e99ef4da9cbb15d03",
-     "size": 1651
-    }
-   ]
-  },
-  {
-   "id": "bugfix_wargear_material",
-   "kind": "bugfix",
-   "files": [
-    {
-     "rel": "manifest.json",
-     "sha256": "d547c2f5f0cc25d19f2598c211b72727267921c6fa39d72937cb809f920bb0a3",
-     "size": 3024
-    }
-   ]
-  },
-  {
-   "id": "bugfix_chapter_icons",
-   "kind": "bugfix",
-   "files": [
-    {
-     "rel": "manifest.json",
-     "sha256": "7c6233e675b0b1edc82306056fa27ebda1f66eaef30f1ced508feaec51cf684d",
-     "size": 1988
-    }
-   ]
-  },
-  {
-   "id": "bugfix_alacrity_ap",
-   "kind": "bugfix",
-   "files": [
-    {
-     "rel": "manifest.json",
-     "sha256": "f6587672082946aa95da90ae001d6735e0c346bd36cbe44634e7e7f2114b6a20",
-     "size": 2226
-    }
-   ]
-  },
-  {
-   "id": "bugfix_alacrity_maxap",
-   "kind": "bugfix",
-   "files": [
-    {
-     "rel": "manifest.json",
-     "sha256": "0996b0a533163b17bb74fb42ddd8d5c4c222cb58d8d3d4743fb849f6c6d1d639",
-     "size": 2092
-    }
-   ]
-  },
-  {
-   "id": "bugfix_praetorian_mitigation",
-   "kind": "bugfix",
-   "files": [
-    {
-     "rel": "manifest.json",
-     "sha256": "ebe536c6863907e22dccee92d1ed77ea3e96e9f216c18d43f01e36293418ddb1",
-     "size": 1785
-    }
-   ]
-  },
-  {
-   "id": "bugfix_crippling_shot_desc",
-   "kind": "bugfix",
-   "files": [
-    {
-     "rel": "manifest.json",
-     "sha256": "c7dc7c70c7560cd97d824e593e7ce6c767c324e9c4af01b2a4fd7bf53e0f1d03",
-     "size": 2636
-    }
-   ]
-  },
-  {
-   "id": "bugfix_if_heavybolter_emissive",
-   "kind": "bugfix",
-   "files": [
-    {
-     "rel": "assets/deathwatchgame/Content/Wargear/HeavyBolters/HeavyBolter_T2/MI_T2_HeavyBolter_IF.uasset",
-     "sha256": "43fc6716e76b20b251e5a70ea6890e7045d36ff30de66c59d31f6460cc9fa5d6",
-     "size": 2327
+      "id": "bugfix_parry",
+      "kind": "bugfix",
+      "files": [
+        {
+          "rel": "manifest.json",
+          "sha256": "2dc63b10b59876ec71a724b0d780e514ec44eda385eafdbb97a050cbb9396289",
+          "size": 1622
+        }
+      ]
     },
     {
-     "rel": "manifest.json",
-     "sha256": "353fc3ed9908b952042ebdc4bc3b04679e3690fafee84d75510287736f1d3247",
-     "size": 1668
-    }
-   ]
-  },
-  {
-   "id": "tier_igpu",
-   "kind": "visual",
-   "files": [
-    {
-     "rel": "manifest.json",
-     "sha256": "dfe1345b0f99118f54b55be2cc6ad4fcf772145f38dd7f8de1f72afeaf1c49f5",
-     "size": 1587
-    }
-   ]
-  },
-  {
-   "id": "tier_dgpu",
-   "kind": "visual",
-   "files": [
-    {
-     "rel": "manifest.json",
-     "sha256": "2759f9f5911126a53336db55d49cf15d51e823cd76a118c007ce1f5a46db4181",
-     "size": 1615
-    }
-   ]
-  },
-  {
-   "id": "tier_max",
-   "kind": "visual",
-   "files": [
-    {
-     "rel": "manifest.json",
-     "sha256": "dc434d793f1bce5f45495c06e5349134b6b37746d65010d47976f25a111c6ae4",
-     "size": 1628
-    }
-   ]
-  },
-  {
-   "id": "balance_user_r27",
-   "kind": "balance",
-   "files": [
-    {
-     "rel": "manifest.json",
-     "sha256": "4f28f6d96fada8c2d91ae338564c6ede6c5478996961bf3cf7e3226ebdacba9c",
-     "size": 61880
-    }
-   ]
-  },
-  {
-   "id": "weapon_skills_v1",
-   "kind": "balance",
-   "files": [
-    {
-     "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WPDT_T2_IF_HeavyBolter.uasset",
-     "sha256": "5b8da691981c787f241106405c8f6e0a3532305843f54668831237a2ea6c7865",
-     "size": 2312
+      "id": "bugfix_wargear_material",
+      "kind": "bugfix",
+      "files": [
+        {
+          "rel": "manifest.json",
+          "sha256": "eae9cc092cb348eb6e69621150a7e20cc471e5cb87517b1f3d389d18141ff501",
+          "size": 2917
+        }
+      ]
     },
     {
-     "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WT_T2_IF_HeavyBolter.uasset",
-     "sha256": "0c6d5d825eef117106667bcb34c3289f566d95e608adebb5f0b4193911f50226",
-     "size": 2502
+      "id": "bugfix_chapter_icons",
+      "kind": "bugfix",
+      "files": [
+        {
+          "rel": "manifest.json",
+          "sha256": "96d12e9881fa4aebab2b954d87c5d61f7a027150ae83de347fb86a34b2885206",
+          "size": 1949
+        }
+      ]
     },
     {
-     "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/PlasmaGuns/WPDT_T2_DA_PlasmaGun.uasset",
-     "sha256": "3407279abab6168e788fadcf44081b6879ecf73e994a68110760b8daa07c41f7",
-     "size": 2406
+      "id": "bugfix_alacrity_ap",
+      "kind": "bugfix",
+      "files": [
+        {
+          "rel": "manifest.json",
+          "sha256": "423881c9291d4f493bbde28c355454aab0c0bdd8c508e107d85577ad1adca1ba",
+          "size": 2187
+        }
+      ]
     },
     {
-     "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/PlasmaGuns/WT_T2_DA_PlasmaGun.uasset",
-     "sha256": "d6327d7f0e97bbdfefe2e66ec2cf6347f9c24f326943fe97487e570b40bdb8ce",
-     "size": 2240
+      "id": "bugfix_alacrity_maxap",
+      "kind": "bugfix",
+      "files": [
+        {
+          "rel": "manifest.json",
+          "sha256": "78b43c1f235214db6a200ee6367fd9de84257c3c775afa22b54e5979ebd0d941",
+          "size": 2044
+        }
+      ]
     },
     {
-     "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/Powerswords/WPDT_T2_BT_Powersword.uasset",
-     "sha256": "86cd8da602b2a7d6cb46e6aeae9700be4292aa1ae38e8ce276694b19a8ffbe2c",
-     "size": 2306
+      "id": "bugfix_praetorian_mitigation",
+      "kind": "bugfix",
+      "files": [
+        {
+          "rel": "manifest.json",
+          "sha256": "ed2658c2ce6cc9c42688627d984582e62fbf914c0fd1d99c2342786657d138e5",
+          "size": 1762
+        }
+      ]
     },
     {
-     "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/Powerswords/WT_T2_BT_Powersword.uasset",
-     "sha256": "d69067bb7f0d7587038528c1f766875817bb6efd4fee2bf0b2c4c5174617ce77",
-     "size": 2324
+      "id": "bugfix_crippling_shot_desc",
+      "kind": "bugfix",
+      "files": [
+        {
+          "rel": "manifest.json",
+          "sha256": "7a743362f2c96b4579fbd285a1eeee7b2134e5ffd355e14e3be4fafdef3bcbe8",
+          "size": 2590
+        }
+      ]
     },
     {
-     "rel": "manifest.json",
-     "sha256": "443ba27b4a54bd1bf6f82964c6fb37a1693122e97162f1ea98765e5609174470",
-     "size": 2094
+      "id": "bugfix_if_heavybolter_emissive",
+      "kind": "bugfix",
+      "files": [
+        {
+          "rel": "assets/deathwatchgame/Content/Wargear/HeavyBolters/HeavyBolter_T2/MI_T2_HeavyBolter_IF.uasset",
+          "sha256": "43fc6716e76b20b251e5a70ea6890e7045d36ff30de66c59d31f6460cc9fa5d6",
+          "size": 2327
+        },
+        {
+          "rel": "manifest.json",
+          "sha256": "20c0012c94d8e1ef093ea2811cf1ee3c756950345f48088ef1541538e9cd8288",
+          "size": 1638
+        }
+      ]
+    },
+    {
+      "id": "tier_igpu",
+      "kind": "visual",
+      "files": [
+        {
+          "rel": "manifest.json",
+          "sha256": "636f0d50519815b06f88297d9837c1d19e4942921d9888b2598328a05d3fb397",
+          "size": 1606
+        }
+      ]
+    },
+    {
+      "id": "tier_dgpu",
+      "kind": "visual",
+      "files": [
+        {
+          "rel": "manifest.json",
+          "sha256": "93eb242c61112036fa2306fe00c99003d41520b9ab157a8eb82539b8f345e7e8",
+          "size": 1615
+        }
+      ]
+    },
+    {
+      "id": "tier_max",
+      "kind": "visual",
+      "files": [
+        {
+          "rel": "manifest.json",
+          "sha256": "df48d3268e5103eca04c462d37fdc5193d7be0e1c7e0c1a18a4005a7056f4371",
+          "size": 1667
+        }
+      ]
+    },
+    {
+      "id": "balance_user_r30",
+      "kind": "balance",
+      "files": [
+        {
+          "rel": "manifest.json",
+          "sha256": "4b62f4ff8ad194afe5dabef71e4bfd1dd22266faa0fe05c84544dea5483fc7bb",
+          "size": 26906
+        }
+      ]
+    },
+    {
+      "id": "weapon_skills_v1",
+      "kind": "balance",
+      "files": [
+        {
+          "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WPDT_T2_IF_HeavyBolter.uasset",
+          "sha256": "5b8da691981c787f241106405c8f6e0a3532305843f54668831237a2ea6c7865",
+          "size": 2312
+        },
+        {
+          "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/HeavyBolters/WT_T2_IF_HeavyBolter.uasset",
+          "sha256": "0c6d5d825eef117106667bcb34c3289f566d95e608adebb5f0b4193911f50226",
+          "size": 2502
+        },
+        {
+          "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/PlasmaGuns/WPDT_T2_DA_PlasmaGun.uasset",
+          "sha256": "3407279abab6168e788fadcf44081b6879ecf73e994a68110760b8daa07c41f7",
+          "size": 2406
+        },
+        {
+          "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/PlasmaGuns/WT_T2_DA_PlasmaGun.uasset",
+          "sha256": "d6327d7f0e97bbdfefe2e66ec2cf6347f9c24f326943fe97487e570b40bdb8ce",
+          "size": 2240
+        },
+        {
+          "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/Powerswords/WPDT_T2_BT_Powersword.uasset",
+          "sha256": "86cd8da602b2a7d6cb46e6aeae9700be4292aa1ae38e8ce276694b19a8ffbe2c",
+          "size": 2306
+        },
+        {
+          "rel": "assets/deathwatchgame/Content/Wargear/WargearTemplates/Powerswords/WT_T2_BT_Powersword.uasset",
+          "sha256": "d69067bb7f0d7587038528c1f766875817bb6efd4fee2bf0b2c4c5174617ce77",
+          "size": 2324
+        },
+        {
+          "rel": "manifest.json",
+          "sha256": "443ba27b4a54bd1bf6f82964c6fb37a1693122e97162f1ea98765e5609174470",
+          "size": 2094
+        }
+      ]
     }
-   ]
-  }
- ]
+  ]
 }

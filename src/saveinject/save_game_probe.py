@@ -46,9 +46,11 @@ import struct
 import re
 import sys
 
-# bundled sample (a real meta-game save)
-SAMPLE = os.path.expandvars(
-    r"C:\Users\9600ES\AppData\Local\DeathwatchGame\Saved\SaveGames\dw_metagame.save")
+# Bundled sample (a real meta-game save). Resolved under the current user's profile so
+# no personal or machine-specific path is hard-coded; override with DW_SAVE_SAMPLE.
+SAMPLE = os.path.expandvars(os.environ.get(
+    "DW_SAVE_SAMPLE",
+    os.path.expanduser(r"~\AppData\Local\DeathwatchGame\Saved\SaveGames\dw_metagame.save")))
 
 OBJ_RE = (b"UnitMetagameInstance_", b"AbilityMetagameInstance_",
           b"WargearMetagameInstance_", b"GameInst_Metagame")

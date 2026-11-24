@@ -251,6 +251,18 @@ class SelectableCard(CardWidget):
         return self._normalBackgroundColor()
 
 
+class DetailLinkLabel(QLabel):
+    """Rich-text detail link that keeps its clicks local so the parent tile is not toggled."""
+
+    def mousePressEvent(self, e):
+        super().mousePressEvent(e)
+        e.accept()          # Stop the press from reaching the parent selection card.
+
+    def mouseReleaseEvent(self, e):
+        super().mouseReleaseEvent(e)
+        e.accept()          # Stop the release from emitting CardWidget.clicked on the parent.
+
+
 class SegmentButton(QWidget):
     """A single button in a segmented control: fully clickable, modern rounded pill, no tiny radio dot."""
 
@@ -412,7 +424,7 @@ class FeatureCard(SelectableCard):
         # Put the detail link in the title row (same spot as the DIY badge) instead of taking a whole bottom row.
         self.detail_link = None
         if feat.get("detail_doc") or feat.get("detail_link_key"):
-            self.detail_link = QLabel()
+            self.detail_link = DetailLinkLabel()
             self.detail_link.setTextFormat(Qt.TextFormat.RichText)
             self.detail_link.setOpenExternalLinks(False)
             self.detail_link.setTextInteractionFlags(
@@ -521,6 +533,12 @@ class FeatureCard(SelectableCard):
 
     def mousePressEvent(self, e):
         if self._locked:
+            return
+        # A click on the title-row "details" link opens its dialog only; it must not toggle the tile.
+        child = self.childAt(e.position().toPoint())
+        if self.detail_link is not None and child is not None and (
+                child is self.detail_link or self.detail_link.isAncestorOf(child)):
+            super().mousePressEvent(e)
             return
         if e.button() == Qt.MouseButton.LeftButton and self._enabled:
             self.setChecked(not self._selected, emit=True)
@@ -861,6 +879,14 @@ class BonusPicker(QWidget):
         lay.setContentsMargins(0, 0, 0, 0)
         lay.setSpacing(4)
         self.title = SubtitleLabel()
+        self.accept_badge = CaptionLabel("接纳")
+        self.accept_badge.setTextColor(RED, RED)
+        self.accept_badge.setVisible(False)
+        title_row = QHBoxLayout()
+        title_row.setContentsMargins(0, 0, 0, 0)
+        title_row.addWidget(self.title)
+        title_row.addStretch(1)
+        title_row.addWidget(self.accept_badge)
         self.hint = CaptionLabel()
         self.hint.setWordWrap(True)
         self.available = True
@@ -870,9 +896,10 @@ class BonusPicker(QWidget):
         self.cards = {}
         for feat in BONUS:
             card = FeatureCard(feat)
+            card.toggled.connect(self._sync_accept_badge)
             self.cards[feat["id"]] = card
             self.flow.addWidget(card)
-        lay.addWidget(self.title)
+        lay.addLayout(title_row)
         lay.addWidget(self.hint)
         lay.addWidget(host)
 
@@ -882,6 +909,9 @@ class BonusPicker(QWidget):
 
     def selected(self):
         return [f["id"] for f in BONUS if self.cards[f["id"]].isChecked()]
+
+    def _sync_accept_badge(self, _checked=False):
+        self.accept_badge.setVisible(any(c.isChecked() for c in self.cards.values()))
 
     def apply_defaults(self):
         for feat in BONUS:
@@ -901,6 +931,7 @@ class BonusPicker(QWidget):
     def retranslate(self):
         lang = self.win.lang
         self.title.setText(t("bonus_title", lang))
+        self.accept_badge.setText(t("bonus_accept_badge", lang))
         self.hint.setText(t("bonus_hint" if self.available
                             else "bonus_hint_restore", lang))
         for feat in BONUS:
@@ -910,6 +941,40 @@ class BonusPicker(QWidget):
             if card.warn is not None:
                 card.warn.setText(feat["warning"][lang])
             card._sync_state()
+        self._sync_accept_badge()
+
+
+class RestoreNoticeOverlay(QWidget):
+    """Semi-transparent mask over the feature grid in restore mode.
+
+    Restoring reverts every change back to the original build, so the selection tiles are
+    inert here; the mask states that and tells the user how to keep some patches instead.
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._text = ""
+        # Receive mouse events so the mask blocks clicks on the tiles beneath it.
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
+
+    def set_text(self, text):
+        self._text = text
+        self.update()
+
+    def paintEvent(self, e):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        p.fillRect(self.rect(), QColor(0, 0, 0, 128))          # 50% transparent black
+        p.setPen(QColor(255, 255, 255, 128))                  # white at 50%
+        # Use the page title's font (the largest on the page) and align the notice to the bottom.
+        title = getattr(self.parentWidget(), "title", None)
+        f = QFont(title.font() if title is not None else self.font())
+        f.setBold(True)
+        p.setFont(f)
+        p.drawText(self.rect().adjusted(48, 0, -48, -24),
+                   Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
+                   self._text)
+        p.end()
 
 
 class FeaturesPage(Page):
@@ -939,6 +1004,9 @@ class FeaturesPage(Page):
         host_lay.addStretch(1)
         self.scroll.setWidget(host)
         self.lay.addWidget(self.scroll, 1)
+        # Restore mode masks the selection grid (all-or-nothing) and blocks clicks on the tiles.
+        self.restore_overlay = RestoreNoticeOverlay(self)
+        self.restore_overlay.hide()
         # Clicking a tile only toggles selection; details always go through the title-row link, and the
         # dialog never toggles selection back.
         self._uniform_h = 0
@@ -951,6 +1019,7 @@ class FeaturesPage(Page):
     def resizeEvent(self, e):
         super().resizeEvent(e)
         self.sync_card_widths()
+        self.sync_restore_mode()
 
     def sync_card_widths(self):
         """Split width evenly across 2–3 columns; all cards share one size, styled after the balance card.
@@ -980,6 +1049,18 @@ class FeaturesPage(Page):
 
     def on_enter(self):
         self.sync_card_widths()
+        self.sync_restore_mode()
+
+    def sync_restore_mode(self):
+        """Show/hide the restore mask over the grid and refresh its text for the current language."""
+        restore = self.win.mode == "restore"
+        if restore:
+            self.restore_overlay.set_text(t("restore_notice", self.win.lang))
+            self.restore_overlay.setGeometry(self.scroll.geometry())
+            self.restore_overlay.show()
+            self.restore_overlay.raise_()
+        else:
+            self.restore_overlay.hide()
 
     def apply_defaults(self):
         zh = self.win.lang == "zh"
@@ -1019,6 +1100,7 @@ class FeaturesPage(Page):
             card.sync_variants(lang)
             card.set_lang(lang)
             card._sync_state()
+        self.sync_restore_mode()
 
 
 class BonusAuthorSection(QWidget):
@@ -1107,9 +1189,18 @@ class BonusAuthorSection(QWidget):
         self.author_desc.setText(t("author_desc", lang))
         links = SUPPORT.get("links", [])
         if links:
-            self.links_label.setText("<br>".join(
-                f'<a href="{l["url"]}">{l.get("label_en") if lang == "en" else l["label"]}</a>'
-                for l in links))
+            parts = []
+            for l in links:
+                label = _html.escape(l.get("label_en") if lang == "en" else l["label"])
+                # Ko-fi line in the dark red used by the Black Shield card; GitHub keeps the default link style.
+                if "ko-fi" in (l.get("url") or "").lower():
+                    parts.append(
+                        f'<a href="{l["url"]}" style="color:{RED.name()}; '
+                        f'text-decoration:underline;">{label}</a>')
+                else:
+                    parts.append(f'<a href="{l["url"]}">{label}</a>')
+            # Line break before each link line (GitHub, Ko-fi) for readable separation.
+            self.links_label.setText("<br>" + "<br>".join(parts))
             self.links_label.setVisible(True)
         else:
             self.links_label.setVisible(False)
@@ -1117,8 +1208,9 @@ class BonusAuthorSection(QWidget):
         if not notice.is_file():
             notice = APP_DIR.parent / "THIRD_PARTY_NOTICES.md"
         if notice.is_file():
+            # Line break before the third-party notices line.
             self.notice_link.setText(
-                f'<a href="notices" style="color:#6f6f6f; text-decoration:underline;">'
+                f'<br><a href="notices" style="color:#6f6f6f; text-decoration:underline;">'
                 f'{t("third_party_notices", lang)}</a>')
             self.notice_link.setVisible(True)
         else:
@@ -1126,7 +1218,7 @@ class BonusAuthorSection(QWidget):
 
 
 class DonePage(Page):
-    """Page 4 · Finish: top = results log, bottom = Black Shield contract (click to inject) + about the author."""
+    """Page 4 · Finish: top = results log, bottom = Black Shield recruit (Done applies it) + about the author."""
 
     def __init__(self, win):
         super().__init__(win)
@@ -1249,9 +1341,55 @@ class PatchWorker(QThread):
             rels.discard(patcher.SPLASH_DESC_REL)
         return sorted(r for r in rels if r)
 
+    def _selected_original_entries(self):
+        """(relative_path, src_sha256) pairs for the selected packages, checked once at install start."""
+        entries = []
+
+        def _pkg_entries(pkg_dir):
+            try:
+                doc = json.loads((Path(pkg_dir) / "manifest.json").read_text(encoding="utf-8"))
+            except Exception:
+                return
+            for e in (doc.get("entries") or []):
+                rel, src = e.get("relative_path"), e.get("src_sha256")
+                if rel and src:
+                    entries.append((rel, src))
+
+        for act in self.actions:
+            aid = act.get("id")
+            if aid == "visual":
+                _pkg_entries(PAYLOAD_DIR / "visual" / act.get("variant", ""))
+            elif aid == "bugfix":
+                for pkg in act.get("packages") or []:
+                    _pkg_entries(PAYLOAD_DIR / "bugfix" / pkg)
+            elif aid == "balance":
+                for pkg in act.get("packages") or []:
+                    _pkg_entries(PAYLOAD_DIR / "balance" / pkg)
+            elif aid == "camera":
+                try:
+                    doc = json.loads((APP_DIR / "camera_rules.json").read_text(encoding="utf-8"))
+                    for t in (doc.get("targets") or []):
+                        rel, src = t.get("relative_path"), t.get("src_sha256")
+                        if rel and src:
+                            entries.append((rel, src))
+                except Exception:
+                    pass
+        return entries
+
     def _install(self):
         session = self.session or patcher.new_session(self.root)
         try:
+            # One-time original check at the start of the whole install: packages run in sequence,
+            # so this is the only point where targets are still untouched. Later steps no longer
+            # re-check src_sha256; mismatches are reported, not blocking.
+            orig_entries = self._selected_original_entries()
+            if orig_entries:
+                oc = patcher.check_originals(self.root, orig_entries, log=self.note.emit)
+                if oc["mismatched"]:
+                    self.note.emit(t("log_originals_mismatch", self.lang).format(
+                        n=len(oc["mismatched"])))
+                for e in oc["errors"][:5]:
+                    self.note.emit(e)
             rels = self._selected_rels()
             if rels:
                 pre = patcher.pre_restore_selected(self.root, rels, log=self.note.emit)
@@ -1322,6 +1460,7 @@ class PatchWorker(QThread):
                 self.note.emit(t("log_no_changes", self.lang))
 
     def _restore(self):
+        """Restore is all-or-nothing: revert every changed file back to the original build."""
         r = patcher.restore_all(self.root)
         if not r.get("found"):
             self.note.emit(t("log_restore_none", self.lang))
@@ -1386,8 +1525,6 @@ class InstallerWindow(QWidget):
                       FeaturesPage(self), DonePage(self)]
         for p in self.pages:
             self.stack.addWidget(p)
-        self.pages[3].cards["bonus_blackshield"].clicked.connect(
-            self._on_blackshield_click)
         content_lay.addWidget(self.stack)
         workspace_lay.addWidget(content_surface, 1)
 
@@ -1451,7 +1588,9 @@ class InstallerWindow(QWidget):
         if i == 2:                      # Features page: the bottom-right button runs the installer.
             self.run_patch()
             return
-        if i == len(self.pages) - 1:    # Finish page: close.
+        if i == len(self.pages) - 1:    # Finish page: recruit the selected bonus, then close.
+            if self.pages[3].cards["bonus_blackshield"].isChecked():
+                self._on_blackshield_click()
             self.close()
             return
         self.goto(i + 1)
@@ -1539,22 +1678,26 @@ class InstallerWindow(QWidget):
         self.goto(len(self.pages) - 1)
 
     def _on_blackshield_click(self):
-        """Black Shield contract on the finish page: check the save first; if missing or unreadable, ask the user to try later."""
+        """Recruit the selected Black Shield when Done is pressed: check the save first, then inject."""
         card = self.pages[3].cards["bonus_blackshield"]
+        picker = self.pages[3].section.picker
         if self.mode == "restore":
             card.setChecked(False, emit=False)
+            picker._sync_accept_badge()
             return
         if not card.isChecked():
             return
         pre = patcher.blackshield_preflight()
         if not pre.get("exists") or not pre.get("parse_ok"):
             card.setChecked(False, emit=False)
+            picker._sync_accept_badge()
             NoticeDialog(self, t("bs_nosave_title", self.lang),
                          t("bs_nosave_body", self.lang)).exec()
             return
         root = getattr(self.pages[1], "root", None)
         if root is None:
             card.setChecked(False, emit=False)
+            picker._sync_accept_badge()
             return
         # Reuse this install's session: a separate Black Shield save backup would create a "newest empty
         # session" and hide the real install backup from the restore index.
@@ -1574,6 +1717,7 @@ class InstallerWindow(QWidget):
             card.set_locked(True)
         else:
             card.setChecked(False, emit=False)
+            picker._sync_accept_badge()
             NoticeDialog(self, t("bs_fail_title", self.lang),
                          t("log_save_failed", self.lang).format(
                              err="; ".join(r.get("errors") or ["?"]))).exec()
@@ -1599,6 +1743,8 @@ class InstallerWindow(QWidget):
         self._apply_accent()
         self.pages[1].validate()
         self.pages[3].set_bonus_available(mode != "restore")
+        # Restore is all-or-nothing: mask the feature grid so the tiles are not chosen.
+        self.pages[2].sync_restore_mode()
         self.rail.update_state(self.current(), self.accent)
         self.refresh_nav()
 

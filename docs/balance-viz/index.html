@@ -41,16 +41,16 @@
 <div class="wrap">
 <header>
   <div>
-    <h1><span class="zh">武器平衡 · 原版 / r22</span><span class="en">Weapon Balance · Vanilla / r22</span></h1>
-    <p class="lede"><span class="zh">19 个武器族、93 件武器，84 个数值槽纳入 r22。所有值按 <code>final = base + step × delta</code> 现场计算；最大偏差 4.69%。</span><span class="en">19 weapon families, 93 weapons, and 84 value slots in r22. Every value is computed as <code>final = base + step × delta</code>; maximum deviation 4.69%.</span></p>
+    <h1><span class="zh">武器平衡 · 原版 / r30</span><span class="en">Weapon Balance · Vanilla / r30</span></h1>
+    <p class="lede"><span class="zh">19 个武器族、93 件武器，44 处逐件 delta + 45 处族级 base/step 编辑纳入 r30。所有值按 <code>final = base + step × delta</code> 现场计算；最大终值偏差 0.00%。</span><span class="en">19 weapon families, 93 weapons, 44 per-item delta edits and 45 family base/step edits in r30. Every value is computed as <code>final = base + step × delta</code>; maximum deviation 0.00%.</span></p>
   </div>
   <div class="langs"><button id="btn-zh" class="on">中文</button><button id="btn-en">EN</button></div>
 </header>
 
 <div class="kpis">
-  <div><div class="v">84</div><div class="k"><span class="zh">改动槽位</span><span class="en">edited slots</span></div></div>
-  <div><div class="v">4.69%</div><div class="k"><span class="zh">最大终值偏差</span><span class="en">max final-value deviation</span></div></div>
-  <div><div class="v">19/19</div><div class="k"><span class="zh">族内 DPA 单调</span><span class="en">families monotonic</span></div></div>
+  <div><div class="v">44 + 45</div><div class="k"><span class="zh">delta + base/step 编辑</span><span class="en">delta + base/step edits</span></div></div>
+  <div><div class="v">0.00%</div><div class="k"><span class="zh">最大终值偏差</span><span class="en">max final-value deviation</span></div></div>
+  <div><div class="v">14/19</div><div class="k"><span class="zh">族内 DPA 单调</span><span class="en">families monotonic</span></div></div>
 </div>
 
 <section>
@@ -62,7 +62,7 @@
   <h2><span class="zh">图 1 · 四档 DPA 梯度</span><span class="en">Fig. 1 · DPA ladder by tier</span></h2>
   <figure class="fig">
     <img src="images/fig1_ladder.png" alt="DPA ladder">
-    <figcaption><span class="zh">灰线＝原版，墨绿＝r22；空心点与实心点分别为单件真值与族均值。爆弹枪 T2、热熔枪 T2 已恢复正梯度。</span><span class="en">Grey = vanilla, green = r22; hollow and solid dots show individual items and family means. Boltgun T2 and Meltagun T2 now have positive gradients.</span></figcaption>
+    <figcaption><span class="zh">灰线＝原版，墨绿＝r30；空心点与实心点分别为单件真值与族均值。治疗装置/地狱火手枪/热熔枪 T3 已补暴击，多管热熔炮 T3/T4 回调到比原版强约 10%。</span><span class="en">Grey = vanilla, green = r30; hollow and solid dots show individual items and family means. Narthesium / infernus pistol / meltagun T3 gained crit; multi-melta T3/T4 raised to about +10% over vanilla.</span></figcaption>
   </figure>
 </section>
 
@@ -70,7 +70,7 @@
   <h2><span class="zh">图 2 · 手感四象限</span><span class="en">Fig. 2 · Feel quadrants</span></h2>
   <figure class="fig">
     <img src="images/fig10_feel_quadrant.png" alt="Feel quadrants">
-    <figcaption><span class="zh">横轴＝波动指数，纵轴＝灵活指数 <code>√(射程 × 3 / 单发 AP)</code>；实心圆＝新版 T3 模板，空心圆＝原版代表件。</span><span class="en">X = volatility, Y = flexibility <code>√(range × 3 / AP)</code>; filled circles = new T3 templates, hollow circles = vanilla representatives.</span></figcaption>
+    <figcaption><span class="zh">横轴＝波动指数，纵轴＝灵活指数 <code>√(射程 × 3 / 单发 AP)</code>；全部 T3 武器合并到一张图：同一件武器，实心圆＝新版，空心圆＝原版。</span><span class="en">X = volatility, Y = flexibility <code>√(range × 3 / AP)</code>; All T3 weapons in one chart: same weapon, filled = new values, hollow = vanilla values.</span></figcaption>
   </figure>
 </section>
 
